@@ -1,0 +1,25 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pokemon Chat Game Overlay</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="overlay">
+      <div class="panel">
+        <div class="title">Pokemon Chat Game</div>
+        <div id="status" class="status">Waiting for a spawn...</div>
+        <div id="spawn" class="spawn hidden">
+          <div class="label">Spawned Creature</div>
+          <div id="spawn-name" class="spawn-name">Unknown</div>
+          <div class="timer">Time left: <span id="timer">0</span>s</div>
+        </div>
+        <div id="result" class="result hidden"></div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
+

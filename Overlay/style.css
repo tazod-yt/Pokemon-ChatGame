@@ -1,0 +1,101 @@
+﻿:root {
+  --bg1: #0f1b2e;
+  --bg2: #1b3a4b;
+  --accent: #f6c453;
+  --accent-dark: #c9982b;
+  --text: #f5f2e9;
+  --panel: rgba(15, 27, 46, 0.85);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Trebuchet MS", "Candara", "Segoe Print", sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay {
+  width: min(600px, 90vw);
+  animation: fadeIn 0.8s ease;
+}
+
+.panel {
+  background: var(--panel);
+  border: 2px solid var(--accent-dark);
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.status {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.spawn {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.label {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.spawn-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.timer {
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.result {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(246, 196, 83, 0.15);
+  border: 1px solid rgba(246, 196, 83, 0.4);
+  font-size: 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

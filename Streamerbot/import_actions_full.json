@@ -1,0 +1,259 @@
+{
+  "meta": {
+    "name": "Pokemon Chat Game Full Import",
+    "author": "auto-generated",
+    "version": "1.0.0",
+    "description": "Actions + Commands for Pokemon Chat Game",
+    "autoRunAction": null,
+    "minimumVersion": null
+  },
+  "data": {
+    "actions": [
+      {
+        "id": "292079a3-50f9-4681-a9a1-c24ebe1fcdb4",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Spawn",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [
+          {
+            "commandId": "8d1a5079-b109-4224-8085-4c3c92a93cd3",
+            "id": "0d1e9f91-4b05-4bdc-b4a0-42a7f97c5b25",
+            "type": 401,
+            "enabled": true,
+            "exclusions": []
+          }
+        ],
+        "subActions": [
+          {
+            "command": "D:\\Code\\pokemon\\Pokemon ChatGame\\GameEngine\\GameEngine.exe",
+            "arguments": "spawn",
+            "workingDir": "D:\\Code\\pokemon\\Pokemon ChatGame",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "18b94821-bd84-4378-9c9b-0f8b6f8eeabb",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "ed3d32cd-0b0c-4123-9861-63d3cfa9e459",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Catch",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [
+          {
+            "commandId": "55ec6d86-1780-4b70-b29a-fc86dde318c3",
+            "id": "417bea3a-11d8-4494-a715-60d69cca07c2",
+            "type": 401,
+            "enabled": true,
+            "exclusions": []
+          }
+        ],
+        "subActions": [
+          {
+            "command": "D:\\Code\\pokemon\\Pokemon ChatGame\\GameEngine\\GameEngine.exe",
+            "arguments": "catch ${user}",
+            "workingDir": "D:\\Code\\pokemon\\Pokemon ChatGame",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "3ea1983a-ba4f-4e80-9e6f-a08b71632da8",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "62f1347d-8c72-4207-9640-ebdd1884c40f",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Inventory",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [
+          {
+            "commandId": "b3d6643f-e9e8-4228-b40e-ce73e9399e73",
+            "id": "0e006d38-f746-4262-8f57-82d0ea1ee583",
+            "type": 401,
+            "enabled": true,
+            "exclusions": []
+          }
+        ],
+        "subActions": [
+          {
+            "command": "D:\\Code\\pokemon\\Pokemon ChatGame\\GameEngine\\GameEngine.exe",
+            "arguments": "inventory ${user}",
+            "workingDir": "D:\\Code\\pokemon\\Pokemon ChatGame",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "9bfbee25-4793-49cd-af73-5588ce15f29b",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "2da10d83-dd6c-4e17-9ab8-753ed2b0247d",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Battle",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [
+          {
+            "commandId": "f6268f4b-fede-40fc-9887-2e6cf17d5822",
+            "id": "e230ea87-355f-41d5-9aec-6a776f2496db",
+            "type": 401,
+            "enabled": true,
+            "exclusions": []
+          }
+        ],
+        "subActions": [
+          {
+            "command": "D:\\Code\\pokemon\\Pokemon ChatGame\\GameEngine\\GameEngine.exe",
+            "arguments": "battle ${user} ${arg1}",
+            "workingDir": "D:\\Code\\pokemon\\Pokemon ChatGame",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "3d3559c0-bfa1-434e-b76d-b80a2f4be109",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      }
+    ],
+    "queues": [],
+    "commands": [
+      {
+        "permittedUsers": [],
+        "permittedGroups": [],
+        "id": "8d1a5079-b109-4224-8085-4c3c92a93cd3",
+        "name": "spawn",
+        "enabled": true,
+        "include": false,
+        "mode": 0,
+        "command": "!spawn",
+        "regexExplicitCapture": false,
+        "location": 0,
+        "ignoreBotAccount": true,
+        "ignoreInternal": true,
+        "sources": 1024,
+        "persistCounter": false,
+        "persistUserCounter": false,
+        "caseSensitive": false,
+        "globalCooldown": 0,
+        "userCooldown": 0,
+        "group": null,
+        "grantType": 0
+      },
+      {
+        "permittedUsers": [],
+        "permittedGroups": [],
+        "id": "55ec6d86-1780-4b70-b29a-fc86dde318c3",
+        "name": "catch",
+        "enabled": true,
+        "include": false,
+        "mode": 0,
+        "command": "!catch",
+        "regexExplicitCapture": false,
+        "location": 0,
+        "ignoreBotAccount": true,
+        "ignoreInternal": true,
+        "sources": 1024,
+        "persistCounter": false,
+        "persistUserCounter": false,
+        "caseSensitive": false,
+        "globalCooldown": 0,
+        "userCooldown": 0,
+        "group": null,
+        "grantType": 0
+      },
+      {
+        "permittedUsers": [],
+        "permittedGroups": [],
+        "id": "b3d6643f-e9e8-4228-b40e-ce73e9399e73",
+        "name": "inventory",
+        "enabled": true,
+        "include": false,
+        "mode": 0,
+        "command": "!inventory",
+        "regexExplicitCapture": false,
+        "location": 0,
+        "ignoreBotAccount": true,
+        "ignoreInternal": true,
+        "sources": 1024,
+        "persistCounter": false,
+        "persistUserCounter": false,
+        "caseSensitive": false,
+        "globalCooldown": 0,
+        "userCooldown": 0,
+        "group": null,
+        "grantType": 0
+      },
+      {
+        "permittedUsers": [],
+        "permittedGroups": [],
+        "id": "f6268f4b-fede-40fc-9887-2e6cf17d5822",
+        "name": "battle",
+        "enabled": true,
+        "include": false,
+        "mode": 0,
+        "command": "!battle",
+        "regexExplicitCapture": false,
+        "location": 0,
+        "ignoreBotAccount": true,
+        "ignoreInternal": true,
+        "sources": 1024,
+        "persistCounter": false,
+        "persistUserCounter": false,
+        "caseSensitive": false,
+        "globalCooldown": 0,
+        "userCooldown": 0,
+        "group": null,
+        "grantType": 0
+      }
+    ],
+    "websocketServers": [],
+    "websocketClients": [],
+    "timers": []
+  },
+  "version": 23,
+  "exportedFrom": "1.0.4",
+  "minimumVersion": "1.0.0-alpha.1"
+}

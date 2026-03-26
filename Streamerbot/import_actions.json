@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "name": "Pokemon Chat Game Actions",
+    "author": "auto-generated",
+    "version": "1.0.0",
+    "description": "Pokemon Chat Game Streamer.bot actions",
+    "autoRunAction": null,
+    "minimumVersion": null
+  },
+  "data": {
+    "actions": [
+      {
+        "id": "cf730945-f443-44b9-9a29-89268d34bfc2",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Spawn",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "spawn",
+            "workingDir": "..",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "5414eaca-c038-4d67-99a5-542493edc7c1",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "80706ee3-5a8d-438d-b556-27e60369985e",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Catch",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "catch ${user}",
+            "workingDir": "..",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "d17eeb48-693f-4d96-a2a1-0a434f343280",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "6a145708-5ffd-4c10-9fc2-1d3ad7bda803",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Inventory",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "inventory ${user}",
+            "workingDir": "..",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "b87521f2-383f-4275-942d-57b3f972f829",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "66344f0c-68b6-48cb-8abc-cd7f8b69336a",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Battle",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "battle ${user} ${arg1}",
+            "workingDir": "..",
+            "envVars": {},
+            "waitForExit": 0,
+            "id": "cd0a2c36-f43e-43a7-9516-8ce358926473",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      }
+    ],
+    "queues": [],
+    "commands": [],
+    "websocketServers": [],
+    "websocketClients": [],
+    "timers": []
+  },
+  "version": 23,
+  "exportedFrom": "1.0.4",
+  "minimumVersion": "1.0.0-alpha.1"
+}
