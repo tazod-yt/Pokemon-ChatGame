@@ -1,0 +1,125 @@
+2026-03-26 15:44:29,438 [INFO] GameEngine startup
+2026-03-26 15:44:29,452 [INFO] Command: spawn
+2026-03-26 15:44:29,454 [INFO] Spawned creature: Emberfox
+2026-03-26 15:45:04,133 [INFO] GameEngine startup
+2026-03-26 15:45:04,138 [INFO] Command: spawn
+2026-03-26 15:48:42,709 [INFO] GameEngine startup
+2026-03-26 15:48:42,714 [INFO] Command: spawn
+2026-03-26 15:49:21,038 [INFO] GameEngine startup
+2026-03-26 15:49:21,043 [INFO] Command: spawn
+2026-03-26 15:49:57,741 [INFO] GameEngine startup
+2026-03-26 15:49:57,746 [INFO] Command: spawn
+2026-03-26 15:53:07,502 [INFO] GameEngine startup
+2026-03-26 15:53:07,507 [INFO] Command: spawn
+2026-03-26 15:57:58,396 [INFO] GameEngine startup
+2026-03-26 15:57:58,401 [INFO] Command: spawn
+2026-03-26 15:57:58,408 [INFO] Spawned creature: Cinderling
+2026-03-26 15:58:20,112 [INFO] GameEngine startup
+2026-03-26 15:58:20,117 [INFO] Command: catch user
+2026-03-26 15:58:20,122 [INFO] Catch failed: user vs Cinderling
+2026-03-26 15:58:41,646 [INFO] GameEngine startup
+2026-03-26 15:58:41,651 [INFO] Command: catch user
+2026-03-26 15:58:41,657 [INFO] Catch failed: user vs Cinderling
+2026-03-26 15:59:05,344 [INFO] GameEngine startup
+2026-03-26 15:59:05,452 [INFO] GameEngine startup
+2026-03-26 15:59:09,924 [INFO] GameEngine startup
+2026-03-26 16:18:19,058 [INFO] GameEngine startup
+2026-03-26 16:18:19,281 [INFO] GameEngine startup
+2026-03-26 16:18:19,427 [INFO] GameEngine startup
+2026-03-26 16:18:19,730 [INFO] GameEngine startup
+2026-03-26 16:18:19,889 [INFO] GameEngine startup
+2026-03-26 16:18:20,025 [INFO] GameEngine startup
+2026-03-26 16:23:24,616 [INFO] GameEngine startup
+2026-03-26 16:23:24,623 [INFO] Command: catch user
+2026-03-26 16:23:35,497 [INFO] GameEngine startup
+2026-03-26 16:23:35,502 [INFO] Command: spawn
+2026-03-26 16:23:35,509 [INFO] Spawned creature: Glimmerbug
+2026-03-26 16:23:47,335 [INFO] GameEngine startup
+2026-03-26 16:23:47,340 [INFO] Command: catch user
+2026-03-26 16:23:47,345 [INFO] Catch failed: user vs Glimmerbug
+2026-03-26 16:25:23,807 [INFO] GameEngine startup
+2026-03-26 16:25:23,813 [INFO] Command: catch user
+2026-03-26 16:26:05,788 [INFO] GameEngine startup
+2026-03-26 16:26:05,793 [INFO] Command: catch user
+2026-03-26 16:26:37,473 [INFO] GameEngine startup
+2026-03-26 16:26:37,500 [INFO] Command: catch user
+2026-03-26 16:26:46,802 [INFO] GameEngine startup
+2026-03-26 16:26:46,808 [INFO] Command: spawn
+2026-03-26 16:29:11,872 [INFO] GameEngine startup
+2026-03-26 16:29:11,878 [INFO] Command: spawn
+2026-03-26 16:29:11,886 [INFO] Spawned creature: Frostkit
+2026-03-26 16:32:42,301 [INFO] GameEngine startup
+2026-03-26 16:32:42,306 [INFO] Command: spawn
+2026-03-26 16:34:08,824 [INFO] GameEngine startup
+2026-03-26 16:34:08,829 [INFO] Command: spawn
+2026-03-26 16:34:26,901 [INFO] GameEngine startup
+2026-03-26 16:34:26,906 [INFO] Command: spawn
+2026-03-26 16:34:26,913 [INFO] Spawned creature: Emberfox
+2026-03-26 16:34:42,893 [INFO] GameEngine startup
+2026-03-26 16:34:42,899 [INFO] Command: spawn
+2026-03-26 16:35:49,900 [INFO] GameEngine startup
+2026-03-26 16:35:49,905 [INFO] Command: spawn
+2026-03-26 16:36:37,059 [INFO] GameEngine startup
+2026-03-26 16:36:37,064 [INFO] Command: catch user
+2026-03-26 16:37:52,762 [INFO] GameEngine startup
+2026-03-26 16:37:52,766 [INFO] Command: spawn
+2026-03-26 16:39:33,270 [INFO] GameEngine startup
+2026-03-26 16:39:33,276 [INFO] Command: spawn
+2026-03-26 16:39:33,287 [INFO] Spawned creature: Frostkit
+2026-03-26 16:39:47,263 [INFO] GameEngine startup
+2026-03-26 16:39:47,268 [INFO] Command: catch user
+2026-03-26 16:39:47,274 [INFO] Catch success: user caught Frostkit
+2026-03-26 16:52:46,505 [INFO] GameEngine startup
+2026-03-26 16:52:46,510 [INFO] Command: spawn
+2026-03-26 16:52:46,517 [INFO] Spawned creature: Frostkit
+2026-03-26 16:55:42,293 [INFO] GameEngine startup
+2026-03-26 16:55:42,298 [INFO] Command: spawn
+2026-03-26 16:58:51,948 [INFO] GameEngine startup
+2026-03-26 16:58:51,953 [INFO] Command: spawn
+2026-03-26 16:58:51,961 [INFO] Spawned creature: Mistwisp
+2026-03-26 17:02:49,425 [INFO] GameEngine startup
+2026-03-26 17:02:49,430 [INFO] Command: spawn
+2026-03-26 17:04:08,103 [INFO] GameEngine startup
+2026-03-26 17:04:08,108 [INFO] Command: spawn
+2026-03-26 17:04:08,115 [INFO] Spawned creature: Leaflet
+2026-03-26 17:16:03,886 [INFO] GameEngine startup
+2026-03-26 17:16:03,891 [INFO] Command: spawn
+2026-03-26 17:16:03,899 [INFO] Spawned creature: Cinderling
+2026-03-26 17:16:59,419 [INFO] GameEngine startup
+2026-03-26 17:16:59,424 [INFO] Command: spawn
+2026-03-26 17:17:30,528 [INFO] GameEngine startup
+2026-03-26 17:17:30,532 [INFO] Command: spawn
+2026-03-26 17:17:59,162 [INFO] GameEngine startup
+2026-03-26 17:17:59,166 [INFO] Command: spawn
+2026-03-26 17:22:18,588 [INFO] GameEngine startup
+2026-03-26 17:22:18,593 [INFO] Command: spawn
+2026-03-26 17:22:18,601 [INFO] Spawned creature: Mistwisp
+2026-03-26 17:35:14,240 [INFO] GameEngine startup
+2026-03-26 17:35:14,244 [INFO] Command: spawn
+2026-03-26 17:35:14,252 [INFO] Spawned creature: Stonepaw
+2026-03-26 18:18:17,804 [INFO] GameEngine startup
+2026-03-26 18:18:17,809 [INFO] Command: spawn
+2026-03-26 18:18:17,817 [INFO] Spawned creature: Stonepaw
+2026-03-26 18:18:39,131 [INFO] GameEngine startup
+2026-03-26 18:18:39,138 [INFO] Command: spawn
+2026-03-26 18:19:05,703 [INFO] GameEngine startup
+2026-03-26 18:19:05,708 [INFO] Command: spawn
+2026-03-26 18:33:56,436 [INFO] GameEngine startup
+2026-03-26 18:33:56,441 [INFO] Command: spawn
+2026-03-26 18:33:56,448 [INFO] Spawned creature: Mistwisp
+2026-03-26 18:39:08,835 [INFO] GameEngine startup
+2026-03-26 18:39:08,841 [INFO] Command: spawn
+2026-03-26 18:39:08,850 [INFO] Spawned creature: Frostkit
+2026-03-26 18:39:17,781 [INFO] GameEngine startup
+2026-03-26 18:39:17,785 [INFO] Command: catch user
+2026-03-26 18:39:17,791 [INFO] Catch failed: user vs Frostkit
+2026-03-26 18:39:43,077 [INFO] GameEngine startup
+2026-03-26 18:39:43,081 [INFO] Command: catch user
+2026-03-26 18:39:43,087 [INFO] Catch failed: user vs Frostkit
+2026-03-26 18:39:51,965 [INFO] GameEngine startup
+2026-03-26 18:39:51,969 [INFO] Command: catch user
+2026-03-26 18:39:59,099 [INFO] GameEngine startup
+2026-03-26 18:39:59,104 [INFO] Command: catch user
+2026-03-31 16:00:56,739 [INFO] GameEngine startup
+2026-03-31 16:00:56,746 [INFO] Command: spawn
+2026-03-31 16:00:56,756 [INFO] Spawned creature: Ironling

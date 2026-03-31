@@ -51,6 +51,7 @@ class Paths:
     overlay_state_json: Path
     settings_json: Path
     log_file: Path
+    chat_message_txt: Path
 
 
 def find_root() -> Path:
@@ -94,6 +95,7 @@ def build_paths(root: Path) -> Paths:
         overlay_state_json=data_dir / "overlay_state.json",
         settings_json=config_dir / "settings.json",
         log_file=logs_dir / "game.log",
+        chat_message_txt=data_dir / "last_chat_message.txt",
     )
 
 
@@ -277,6 +279,8 @@ def ensure_data_files(paths: Paths) -> None:
                 "updated_at": None,
             },
         )
+    if not paths.chat_message_txt.exists():
+        paths.chat_message_txt.write_text("", encoding="utf-8")
 
 
 def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
@@ -315,6 +319,16 @@ class GameEngine:
         payload = dict(payload)
         payload["updated_at"] = now_ts()
         write_json(self.paths.overlay_state_json, payload)
+
+    def _write_chat_message(self, message: str) -> None:
+        try:
+            self.paths.chat_message_txt.write_text(message, encoding="utf-8")
+        except Exception:
+            logging.exception("Failed to write chat message")
+
+    def _respond(self, message: str) -> str:
+        self._write_chat_message(message)
+        return message
 
     def _spawn_is_expired(self, spawn: Dict[str, Any]) -> bool:
         expires_at = spawn.get("expires_at")
@@ -360,7 +374,7 @@ class GameEngine:
         logging.info("Command: spawn")
         spawn = self._load_active_spawn()
         if spawn and not self._spawn_is_expired(spawn):
-            return f"Spawn already active: {spawn.get('name', 'Unknown')}"
+            return self._respond(f"Spawn already active: {spawn.get('name', 'Unknown')}")
         if spawn and self._spawn_is_expired(spawn):
             self._write_active_spawn({})
             self._write_overlay(
@@ -380,7 +394,7 @@ class GameEngine:
                 interval = int(self.settings["spawn_interval_seconds"])
                 remaining = interval - (now_ts() - int(last_spawn_at))
                 if remaining > 0:
-                    return f"Spawn on cooldown. Try again in {remaining}s."
+                    return self._respond(f"Spawn on cooldown. Try again in {remaining}s.")
 
             creature_id, creature = self._select_random_creature(conn)
             spawned_at = now_ts()
@@ -404,12 +418,12 @@ class GameEngine:
             }
         )
         logging.info("Spawned creature: %s", creature["name"])
-        return f"Spawned {creature['name']}"
+        return self._respond(f"Spawned {creature['name']}")
 
     def catch(self, username: str) -> str:
         username = normalize_username(username)
         if not username:
-            return "Invalid username."
+            return self._respond("Invalid username.")
 
         logging.info("Command: catch %s", username)
         spawn = self._load_active_spawn()
@@ -425,7 +439,7 @@ class GameEngine:
                 }
             )
         if not spawn or self._spawn_is_expired(spawn):
-            return "No active spawn to catch."
+            return self._respond("No active spawn to catch.")
 
         conn = connect_db(self.paths)
         with conn:
@@ -436,21 +450,21 @@ class GameEngine:
             ).fetchone()[0]
             remaining = self._get_cooldown_remaining(last_catch_at)
             if remaining > 0:
-                return f"Catch cooldown active. Try again in {remaining}s."
+                return self._respond(f"Catch cooldown active. Try again in {remaining}s.")
 
             inv_count = conn.execute(
                 "SELECT COUNT(*) FROM inventory WHERE user_id = ?",
                 (user_id,),
             ).fetchone()[0]
             if inv_count >= int(self.settings["max_inventory_size"]):
-                return "Inventory full."
+                return self._respond("Inventory full.")
 
             creature_row = conn.execute(
                 "SELECT base_hp, base_attack, base_defense, catch_rate_mod FROM creatures WHERE id = ?",
                 (spawn.get("creature_id"),),
             ).fetchone()
             if not creature_row:
-                return "Spawn creature missing."
+                return self._respond("Spawn creature missing.")
 
             base_rate = float(self.settings["base_catch_rate"])
             catch_rate = min(0.95, max(0.05, base_rate * float(creature_row[3])))
@@ -474,47 +488,39 @@ class GameEngine:
                 self._write_active_spawn({})
                 self._write_overlay(
                     {
-                        "state": "result",
-                        "message": f"{username} caught {spawn.get('name', 'a creature')}!",
+                        "state": "idle",
+                        "message": "",
                         "spawn": None,
                         "timer": 0,
-                        "result": {
-                            "type": "catch_success",
-                            "user": username,
-                            "creature": spawn.get("name"),
-                        },
+                        "result": None,
                     }
                 )
                 logging.info("Catch success: %s caught %s", username, spawn.get("name"))
-                return f"{username} caught {spawn.get('name')}!"
+                return self._respond(f"{username} caught {spawn.get('name')}!")
 
             self._write_overlay(
                 {
-                    "state": "result",
-                    "message": f"{username} failed to catch {spawn.get('name', 'the creature')}",
+                    "state": "spawn",
+                    "message": "",
                     "spawn": spawn,
                     "timer": max(0, int(spawn.get("expires_at", now)) - now),
-                    "result": {
-                        "type": "catch_fail",
-                        "user": username,
-                        "creature": spawn.get("name"),
-                    },
+                    "result": None,
                 }
             )
             logging.info("Catch failed: %s vs %s", username, spawn.get("name"))
-            return f"{username} failed to catch {spawn.get('name')}."
+            return self._respond(f"{username} failed to catch {spawn.get('name')}.")
 
     def inventory(self, username: str) -> str:
         username = normalize_username(username)
         if not username:
-            return "Invalid username."
+            return self._respond("Invalid username.")
 
         logging.info("Command: inventory %s", username)
         conn = connect_db(self.paths)
         with conn:
             row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
             if not row:
-                return f"{username} has no creatures yet."
+                return self._respond(f"{username} has no creatures yet.")
             user_id = int(row[0])
             rows = conn.execute(
                 """
@@ -528,18 +534,18 @@ class GameEngine:
             ).fetchall()
 
         if not rows:
-            return f"{username} has no creatures yet."
+            return self._respond(f"{username} has no creatures yet.")
 
         lines = [f"{username}'s creatures:"]
         for name, level, exp, hp in rows:
             lines.append(f"- {name} (Lv {level}, EXP {exp}, HP {hp})")
-        return "\n".join(lines)
+        return self._respond("\n".join(lines))
 
     def battle(self, user1: str, user2: str) -> str:
         user1 = normalize_username(user1)
         user2 = normalize_username(user2)
         if not user1 or not user2 or user1 == user2:
-            return "Invalid battle participants."
+            return self._respond("Invalid battle participants.")
 
         logging.info("Command: battle %s vs %s", user1, user2)
         conn = connect_db(self.paths)
@@ -554,7 +560,7 @@ class GameEngine:
                 ).fetchone()[0]
                 remaining = self._get_cooldown_remaining(last_battle_at)
                 if remaining > 0:
-                    return f"Battle cooldown active. Try again in {remaining}s."
+                    return self._respond(f"Battle cooldown active. Try again in {remaining}s.")
 
             inv1 = conn.execute(
                 """
@@ -576,7 +582,7 @@ class GameEngine:
             ).fetchall()
 
             if not inv1 or not inv2:
-                return "Both users need at least one creature to battle."
+                return self._respond("Both users need at least one creature to battle.")
 
             c1 = self.rng.choice(inv1)
             c2 = self.rng.choice(inv2)
@@ -603,19 +609,15 @@ class GameEngine:
 
         self._write_overlay(
             {
-                "state": "result",
-                "message": f"{winner} wins the battle!",
+                "state": "idle",
+                "message": "",
                 "spawn": None,
                 "timer": 0,
-                "result": {
-                    "type": "battle",
-                    "winner": winner,
-                    "loser": user2 if winner == user1 else user1,
-                },
+                "result": None,
             }
         )
         logging.info("Battle result: %s vs %s => %s", user1, user2, winner)
-        return f"{winner} wins the battle!"
+        return self._respond(f"{winner} wins the battle!")
 
     def _award_battle_exp(self, conn: sqlite3.Connection, inv_id: int, exp_gain: int) -> None:
         row = conn.execute(
@@ -680,7 +682,7 @@ class GameEngine:
                 "result": None,
             }
         )
-        return "Spawn reset."
+        return self._respond("Spawn reset.")
 
 
 def build_engine() -> GameEngine:

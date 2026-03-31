@@ -49,14 +49,23 @@ function updateOverlay(state) {
   }
 }
 
+function buildOverlayUrl() {
+  const base = new URL(window.location.href);
+  return new URL("../Data/overlay_state.json", base).toString();
+}
+
 async function poll() {
   try {
-    const response = await fetch(`../Data/overlay_state.json?ts=${Date.now()}`);
-    if (!response.ok) return;
+    const url = buildOverlayUrl();
+    const response = await fetch(`${url}?ts=${Date.now()}`);
+    if (!response.ok) {
+      statusEl.textContent = "Overlay: failed to read overlay_state.json";
+      return;
+    }
     const data = await response.json();
     updateOverlay(data);
   } catch (err) {
-    // ignore errors to keep overlay running
+    statusEl.textContent = "Overlay: cannot access local JSON (check OBS local file access)";
   }
 }
 

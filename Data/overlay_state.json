@@ -1,8 +1,13 @@
-﻿{
-  "state": "idle",
-  "message": "",
-  "spawn": null,
-  "timer": 0,
+{
+  "state": "spawn",
+  "message": "A wild Ironling appeared!",
+  "spawn": {
+    "creature_id": 8,
+    "name": "Ironling",
+    "spawned_at": 1774953056,
+    "expires_at": 1774953116
+  },
+  "timer": 60,
   "result": null,
-  "updated_at": null
+  "updated_at": 1774953056
 }
