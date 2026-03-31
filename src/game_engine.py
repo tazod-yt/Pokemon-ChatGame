@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import json
 import logging
 import os
@@ -723,19 +723,19 @@ def main() -> int:
         return 1
 
     if args.command == "spawn":
-        print(engine.spawn())
+        print(engine.spawn(), flush=True)
         return 0
     if args.command == "catch":
-        print(engine.catch(args.username))
+        print(engine.catch(args.username), flush=True)
         return 0
     if args.command == "inventory":
-        print(engine.inventory(args.username))
+        print(engine.inventory(args.username), flush=True)
         return 0
     if args.command == "battle":
-        print(engine.battle(args.user1, args.user2))
+        print(engine.battle(args.user1, args.user2), flush=True)
         return 0
     if args.command == "reset_spawn":
-        print(engine.reset_spawn())
+        print(engine.reset_spawn(), flush=True)
         return 0
 
     return 1

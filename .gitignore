@@ -1,0 +1,12 @@
+# Runtime data (auto-created)
+/Data/*.json
+/Data/*.db
+/Data/*.txt
+/Logs/*.log
+
+# Build artifacts
+/build/
+
+# Python cache
+__pycache__/
+*.pyc

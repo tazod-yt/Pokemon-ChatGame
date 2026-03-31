@@ -1,287 +1,508 @@
 {
-  "meta": {
-    "name": "Pokemon Chat Game Full Import (C# Runner)",
-    "author": "auto-generated",
-    "version": "1.0.0",
-    "description": "Actions + Commands for Pokemon Chat Game (C# runs EXE and sends stdout)",
-    "autoRunAction": null,
-    "minimumVersion": null
-  },
-  "data": {
-    "actions": [
-      {
-        "id": "460a4af3-0f99-4ece-a79e-4466444122b2",
-        "queue": "00000000-0000-0000-0000-000000000000",
-        "enabled": true,
-        "excludeFromHistory": false,
-        "excludeFromPending": false,
-        "name": "Pokemon Chat Game Spawn",
-        "group": "",
-        "alwaysRun": false,
-        "randomAction": false,
-        "concurrent": false,
-        "triggers": [
-          {
-            "commandId": "03360d75-ddc2-4570-aae6-6992261684e3",
-            "id": "01a65f9e-02f2-4b0c-a26f-c0967ba6c409",
-            "type": 401,
-            "enabled": true,
-            "exclusions": []
-          }
-        ],
-        "subActions": [
-          {
-            "name": null,
-            "description": null,
-            "references": [
-              "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll"
-            ],
-            "byteCode": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XENvZGVccG9rZW1vblxQb2tlbW9uIENoYXRHYW1lXEdhbWVFbmdpbmVcR2FtZUVuZ2luZS5leGUiOwogICAgICAgIHN0cmluZyBhcmdzID0gQCJzcGF3biI7CgogICAgICAgIHZhciBwc2kgPSBuZXcgUHJvY2Vzc1N0YXJ0SW5mbwogICAgICAgIHsKICAgICAgICAgICAgRmlsZU5hbWUgPSBleGUsCiAgICAgICAgICAgIEFyZ3VtZW50cyA9IGFyZ3MsCiAgICAgICAgICAgIFVzZVNoZWxsRXhlY3V0ZSA9IGZhbHNlLAogICAgICAgICAgICBSZWRpcmVjdFN0YW5kYXJkT3V0cHV0ID0gdHJ1ZSwKICAgICAgICAgICAgQ3JlYXRlTm9XaW5kb3cgPSB0cnVlLAogICAgICAgICAgICBXb3JraW5nRGlyZWN0b3J5ID0gQCJEOlxDb2RlXHBva2Vtb25cUG9rZW1vbiBDaGF0R2FtZSIKICAgICAgICB9OwoKICAgICAgICB1c2luZyAodmFyIHAgPSBQcm9jZXNzLlN0YXJ0KHBzaSkpCiAgICAgICAgewogICAgICAgICAgICBzdHJpbmcgb3V0cHV0ID0gcC5TdGFuZGFyZE91dHB1dC5SZWFkVG9FbmQoKTsKICAgICAgICAgICAgcC5XYWl0Rm9yRXhpdCgpOwoKICAgICAgICAgICAgc3RyaW5nIG1zZyA9IG91dHB1dC5UcmltKCk7CiAgICAgICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yRW1wdHkobXNnKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgQ1BILlNlbmRNZXNzYWdlKG1zZyk7CiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg==",
-            "precompile": false,
-            "delayStart": false,
-            "saveResultToVariable": false,
-            "saveToVariable": null,
-            "id": "9ab24e92-55f3-4056-bc2b-c6aba8cc953e",
-            "weight": 0.0,
-            "type": 99999,
-            "parentId": null,
-            "enabled": true,
-            "index": 0
-          }
-        ],
-        "collapsedGroups": []
-      },
-      {
-        "id": "20864e17-410d-44ab-bd29-64591c880de6",
-        "queue": "00000000-0000-0000-0000-000000000000",
-        "enabled": true,
-        "excludeFromHistory": false,
-        "excludeFromPending": false,
-        "name": "Pokemon Chat Game Catch",
-        "group": "",
-        "alwaysRun": false,
-        "randomAction": false,
-        "concurrent": false,
-        "triggers": [
-          {
-            "commandId": "21e10de9-73b0-47fd-86c3-9d43ab57a84d",
-            "id": "fdff02ec-ed3e-4e3f-a290-8c4671a7a0ec",
-            "type": 401,
-            "enabled": true,
-            "exclusions": []
-          }
-        ],
-        "subActions": [
-          {
-            "name": null,
-            "description": null,
-            "references": [
-              "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll"
-            ],
-            "byteCode": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XENvZGVccG9rZW1vblxQb2tlbW9uIENoYXRHYW1lXEdhbWVFbmdpbmVcR2FtZUVuZ2luZS5leGUiOwogICAgICAgIHN0cmluZyBhcmdzID0gQCJjYXRjaCAke3VzZXJ9IjsKCiAgICAgICAgdmFyIHBzaSA9IG5ldyBQcm9jZXNzU3RhcnRJbmZvCiAgICAgICAgewogICAgICAgICAgICBGaWxlTmFtZSA9IGV4ZSwKICAgICAgICAgICAgQXJndW1lbnRzID0gYXJncywKICAgICAgICAgICAgVXNlU2hlbGxFeGVjdXRlID0gZmFsc2UsCiAgICAgICAgICAgIFJlZGlyZWN0U3RhbmRhcmRPdXRwdXQgPSB0cnVlLAogICAgICAgICAgICBDcmVhdGVOb1dpbmRvdyA9IHRydWUsCiAgICAgICAgICAgIFdvcmtpbmdEaXJlY3RvcnkgPSBAIkQ6XENvZGVccG9rZW1vblxQb2tlbW9uIENoYXRHYW1lIgogICAgICAgIH07CgogICAgICAgIHVzaW5nICh2YXIgcCA9IFByb2Nlc3MuU3RhcnQocHNpKSkKICAgICAgICB7CiAgICAgICAgICAgIHN0cmluZyBvdXRwdXQgPSBwLlN0YW5kYXJkT3V0cHV0LlJlYWRUb0VuZCgpOwogICAgICAgICAgICBwLldhaXRGb3JFeGl0KCk7CgogICAgICAgICAgICBzdHJpbmcgbXNnID0gb3V0cHV0LlRyaW0oKTsKICAgICAgICAgICAgaWYgKCFzdHJpbmcuSXNOdWxsT3JFbXB0eShtc2cpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBDUEguU2VuZE1lc3NhZ2UobXNnKTsKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIHRydWU7CiAgICB9Cn0K",
-            "precompile": false,
-            "delayStart": false,
-            "saveResultToVariable": false,
-            "saveToVariable": null,
-            "id": "09210f59-618b-48b3-aae6-44ca697f0b00",
-            "weight": 0.0,
-            "type": 99999,
-            "parentId": null,
-            "enabled": true,
-            "index": 0
-          }
-        ],
-        "collapsedGroups": []
-      },
-      {
-        "id": "c2ff6837-a13a-4c78-9066-3e0a24e29b8b",
-        "queue": "00000000-0000-0000-0000-000000000000",
-        "enabled": true,
-        "excludeFromHistory": false,
-        "excludeFromPending": false,
-        "name": "Pokemon Chat Game Inventory",
-        "group": "",
-        "alwaysRun": false,
-        "randomAction": false,
-        "concurrent": false,
-        "triggers": [
-          {
-            "commandId": "9751d48b-3344-48cb-aa04-57e79de641dc",
-            "id": "d15d6c14-1856-421e-904e-28f5a2e874f0",
-            "type": 401,
-            "enabled": true,
-            "exclusions": []
-          }
-        ],
-        "subActions": [
-          {
-            "name": null,
-            "description": null,
-            "references": [
-              "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll"
-            ],
-            "byteCode": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XENvZGVccG9rZW1vblxQb2tlbW9uIENoYXRHYW1lXEdhbWVFbmdpbmVcR2FtZUVuZ2luZS5leGUiOwogICAgICAgIHN0cmluZyBhcmdzID0gQCJpbnZlbnRvcnkgJHt1c2VyfSI7CgogICAgICAgIHZhciBwc2kgPSBuZXcgUHJvY2Vzc1N0YXJ0SW5mbwogICAgICAgIHsKICAgICAgICAgICAgRmlsZU5hbWUgPSBleGUsCiAgICAgICAgICAgIEFyZ3VtZW50cyA9IGFyZ3MsCiAgICAgICAgICAgIFVzZVNoZWxsRXhlY3V0ZSA9IGZhbHNlLAogICAgICAgICAgICBSZWRpcmVjdFN0YW5kYXJkT3V0cHV0ID0gdHJ1ZSwKICAgICAgICAgICAgQ3JlYXRlTm9XaW5kb3cgPSB0cnVlLAogICAgICAgICAgICBXb3JraW5nRGlyZWN0b3J5ID0gQCJEOlxDb2RlXHBva2Vtb25cUG9rZW1vbiBDaGF0R2FtZSIKICAgICAgICB9OwoKICAgICAgICB1c2luZyAodmFyIHAgPSBQcm9jZXNzLlN0YXJ0KHBzaSkpCiAgICAgICAgewogICAgICAgICAgICBzdHJpbmcgb3V0cHV0ID0gcC5TdGFuZGFyZE91dHB1dC5SZWFkVG9FbmQoKTsKICAgICAgICAgICAgcC5XYWl0Rm9yRXhpdCgpOwoKICAgICAgICAgICAgc3RyaW5nIG1zZyA9IG91dHB1dC5UcmltKCk7CiAgICAgICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yRW1wdHkobXNnKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgQ1BILlNlbmRNZXNzYWdlKG1zZyk7CiAgICAgICAgICAgIH0KICAgICAgICB9CgogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9Cg==",
-            "precompile": false,
-            "delayStart": false,
-            "saveResultToVariable": false,
-            "saveToVariable": null,
-            "id": "cf3cb32f-412d-412b-b816-72fb637e898d",
-            "weight": 0.0,
-            "type": 99999,
-            "parentId": null,
-            "enabled": true,
-            "index": 0
-          }
-        ],
-        "collapsedGroups": []
-      },
-      {
-        "id": "5fff7819-4827-4229-89ee-3f390250bcec",
-        "queue": "00000000-0000-0000-0000-000000000000",
-        "enabled": true,
-        "excludeFromHistory": false,
-        "excludeFromPending": false,
-        "name": "Pokemon Chat Game Battle",
-        "group": "",
-        "alwaysRun": false,
-        "randomAction": false,
-        "concurrent": false,
-        "triggers": [
-          {
-            "commandId": "3067a905-3394-496d-b754-6255684d4834",
-            "id": "382d8843-aaa7-48cd-967a-d87c0eee0ecb",
-            "type": 401,
-            "enabled": true,
-            "exclusions": []
-          }
-        ],
-        "subActions": [
-          {
-            "name": null,
-            "description": null,
-            "references": [
-              "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll"
-            ],
-            "byteCode": "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XENvZGVccG9rZW1vblxQb2tlbW9uIENoYXRHYW1lXEdhbWVFbmdpbmVcR2FtZUVuZ2luZS5leGUiOwogICAgICAgIHN0cmluZyBhcmdzID0gQCJiYXR0bGUgJHt1c2VyfSAke2FyZzF9IjsKCiAgICAgICAgdmFyIHBzaSA9IG5ldyBQcm9jZXNzU3RhcnRJbmZvCiAgICAgICAgewogICAgICAgICAgICBGaWxlTmFtZSA9IGV4ZSwKICAgICAgICAgICAgQXJndW1lbnRzID0gYXJncywKICAgICAgICAgICAgVXNlU2hlbGxFeGVjdXRlID0gZmFsc2UsCiAgICAgICAgICAgIFJlZGlyZWN0U3RhbmRhcmRPdXRwdXQgPSB0cnVlLAogICAgICAgICAgICBDcmVhdGVOb1dpbmRvdyA9IHRydWUsCiAgICAgICAgICAgIFdvcmtpbmdEaXJlY3RvcnkgPSBAIkQ6XENvZGVccG9rZW1vblxQb2tlbW9uIENoYXRHYW1lIgogICAgICAgIH07CgogICAgICAgIHVzaW5nICh2YXIgcCA9IFByb2Nlc3MuU3RhcnQocHNpKSkKICAgICAgICB7CiAgICAgICAgICAgIHN0cmluZyBvdXRwdXQgPSBwLlN0YW5kYXJkT3V0cHV0LlJlYWRUb0VuZCgpOwogICAgICAgICAgICBwLldhaXRGb3JFeGl0KCk7CgogICAgICAgICAgICBzdHJpbmcgbXNnID0gb3V0cHV0LlRyaW0oKTsKICAgICAgICAgICAgaWYgKCFzdHJpbmcuSXNOdWxsT3JFbXB0eShtc2cpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBDUEguU2VuZE1lc3NhZ2UobXNnKTsKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIHRydWU7CiAgICB9Cn0K",
-            "precompile": false,
-            "delayStart": false,
-            "saveResultToVariable": false,
-            "saveToVariable": null,
-            "id": "64d47424-a3a5-4bcf-bc9c-b2a0bf065f44",
-            "weight": 0.0,
-            "type": 99999,
-            "parentId": null,
-            "enabled": true,
-            "index": 0
-          }
-        ],
-        "collapsedGroups": []
-      }
-    ],
-    "queues": [],
-    "commands": [
-      {
-        "permittedUsers": [],
-        "permittedGroups": [
-          "Subscribers"
-        ],
-        "id": "03360d75-ddc2-4570-aae6-6992261684e3",
-        "name": "spawn",
-        "enabled": true,
-        "include": false,
-        "mode": 0,
-        "command": "!spawn",
-        "regexExplicitCapture": false,
-        "location": 0,
-        "ignoreBotAccount": true,
-        "ignoreInternal": true,
-        "sources": 1024,
-        "persistCounter": false,
-        "persistUserCounter": false,
-        "caseSensitive": false,
-        "globalCooldown": 0,
-        "userCooldown": 0,
-        "group": null,
-        "grantType": 0
-      },
-      {
-        "permittedUsers": [],
-        "permittedGroups": [
-          "Subscribers"
-        ],
-        "id": "21e10de9-73b0-47fd-86c3-9d43ab57a84d",
-        "name": "catch",
-        "enabled": true,
-        "include": false,
-        "mode": 0,
-        "command": "!catch",
-        "regexExplicitCapture": false,
-        "location": 0,
-        "ignoreBotAccount": true,
-        "ignoreInternal": true,
-        "sources": 1024,
-        "persistCounter": false,
-        "persistUserCounter": false,
-        "caseSensitive": false,
-        "globalCooldown": 0,
-        "userCooldown": 0,
-        "group": null,
-        "grantType": 0
-      },
-      {
-        "permittedUsers": [],
-        "permittedGroups": [
-          "Subscribers"
-        ],
-        "id": "9751d48b-3344-48cb-aa04-57e79de641dc",
-        "name": "inventory",
-        "enabled": true,
-        "include": false,
-        "mode": 0,
-        "command": "!inventory",
-        "regexExplicitCapture": false,
-        "location": 0,
-        "ignoreBotAccount": true,
-        "ignoreInternal": true,
-        "sources": 1024,
-        "persistCounter": false,
-        "persistUserCounter": false,
-        "caseSensitive": false,
-        "globalCooldown": 0,
-        "userCooldown": 0,
-        "group": null,
-        "grantType": 0
-      },
-      {
-        "permittedUsers": [],
-        "permittedGroups": [
-          "Subscribers"
-        ],
-        "id": "3067a905-3394-496d-b754-6255684d4834",
-        "name": "battle",
-        "enabled": true,
-        "include": false,
-        "mode": 0,
-        "command": "!battle",
-        "regexExplicitCapture": false,
-        "location": 0,
-        "ignoreBotAccount": true,
-        "ignoreInternal": true,
-        "sources": 1024,
-        "persistCounter": false,
-        "persistUserCounter": false,
-        "caseSensitive": false,
-        "globalCooldown": 0,
-        "userCooldown": 0,
-        "group": null,
-        "grantType": 0
-      }
-    ],
-    "websocketServers": [],
-    "websocketClients": [],
-    "timers": []
-  },
-  "version": 23,
-  "exportedFrom": "1.0.4",
-  "minimumVersion": "1.0.0-alpha.1"
+    "meta":  {
+                 "name":  "Pokemon Chat Game Full Import (C# Runner)",
+                 "author":  "auto-generated",
+                 "version":  "1.0.0",
+                 "description":  "Actions + Commands for Pokemon Chat Game (C# runs EXE and sends stdout)",
+                 "autoRunAction":  null,
+                 "minimumVersion":  null
+             },
+    "data":  {
+                 "actions":  [
+                                 {
+                                     "id":  "460a4af3-0f99-4ece-a79e-4466444122b2",
+                                     "queue":  "00000000-0000-0000-0000-000000000000",
+                                     "enabled":  true,
+                                     "excludeFromHistory":  false,
+                                     "excludeFromPending":  false,
+                                     "name":  "Pokemon Chat Game Spawn",
+                                     "group":  "",
+                                     "alwaysRun":  false,
+                                     "randomAction":  false,
+                                     "concurrent":  false,
+                                     "triggers":  [
+                                                      {
+                                                          "commandId":  "03360d75-ddc2-4570-aae6-6992261684e3",
+                                                          "id":  "01a65f9e-02f2-4b0c-a26f-c0967ba6c409",
+                                                          "type":  401,
+                                                          "enabled":  true,
+                                                          "exclusions":  [
+
+                                                                         ]
+                                                      }
+                                                  ],
+                                     "subActions":  [
+                                                        {
+                                                            "name":  null,
+                                                            "description":  null,
+                                                            "references":  [
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll",
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\System.dll"
+                                                                           ],
+                                                            "byteCode":  "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XFxDb2RlXFxwb2tlbW9uXFxQb2tlbW9uIENoYXRHYW1lXFxHYW1lRW5naW5lXFxHYW1lRW5naW5lLmV4ZSI7CiAgICAgICAgc3RyaW5nIGFyZ3MgPSAic3Bhd24iOwoKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBwc2kgPSBuZXcgUHJvY2Vzc1N0YXJ0SW5mbwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBGaWxlTmFtZSA9IGV4ZSwKICAgICAgICAgICAgICAgIEFyZ3VtZW50cyA9IGFyZ3MsCiAgICAgICAgICAgICAgICBXb3JraW5nRGlyZWN0b3J5ID0gQCJEOlxcQ29kZVxccG9rZW1vblxcUG9rZW1vbiBDaGF0R2FtZSIsCiAgICAgICAgICAgICAgICBVc2VTaGVsbEV4ZWN1dGUgPSBmYWxzZSwKICAgICAgICAgICAgICAgIFJlZGlyZWN0U3RhbmRhcmRPdXRwdXQgPSB0cnVlLAogICAgICAgICAgICAgICAgUmVkaXJlY3RTdGFuZGFyZEVycm9yID0gdHJ1ZSwKICAgICAgICAgICAgICAgIENyZWF0ZU5vV2luZG93ID0gdHJ1ZQogICAgICAgICAgICB9OwoKICAgICAgICAgICAgdXNpbmcgKHZhciBwID0gUHJvY2Vzcy5TdGFydChwc2kpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBzdHJpbmcgb3V0cHV0ID0gcC5TdGFuZGFyZE91dHB1dC5SZWFkVG9FbmQoKTsKICAgICAgICAgICAgICAgIHN0cmluZyBlcnJvciA9IHAuU3RhbmRhcmRFcnJvci5SZWFkVG9FbmQoKTsKICAgICAgICAgICAgICAgIHAuV2FpdEZvckV4aXQoKTsKCiAgICAgICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPcldoaXRlU3BhY2Uob3V0cHV0KSkKICAgICAgICAgICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQob3V0cHV0LlRyaW0oKSk7CgogICAgICAgICAgICAgICAgaWYgKCFzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGVycm9yKSkKICAgICAgICAgICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoIkVSUjogIiArIGVycm9yLlRyaW0oKSk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIENQSC5TZW5kWW91VHViZU1lc3NhZ2VUb0xhdGVzdE1vbml0b3JlZCgiRXhlY3V0ZSBmYWlsZWQ6ICIgKyBleC5NZXNzYWdlKTsKICAgICAgICB9CgogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9",
+                                                            "precompile":  false,
+                                                            "delayStart":  false,
+                                                            "saveResultToVariable":  false,
+                                                            "saveToVariable":  null,
+                                                            "id":  "9ab24e92-55f3-4056-bc2b-c6aba8cc953e",
+                                                            "weight":  0.0,
+                                                            "type":  99999,
+                                                            "parentId":  null,
+                                                            "enabled":  true,
+                                                            "index":  0
+                                                        }
+                                                    ],
+                                     "collapsedGroups":  [
+
+                                                         ]
+                                 },
+                                 {
+                                     "id":  "20864e17-410d-44ab-bd29-64591c880de6",
+                                     "queue":  "00000000-0000-0000-0000-000000000000",
+                                     "enabled":  true,
+                                     "excludeFromHistory":  false,
+                                     "excludeFromPending":  false,
+                                     "name":  "Pokemon Chat Game Catch",
+                                     "group":  "",
+                                     "alwaysRun":  false,
+                                     "randomAction":  false,
+                                     "concurrent":  false,
+                                     "triggers":  [
+                                                      {
+                                                          "commandId":  "21e10de9-73b0-47fd-86c3-9d43ab57a84d",
+                                                          "id":  "fdff02ec-ed3e-4e3f-a290-8c4671a7a0ec",
+                                                          "type":  401,
+                                                          "enabled":  true,
+                                                          "exclusions":  [
+
+                                                                         ]
+                                                      }
+                                                  ],
+                                     "subActions":  [
+                                                        {
+                                                            "name":  null,
+                                                            "description":  null,
+                                                            "references":  [
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll",
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\System.dll"
+                                                                           ],
+                                                            "byteCode":  "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XFxDb2RlXFxwb2tlbW9uXFxQb2tlbW9uIENoYXRHYW1lXFxHYW1lRW5naW5lXFxHYW1lRW5naW5lLmV4ZSI7CiAgICAgICAgc3RyaW5nIHVzZXIgPSAiIjsKICAgICAgICBDUEguVHJ5R2V0QXJnKCJ1c2VyIiwgb3V0IHVzZXIpOwogICAgICAgIHN0cmluZyBhcmdzID0gJCJjYXRjaCB7dXNlcn0iOwoKICAgICAgICB0cnkKICAgICAgICB7CiAgICAgICAgICAgIHZhciBwc2kgPSBuZXcgUHJvY2Vzc1N0YXJ0SW5mbwogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBGaWxlTmFtZSA9IGV4ZSwKICAgICAgICAgICAgICAgIEFyZ3VtZW50cyA9IGFyZ3MsCiAgICAgICAgICAgICAgICBXb3JraW5nRGlyZWN0b3J5ID0gQCJEOlxcQ29kZVxccG9rZW1vblxcUG9rZW1vbiBDaGF0R2FtZSIsCiAgICAgICAgICAgICAgICBVc2VTaGVsbEV4ZWN1dGUgPSBmYWxzZSwKICAgICAgICAgICAgICAgIFJlZGlyZWN0U3RhbmRhcmRPdXRwdXQgPSB0cnVlLAogICAgICAgICAgICAgICAgUmVkaXJlY3RTdGFuZGFyZEVycm9yID0gdHJ1ZSwKICAgICAgICAgICAgICAgIENyZWF0ZU5vV2luZG93ID0gdHJ1ZQogICAgICAgICAgICB9OwoKICAgICAgICAgICAgdXNpbmcgKHZhciBwID0gUHJvY2Vzcy5TdGFydChwc2kpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBzdHJpbmcgb3V0cHV0ID0gcC5TdGFuZGFyZE91dHB1dC5SZWFkVG9FbmQoKTsKICAgICAgICAgICAgICAgIHN0cmluZyBlcnJvciA9IHAuU3RhbmRhcmRFcnJvci5SZWFkVG9FbmQoKTsKICAgICAgICAgICAgICAgIHAuV2FpdEZvckV4aXQoKTsKCiAgICAgICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPcldoaXRlU3BhY2Uob3V0cHV0KSkKICAgICAgICAgICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQob3V0cHV0LlRyaW0oKSk7CgogICAgICAgICAgICAgICAgaWYgKCFzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKGVycm9yKSkKICAgICAgICAgICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoIkVSUjogIiArIGVycm9yLlRyaW0oKSk7CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICAgICAgY2F0Y2ggKEV4Y2VwdGlvbiBleCkKICAgICAgICB7CiAgICAgICAgICAgIENQSC5TZW5kWW91VHViZU1lc3NhZ2VUb0xhdGVzdE1vbml0b3JlZCgiRXhlY3V0ZSBmYWlsZWQ6ICIgKyBleC5NZXNzYWdlKTsKICAgICAgICB9CgogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9",
+                                                            "precompile":  false,
+                                                            "delayStart":  false,
+                                                            "saveResultToVariable":  false,
+                                                            "saveToVariable":  null,
+                                                            "id":  "09210f59-618b-48b3-aae6-44ca697f0b00",
+                                                            "weight":  0.0,
+                                                            "type":  99999,
+                                                            "parentId":  null,
+                                                            "enabled":  true,
+                                                            "index":  0
+                                                        }
+                                                    ],
+                                     "collapsedGroups":  [
+
+                                                         ]
+                                 },
+                                 {
+                                     "id":  "c2ff6837-a13a-4c78-9066-3e0a24e29b8b",
+                                     "queue":  "00000000-0000-0000-0000-000000000000",
+                                     "enabled":  true,
+                                     "excludeFromHistory":  false,
+                                     "excludeFromPending":  false,
+                                     "name":  "Pokemon Chat Game Inventory",
+                                     "group":  "",
+                                     "alwaysRun":  false,
+                                     "randomAction":  false,
+                                     "concurrent":  false,
+                                     "triggers":  [
+                                                      {
+                                                          "commandId":  "9751d48b-3344-48cb-aa04-57e79de641dc",
+                                                          "id":  "d15d6c14-1856-421e-904e-28f5a2e874f0",
+                                                          "type":  401,
+                                                          "enabled":  true,
+                                                          "exclusions":  [
+
+                                                                         ]
+                                                      }
+                                                  ],
+                                     "subActions":  [
+                                                        {
+                                                            "name":  null,
+                                                            "description":  null,
+                                                            "references":  [
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll",
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\System.dll"
+                                                                           ],
+                                                            "byteCode":  "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XFxDb2RlXFxwb2tlbW9uXFxQb2tlbW9uIENoYXRHYW1lXFxHYW1lRW5naW5lXFxHYW1lRW5naW5lLmV4ZSI7CiAgICAgICAgc3RyaW5nIHVzZXIgPSAiIjsKICAgICAgICBDUEguVHJ5R2V0QXJnKCJ1c2VyIiwgb3V0IHVzZXIpOwogICAgICAgIHN0cmluZyBhcmdzID0gJCJpbnZlbnRvcnkge3VzZXJ9IjsKCiAgICAgICAgdHJ5CiAgICAgICAgewogICAgICAgICAgICB2YXIgcHNpID0gbmV3IFByb2Nlc3NTdGFydEluZm8KICAgICAgICAgICAgewogICAgICAgICAgICAgICAgRmlsZU5hbWUgPSBleGUsCiAgICAgICAgICAgICAgICBBcmd1bWVudHMgPSBhcmdzLAogICAgICAgICAgICAgICAgV29ya2luZ0RpcmVjdG9yeSA9IEAiRDpcXENvZGVcXHBva2Vtb25cXFBva2Vtb24gQ2hhdEdhbWUiLAogICAgICAgICAgICAgICAgVXNlU2hlbGxFeGVjdXRlID0gZmFsc2UsCiAgICAgICAgICAgICAgICBSZWRpcmVjdFN0YW5kYXJkT3V0cHV0ID0gdHJ1ZSwKICAgICAgICAgICAgICAgIFJlZGlyZWN0U3RhbmRhcmRFcnJvciA9IHRydWUsCiAgICAgICAgICAgICAgICBDcmVhdGVOb1dpbmRvdyA9IHRydWUKICAgICAgICAgICAgfTsKCiAgICAgICAgICAgIHVzaW5nICh2YXIgcCA9IFByb2Nlc3MuU3RhcnQocHNpKSkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgc3RyaW5nIG91dHB1dCA9IHAuU3RhbmRhcmRPdXRwdXQuUmVhZFRvRW5kKCk7CiAgICAgICAgICAgICAgICBzdHJpbmcgZXJyb3IgPSBwLlN0YW5kYXJkRXJyb3IuUmVhZFRvRW5kKCk7CiAgICAgICAgICAgICAgICBwLldhaXRGb3JFeGl0KCk7CgogICAgICAgICAgICAgICAgaWYgKCFzdHJpbmcuSXNOdWxsT3JXaGl0ZVNwYWNlKG91dHB1dCkpCiAgICAgICAgICAgICAgICAgICAgQ1BILlNlbmRZb3VUdWJlTWVzc2FnZVRvTGF0ZXN0TW9uaXRvcmVkKG91dHB1dC5UcmltKCkpOwoKICAgICAgICAgICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShlcnJvcikpCiAgICAgICAgICAgICAgICAgICAgQ1BILlNlbmRZb3VUdWJlTWVzc2FnZVRvTGF0ZXN0TW9uaXRvcmVkKCJFUlI6ICIgKyBlcnJvci5UcmltKCkpOwogICAgICAgICAgICB9CiAgICAgICAgfQogICAgICAgIGNhdGNoIChFeGNlcHRpb24gZXgpCiAgICAgICAgewogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoIkV4ZWN1dGUgZmFpbGVkOiAiICsgZXguTWVzc2FnZSk7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gdHJ1ZTsKICAgIH0KfQ==",
+                                                            "precompile":  false,
+                                                            "delayStart":  false,
+                                                            "saveResultToVariable":  false,
+                                                            "saveToVariable":  null,
+                                                            "id":  "cf3cb32f-412d-412b-b816-72fb637e898d",
+                                                            "weight":  0.0,
+                                                            "type":  99999,
+                                                            "parentId":  null,
+                                                            "enabled":  true,
+                                                            "index":  0
+                                                        }
+                                                    ],
+                                     "collapsedGroups":  [
+
+                                                         ]
+                                 },
+                                 {
+                                     "id":  "5fff7819-4827-4229-89ee-3f390250bcec",
+                                     "queue":  "00000000-0000-0000-0000-000000000000",
+                                     "enabled":  true,
+                                     "excludeFromHistory":  false,
+                                     "excludeFromPending":  false,
+                                     "name":  "Pokemon Chat Game Battle",
+                                     "group":  "",
+                                     "alwaysRun":  false,
+                                     "randomAction":  false,
+                                     "concurrent":  false,
+                                     "triggers":  [
+                                                      {
+                                                          "commandId":  "3067a905-3394-496d-b754-6255684d4834",
+                                                          "id":  "382d8843-aaa7-48cd-967a-d87c0eee0ecb",
+                                                          "type":  401,
+                                                          "enabled":  true,
+                                                          "exclusions":  [
+
+                                                                         ]
+                                                      }
+                                                  ],
+                                     "subActions":  [
+                                                        {
+                                                            "name":  null,
+                                                            "description":  null,
+                                                            "references":  [
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll",
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\System.dll"
+                                                                           ],
+                                                            "byteCode":  "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CgpwdWJsaWMgY2xhc3MgQ1BISW5saW5lCnsKICAgIHB1YmxpYyBib29sIEV4ZWN1dGUoKQogICAgewogICAgICAgIHN0cmluZyBleGUgPSBAIkQ6XFxDb2RlXFxwb2tlbW9uXFxQb2tlbW9uIENoYXRHYW1lXFxHYW1lRW5naW5lXFxHYW1lRW5naW5lLmV4ZSI7CiAgICAgICAgc3RyaW5nIHVzZXIgPSAiIjsKICAgICAgICBDUEguVHJ5R2V0QXJnKCJ1c2VyIiwgb3V0IHVzZXIpOwogICAgICAgIHN0cmluZyBhcmcxID0gIiI7CiAgICAgICAgQ1BILlRyeUdldEFyZygiYXJnMSIsIG91dCBhcmcxKTsKCiAgICAgICAgaWYgKHN0cmluZy5Jc051bGxPcldoaXRlU3BhY2UoYXJnMSkpCiAgICAgICAgewogICAgICAgICAgICBzdHJpbmcgcmF3ID0gIiI7CiAgICAgICAgICAgIENQSC5UcnlHZXRBcmcoInJhd0lucHV0Iiwgb3V0IHJhdyk7CiAgICAgICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShyYXcpKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICB2YXIgcGFydHMgPSByYXcuVHJpbSgpLlNwbGl0KG5ld1tdIHsgJyAnIH0sIFN0cmluZ1NwbGl0T3B0aW9ucy5SZW1vdmVFbXB0eUVudHJpZXMpOwogICAgICAgICAgICAgICAgaWYgKHBhcnRzLkxlbmd0aCA+IDApIGFyZzEgPSBwYXJ0c1swXTsKICAgICAgICAgICAgfQogICAgICAgIH0KCiAgICAgICAgaWYgKHN0cmluZy5Jc051bGxPcldoaXRlU3BhY2UoYXJnMSkpCiAgICAgICAgewogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoIlVzYWdlOiAhYmF0dGxlIDx1c2VyPiIpOwogICAgICAgICAgICByZXR1cm4gdHJ1ZTsKICAgICAgICB9CgogICAgICAgIHN0cmluZyBhcmdzID0gJCJiYXR0bGUge3VzZXJ9IHthcmcxfSI7CgogICAgICAgIHRyeQogICAgICAgIHsKICAgICAgICAgICAgdmFyIHBzaSA9IG5ldyBQcm9jZXNzU3RhcnRJbmZvCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIEZpbGVOYW1lID0gZXhlLAogICAgICAgICAgICAgICAgQXJndW1lbnRzID0gYXJncywKICAgICAgICAgICAgICAgIFdvcmtpbmdEaXJlY3RvcnkgPSBAIkQ6XFxDb2RlXFxwb2tlbW9uXFxQb2tlbW9uIENoYXRHYW1lIiwKICAgICAgICAgICAgICAgIFVzZVNoZWxsRXhlY3V0ZSA9IGZhbHNlLAogICAgICAgICAgICAgICAgUmVkaXJlY3RTdGFuZGFyZE91dHB1dCA9IHRydWUsCiAgICAgICAgICAgICAgICBSZWRpcmVjdFN0YW5kYXJkRXJyb3IgPSB0cnVlLAogICAgICAgICAgICAgICAgQ3JlYXRlTm9XaW5kb3cgPSB0cnVlCiAgICAgICAgICAgIH07CgogICAgICAgICAgICB1c2luZyAodmFyIHAgPSBQcm9jZXNzLlN0YXJ0KHBzaSkpCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIHN0cmluZyBvdXRwdXQgPSBwLlN0YW5kYXJkT3V0cHV0LlJlYWRUb0VuZCgpOwogICAgICAgICAgICAgICAgc3RyaW5nIGVycm9yID0gcC5TdGFuZGFyZEVycm9yLlJlYWRUb0VuZCgpOwogICAgICAgICAgICAgICAgcC5XYWl0Rm9yRXhpdCgpOwoKICAgICAgICAgICAgICAgIGlmICghc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShvdXRwdXQpKQogICAgICAgICAgICAgICAgICAgIENQSC5TZW5kWW91VHViZU1lc3NhZ2VUb0xhdGVzdE1vbml0b3JlZChvdXRwdXQuVHJpbSgpKTsKCiAgICAgICAgICAgICAgICBpZiAoIXN0cmluZy5Jc051bGxPcldoaXRlU3BhY2UoZXJyb3IpKQogICAgICAgICAgICAgICAgICAgIENQSC5TZW5kWW91VHViZU1lc3NhZ2VUb0xhdGVzdE1vbml0b3JlZCgiRVJSOiAiICsgZXJyb3IuVHJpbSgpKTsKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICBjYXRjaCAoRXhjZXB0aW9uIGV4KQogICAgICAgIHsKICAgICAgICAgICAgQ1BILlNlbmRZb3VUdWJlTWVzc2FnZVRvTGF0ZXN0TW9uaXRvcmVkKCJFeGVjdXRlIGZhaWxlZDogIiArIGV4Lk1lc3NhZ2UpOwogICAgICAgIH0KCiAgICAgICAgcmV0dXJuIHRydWU7CiAgICB9Cn0=",
+                                                            "precompile":  false,
+                                                            "delayStart":  false,
+                                                            "saveResultToVariable":  false,
+                                                            "saveToVariable":  null,
+                                                            "id":  "64d47424-a3a5-4bcf-bc9c-b2a0bf065f44",
+                                                            "weight":  0.0,
+                                                            "type":  99999,
+                                                            "parentId":  null,
+                                                            "enabled":  true,
+                                                            "index":  0
+                                                        }
+                                                    ],
+                                     "collapsedGroups":  [
+
+                                                         ]
+                                 },
+                                 {
+                                     "id":  "8c262cfe-c259-4ae9-afa0-139f4d591e76",
+                                     "queue":  "00000000-0000-0000-0000-000000000000",
+                                     "enabled":  true,
+                                     "excludeFromHistory":  false,
+                                     "excludeFromPending":  false,
+                                     "name":  "Pokemon Chat Game Set Spawn Time",
+                                     "group":  "",
+                                     "alwaysRun":  false,
+                                     "randomAction":  false,
+                                     "concurrent":  false,
+                                     "triggers":  [
+                                                      {
+                                                          "commandId":  "da22875e-e85d-4036-8077-bb439166c135",
+                                                          "id":  "655a0b59-6c6e-479e-b3b4-493c4ffd06eb",
+                                                          "type":  401,
+                                                          "enabled":  true,
+                                                          "exclusions":  [
+
+                                                                         ]
+                                                      }
+                                                  ],
+                                     "subActions":  [
+                                                        {
+                                                            "name":  null,
+                                                            "description":  null,
+                                                            "references":  [
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll",
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\System.dll"
+                                                                           ],
+                                                            "byteCode":  "dXNpbmcgU3lzdGVtOwoKcHVibGljIGNsYXNzIENQSElubGluZQp7CiAgICBwdWJsaWMgYm9vbCBFeGVjdXRlKCkKICAgIHsKICAgICAgICBzdHJpbmcgcmF3ID0gIiI7CiAgICAgICAgQ1BILlRyeUdldEFyZygicmF3SW5wdXQiLCBvdXQgcmF3KTsKICAgICAgICBpZiAoc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShyYXcpKQogICAgICAgIHsKICAgICAgICAgICAgQ1BILlRyeUdldEFyZygiaW5wdXQwIiwgb3V0IHJhdyk7CiAgICAgICAgfQoKICAgICAgICBpZiAoc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShyYXcpKQogICAgICAgIHsKICAgICAgICAgICAgaW50IGN1cnJlbnQgPSBDUEguR2V0R2xvYmFsVmFyPGludD8+KCJzcGF3bnRpbWUiLCB0cnVlKSA/PyAwOwogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoJCJVc2FnZTogIXNwYXdudGltZSA8c2Vjb25kcz4gKDAgdG8gZGlzYWJsZSkuIEN1cnJlbnQ6IHtjdXJyZW50fXMuIik7CiAgICAgICAgICAgIHJldHVybiB0cnVlOwogICAgICAgIH0KCiAgICAgICAgaWYgKCFpbnQuVHJ5UGFyc2UocmF3LlRyaW0oKSwgb3V0IGludCBzZWNvbmRzKSB8fCBzZWNvbmRzIDwgMCkKICAgICAgICB7CiAgICAgICAgICAgIENQSC5TZW5kWW91VHViZU1lc3NhZ2VUb0xhdGVzdE1vbml0b3JlZCgiSW52YWxpZCBzcGF3bnRpbWUuIFVzZSBzZWNvbmRzID49IDAuIik7CiAgICAgICAgICAgIHJldHVybiB0cnVlOwogICAgICAgIH0KCiAgICAgICAgQ1BILlNldEdsb2JhbFZhcigic3Bhd250aW1lIiwgc2Vjb25kcywgdHJ1ZSk7CgogICAgICAgIGlmIChzZWNvbmRzID09IDApCiAgICAgICAgewogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoIkF1dG8gc3Bhd24gZGlzYWJsZWQuIik7CiAgICAgICAgfQogICAgICAgIGVsc2UKICAgICAgICB7CiAgICAgICAgICAgIENQSC5TZW5kWW91VHViZU1lc3NhZ2VUb0xhdGVzdE1vbml0b3JlZCgkIkF1dG8gc3Bhd24gZXZlcnkge3NlY29uZHN9cy4iKTsKICAgICAgICAgICAgQ1BILlJ1bkFjdGlvbigiUG9rZW1vbiBDaGF0IEdhbWUgQXV0byBTcGF3biBMb29wIik7CiAgICAgICAgfQoKICAgICAgICByZXR1cm4gdHJ1ZTsKICAgIH0KfQ==",
+                                                            "precompile":  false,
+                                                            "delayStart":  false,
+                                                            "saveResultToVariable":  false,
+                                                            "saveToVariable":  null,
+                                                            "id":  "77b14cc9-57b9-402f-92f0-4d4cbbfd66e4",
+                                                            "weight":  0,
+                                                            "type":  99999,
+                                                            "parentId":  null,
+                                                            "enabled":  true,
+                                                            "index":  0
+                                                        }
+                                                    ],
+                                     "collapsedGroups":  [
+
+                                                         ]
+                                 },
+                                 {
+                                     "id":  "3dd2d803-0e55-4e43-9206-1968fd88424c",
+                                     "queue":  "00000000-0000-0000-0000-000000000000",
+                                     "enabled":  true,
+                                     "excludeFromHistory":  false,
+                                     "excludeFromPending":  false,
+                                     "name":  "Pokemon Chat Game Auto Spawn Loop",
+                                     "group":  "",
+                                     "alwaysRun":  false,
+                                     "randomAction":  false,
+                                     "concurrent":  false,
+                                     "triggers":  [
+
+                                                  ],
+                                     "subActions":  [
+                                                        {
+                                                            "name":  null,
+                                                            "description":  null,
+                                                            "references":  [
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll",
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\System.dll"
+                                                                           ],
+                                                            "byteCode":  "dXNpbmcgU3lzdGVtOwoKcHVibGljIGNsYXNzIENQSElubGluZQp7CiAgICBwdWJsaWMgYm9vbCBFeGVjdXRlKCkKICAgIHsKICAgICAgICBib29sIHJ1bm5pbmcgPSBDUEguR2V0R2xvYmFsVmFyPGJvb2w/Pigic3Bhd250aW1lX3J1bm5pbmciLCB0cnVlKSA/PyBmYWxzZTsKICAgICAgICBpZiAocnVubmluZykKICAgICAgICAgICAgcmV0dXJuIHRydWU7CgogICAgICAgIENQSC5TZXRHbG9iYWxWYXIoInNwYXdudGltZV9ydW5uaW5nIiwgdHJ1ZSwgdHJ1ZSk7CgogICAgICAgIC8vIEVuc3VyZSBkZWZhdWx0cwogICAgICAgIGludCBzcGF3bnRpbWUgPSBDUEguR2V0R2xvYmFsVmFyPGludD8+KCJzcGF3bnRpbWUiLCB0cnVlKSA/PyAwOwogICAgICAgIGlmIChzcGF3bnRpbWUgPD0gMCkKICAgICAgICB7CiAgICAgICAgICAgIENQSC5TZXRHbG9iYWxWYXIoInNwYXdudGltZV9ydW5uaW5nIiwgZmFsc2UsIHRydWUpOwogICAgICAgICAgICByZXR1cm4gdHJ1ZTsKICAgICAgICB9CiAgICAgICAgaWYgKChDUEguR2V0R2xvYmFsVmFyPGludD8+KCJzcGF3bmNvb2xkb3duIiwgdHJ1ZSkgPz8gLTEpIDwgMCkKICAgICAgICAgICAgQ1BILlNldEdsb2JhbFZhcigic3Bhd25jb29sZG93biIsIDMwMCwgdHJ1ZSk7CgogICAgICAgIHdoaWxlICh0cnVlKQogICAgICAgIHsKICAgICAgICAgICAgc3Bhd250aW1lID0gQ1BILkdldEdsb2JhbFZhcjxpbnQ/Pigic3Bhd250aW1lIiwgdHJ1ZSkgPz8gMDsKICAgICAgICAgICAgaW50IGNvb2xkb3duID0gQ1BILkdldEdsb2JhbFZhcjxpbnQ/Pigic3Bhd25jb29sZG93biIsIHRydWUpID8/IDA7CgogICAgICAgICAgICBpZiAoc3Bhd250aW1lIDw9IDApCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgIENQSC5TZXRHbG9iYWxWYXIoInNwYXdudGltZV9ydW5uaW5nIiwgZmFsc2UsIHRydWUpOwogICAgICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIENQSC5XYWl0KHNwYXdudGltZSAqIDEwMDApOwoKICAgICAgICAgICAgc3Bhd250aW1lID0gQ1BILkdldEdsb2JhbFZhcjxpbnQ/Pigic3Bhd250aW1lIiwgdHJ1ZSkgPz8gMDsKICAgICAgICAgICAgY29vbGRvd24gPSBDUEguR2V0R2xvYmFsVmFyPGludD8+KCJzcGF3bmNvb2xkb3duIiwgdHJ1ZSkgPz8gMDsKICAgICAgICAgICAgaWYgKHNwYXdudGltZSA8PSAwKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBDUEguU2V0R2xvYmFsVmFyKCJzcGF3bnRpbWVfcnVubmluZyIsIGZhbHNlLCB0cnVlKTsKICAgICAgICAgICAgICAgIHJldHVybiB0cnVlOwogICAgICAgICAgICB9CgogICAgICAgICAgICBpZiAoY29vbGRvd24gPiAwKQogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICBsb25nIGxhc3QgPSBDUEguR2V0R2xvYmFsVmFyPGxvbmc/PigibGFzdF9zcGF3bl90cyIsIHRydWUpID8/IDA7CiAgICAgICAgICAgICAgICBsb25nIG5vdyA9IERhdGVUaW1lT2Zmc2V0LlV0Y05vdy5Ub1VuaXhUaW1lU2Vjb25kcygpOwogICAgICAgICAgICAgICAgbG9uZyBlbGFwc2VkID0gbm93IC0gbGFzdDsKICAgICAgICAgICAgICAgIGlmIChlbGFwc2VkIDwgY29vbGRvd24pCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgICAgbG9uZyByZW1haW5pbmcgPSBjb29sZG93biAtIGVsYXBzZWQ7CiAgICAgICAgICAgICAgICAgICAgQ1BILldhaXQoKGludClNYXRoLk1pbihyZW1haW5pbmcsIGludC5NYXhWYWx1ZSAvIDEwMDApICogMTAwMCk7CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIHNwYXdudGltZSA9IENQSC5HZXRHbG9iYWxWYXI8aW50Pz4oInNwYXdudGltZSIsIHRydWUpID8/IDA7CiAgICAgICAgICAgIGlmIChzcGF3bnRpbWUgPD0gMCkKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgQ1BILlNldEdsb2JhbFZhcigic3Bhd250aW1lX3J1bm5pbmciLCBmYWxzZSwgdHJ1ZSk7CiAgICAgICAgICAgICAgICByZXR1cm4gdHJ1ZTsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgQ1BILlJ1bkFjdGlvbigiUG9rZW1vbiBDaGF0IEdhbWUgU3Bhd24iKTsKICAgICAgICAgICAgQ1BILlNldEdsb2JhbFZhcigibGFzdF9zcGF3bl90cyIsIERhdGVUaW1lT2Zmc2V0LlV0Y05vdy5Ub1VuaXhUaW1lU2Vjb25kcygpLCB0cnVlKTsKICAgICAgICB9CiAgICB9Cn0=",
+                                                            "precompile":  false,
+                                                            "delayStart":  false,
+                                                            "saveResultToVariable":  false,
+                                                            "saveToVariable":  null,
+                                                            "id":  "fc408176-c4d3-4ca0-a9a8-5cb659ead876",
+                                                            "weight":  0,
+                                                            "type":  99999,
+                                                            "parentId":  null,
+                                                            "enabled":  true,
+                                                            "index":  0
+                                                        }
+                                                    ],
+                                     "collapsedGroups":  [
+
+                                                         ]
+                                 },
+                                 {
+                                     "id":  "d4053f03-9b9c-43c5-948f-c5490b20e0f5",
+                                     "queue":  "00000000-0000-0000-0000-000000000000",
+                                     "enabled":  true,
+                                     "excludeFromHistory":  false,
+                                     "excludeFromPending":  false,
+                                     "name":  "Pokemon Chat Game Set Spawn Cooldown",
+                                     "group":  "",
+                                     "alwaysRun":  false,
+                                     "randomAction":  false,
+                                     "concurrent":  false,
+                                     "triggers":  [
+                                                      {
+                                                          "commandId":  "e90afe31-d4c2-4f22-8557-893bfc8d54d4",
+                                                          "id":  "daced544-86dd-4e2f-90f7-cc436e0e5c42",
+                                                          "type":  401,
+                                                          "enabled":  true,
+                                                          "exclusions":  [
+
+                                                                         ]
+                                                      }
+                                                  ],
+                                     "subActions":  [
+                                                        {
+                                                            "name":  null,
+                                                            "description":  null,
+                                                            "references":  [
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\mscorlib.dll",
+                                                                               "C:\\\\Windows\\\\Microsoft.NET\\\\Framework64\\\\v4.0.30319\\\\System.dll"
+                                                                           ],
+                                                            "byteCode":  "dXNpbmcgU3lzdGVtOwoKcHVibGljIGNsYXNzIENQSElubGluZQp7CiAgICBwdWJsaWMgYm9vbCBFeGVjdXRlKCkKICAgIHsKICAgICAgICBzdHJpbmcgcmF3ID0gIiI7CiAgICAgICAgQ1BILlRyeUdldEFyZygicmF3SW5wdXQiLCBvdXQgcmF3KTsKICAgICAgICBpZiAoc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShyYXcpKQogICAgICAgIHsKICAgICAgICAgICAgQ1BILlRyeUdldEFyZygiaW5wdXQwIiwgb3V0IHJhdyk7CiAgICAgICAgfQoKICAgICAgICBpZiAoc3RyaW5nLklzTnVsbE9yV2hpdGVTcGFjZShyYXcpKQogICAgICAgIHsKICAgICAgICAgICAgaW50IGN1cnJlbnQgPSBDUEguR2V0R2xvYmFsVmFyPGludD8+KCJzcGF3bmNvb2xkb3duIiwgdHJ1ZSkgPz8gMzAwOwogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoJCJVc2FnZTogIXNwYXduY29vbGRvd24gPHNlY29uZHM+ICgwIHRvIGRpc2FibGUpLiBDdXJyZW50OiB7Y3VycmVudH1zLiIpOwogICAgICAgICAgICByZXR1cm4gdHJ1ZTsKICAgICAgICB9CgogICAgICAgIGlmICghaW50LlRyeVBhcnNlKHJhdy5UcmltKCksIG91dCBpbnQgc2Vjb25kcykgfHwgc2Vjb25kcyA8IDApCiAgICAgICAgewogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoIkludmFsaWQgc3Bhd25jb29sZG93bi4gVXNlIHNlY29uZHMgPj0gMC4iKTsKICAgICAgICAgICAgcmV0dXJuIHRydWU7CiAgICAgICAgfQoKICAgICAgICBDUEguU2V0R2xvYmFsVmFyKCJzcGF3bmNvb2xkb3duIiwgc2Vjb25kcywgdHJ1ZSk7CgogICAgICAgIGlmIChzZWNvbmRzID09IDApCiAgICAgICAgewogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoIlNwYXduIGNvb2xkb3duIGRpc2FibGVkLiIpOwogICAgICAgIH0KICAgICAgICBlbHNlCiAgICAgICAgewogICAgICAgICAgICBDUEguU2VuZFlvdVR1YmVNZXNzYWdlVG9MYXRlc3RNb25pdG9yZWQoJCJTcGF3biBjb29sZG93biBzZXQgdG8ge3NlY29uZHN9cy4iKTsKICAgICAgICB9CgogICAgICAgIHJldHVybiB0cnVlOwogICAgfQp9",
+                                                            "precompile":  false,
+                                                            "delayStart":  false,
+                                                            "saveResultToVariable":  false,
+                                                            "saveToVariable":  null,
+                                                            "id":  "f5ecacc8-4562-48bf-9972-3e115546ad22",
+                                                            "weight":  0,
+                                                            "type":  99999,
+                                                            "parentId":  null,
+                                                            "enabled":  true,
+                                                            "index":  0
+                                                        }
+                                                    ],
+                                     "collapsedGroups":  [
+
+                                                         ]
+                                 }
+                             ],
+                 "queues":  [
+
+                            ],
+                 "commands":  [
+                                  {
+                                      "permittedUsers":  [
+
+                                                         ],
+                                      "permittedGroups":  [
+                                                              "Subscribers"
+                                                          ],
+                                      "id":  "03360d75-ddc2-4570-aae6-6992261684e3",
+                                      "name":  "spawn",
+                                      "enabled":  true,
+                                      "include":  false,
+                                      "mode":  0,
+                                      "command":  "!spawn",
+                                      "regexExplicitCapture":  false,
+                                      "location":  0,
+                                      "ignoreBotAccount":  true,
+                                      "ignoreInternal":  true,
+                                      "sources":  1024,
+                                      "persistCounter":  false,
+                                      "persistUserCounter":  false,
+                                      "caseSensitive":  false,
+                                      "globalCooldown":  0,
+                                      "userCooldown":  0,
+                                      "group":  null,
+                                      "grantType":  0
+                                  },
+                                  {
+                                      "permittedUsers":  [
+
+                                                         ],
+                                      "permittedGroups":  [
+                                                              "Subscribers"
+                                                          ],
+                                      "id":  "21e10de9-73b0-47fd-86c3-9d43ab57a84d",
+                                      "name":  "catch",
+                                      "enabled":  true,
+                                      "include":  false,
+                                      "mode":  0,
+                                      "command":  "!catch",
+                                      "regexExplicitCapture":  false,
+                                      "location":  0,
+                                      "ignoreBotAccount":  true,
+                                      "ignoreInternal":  true,
+                                      "sources":  1024,
+                                      "persistCounter":  false,
+                                      "persistUserCounter":  false,
+                                      "caseSensitive":  false,
+                                      "globalCooldown":  0,
+                                      "userCooldown":  0,
+                                      "group":  null,
+                                      "grantType":  0
+                                  },
+                                  {
+                                      "permittedUsers":  [
+
+                                                         ],
+                                      "permittedGroups":  [
+                                                              "Subscribers"
+                                                          ],
+                                      "id":  "9751d48b-3344-48cb-aa04-57e79de641dc",
+                                      "name":  "inventory",
+                                      "enabled":  true,
+                                      "include":  false,
+                                      "mode":  0,
+                                      "command":  "!inventory",
+                                      "regexExplicitCapture":  false,
+                                      "location":  0,
+                                      "ignoreBotAccount":  true,
+                                      "ignoreInternal":  true,
+                                      "sources":  1024,
+                                      "persistCounter":  false,
+                                      "persistUserCounter":  false,
+                                      "caseSensitive":  false,
+                                      "globalCooldown":  0,
+                                      "userCooldown":  0,
+                                      "group":  null,
+                                      "grantType":  0
+                                  },
+                                  {
+                                      "permittedUsers":  [
+
+                                                         ],
+                                      "permittedGroups":  [
+                                                              "Subscribers"
+                                                          ],
+                                      "id":  "3067a905-3394-496d-b754-6255684d4834",
+                                      "name":  "battle",
+                                      "enabled":  true,
+                                      "include":  false,
+                                      "mode":  0,
+                                      "command":  "!battle",
+                                      "regexExplicitCapture":  false,
+                                      "location":  0,
+                                      "ignoreBotAccount":  true,
+                                      "ignoreInternal":  true,
+                                      "sources":  1024,
+                                      "persistCounter":  false,
+                                      "persistUserCounter":  false,
+                                      "caseSensitive":  false,
+                                      "globalCooldown":  0,
+                                      "userCooldown":  0,
+                                      "group":  null,
+                                      "grantType":  0
+                                  },
+                                  {
+                                      "permittedUsers":  [
+
+                                                         ],
+                                      "permittedGroups":  [
+                                                              "Moderators"
+                                                          ],
+                                      "id":  "da22875e-e85d-4036-8077-bb439166c135",
+                                      "name":  "spawntime",
+                                      "enabled":  true,
+                                      "include":  false,
+                                      "mode":  0,
+                                      "command":  "!spawntime",
+                                      "regexExplicitCapture":  false,
+                                      "location":  0,
+                                      "ignoreBotAccount":  true,
+                                      "ignoreInternal":  true,
+                                      "sources":  1024,
+                                      "persistCounter":  false,
+                                      "persistUserCounter":  false,
+                                      "caseSensitive":  false,
+                                      "globalCooldown":  0,
+                                      "userCooldown":  0,
+                                      "group":  null,
+                                      "grantType":  0
+                                  },
+                                  {
+                                      "permittedUsers":  [
+
+                                                         ],
+                                      "permittedGroups":  [
+                                                              "Moderators"
+                                                          ],
+                                      "id":  "e90afe31-d4c2-4f22-8557-893bfc8d54d4",
+                                      "name":  "spawncooldown",
+                                      "enabled":  true,
+                                      "include":  false,
+                                      "mode":  0,
+                                      "command":  "!spawncooldown",
+                                      "regexExplicitCapture":  false,
+                                      "location":  0,
+                                      "ignoreBotAccount":  true,
+                                      "ignoreInternal":  true,
+                                      "sources":  1024,
+                                      "persistCounter":  false,
+                                      "persistUserCounter":  false,
+                                      "caseSensitive":  false,
+                                      "globalCooldown":  0,
+                                      "userCooldown":  0,
+                                      "group":  null,
+                                      "grantType":  0
+                                  }
+                              ],
+                 "websocketServers":  [
+
+                                      ],
+                 "websocketClients":  [
+
+                                      ],
+                 "timers":  [
+
+                            ]
+             },
+    "version":  23,
+    "exportedFrom":  "1.0.4",
+    "minimumVersion":  "1.0.0-alpha.1"
 }
