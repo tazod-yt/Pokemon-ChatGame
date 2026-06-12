@@ -21,16 +21,16 @@ DEFAULT_SETTINGS = {
 }
 
 DEFAULT_CREATURES = [
-    {"name": "Cinderling", "base_hp": 30, "base_attack": 8, "base_defense": 4, "catch_rate_mod": 1.0},
-    {"name": "Frostkit", "base_hp": 28, "base_attack": 7, "base_defense": 5, "catch_rate_mod": 1.0},
-    {"name": "Leaflet", "base_hp": 35, "base_attack": 6, "base_defense": 6, "catch_rate_mod": 1.0},
-    {"name": "Sparkfin", "base_hp": 26, "base_attack": 9, "base_defense": 3, "catch_rate_mod": 0.9},
-    {"name": "Stonepaw", "base_hp": 40, "base_attack": 6, "base_defense": 8, "catch_rate_mod": 0.8},
-    {"name": "Glimmerbug", "base_hp": 22, "base_attack": 10, "base_defense": 2, "catch_rate_mod": 0.9},
-    {"name": "Mistwisp", "base_hp": 25, "base_attack": 7, "base_defense": 4, "catch_rate_mod": 1.1},
-    {"name": "Ironling", "base_hp": 38, "base_attack": 8, "base_defense": 7, "catch_rate_mod": 0.75},
-    {"name": "Emberfox", "base_hp": 32, "base_attack": 9, "base_defense": 4, "catch_rate_mod": 0.85},
-    {"name": "Riverwing", "base_hp": 27, "base_attack": 8, "base_defense": 5, "catch_rate_mod": 1.05},
+    {"name": "Cinderling", "base_hp": 30, "base_attack": 8, "base_defense": 4, "catch_rate_mod": 100.0},
+    {"name": "Frostkit", "base_hp": 28, "base_attack": 7, "base_defense": 5, "catch_rate_mod": 100.0},
+    {"name": "Leaflet", "base_hp": 35, "base_attack": 6, "base_defense": 6, "catch_rate_mod": 100.0},
+    {"name": "Sparkfin", "base_hp": 26, "base_attack": 9, "base_defense": 3, "catch_rate_mod": 100.0},
+    {"name": "Stonepaw", "base_hp": 40, "base_attack": 6, "base_defense": 8, "catch_rate_mod": 100.0},
+    {"name": "Glimmerbug", "base_hp": 22, "base_attack": 10, "base_defense": 2, "catch_rate_mod": 100.0},
+    {"name": "Mistwisp", "base_hp": 25, "base_attack": 7, "base_defense": 4, "catch_rate_mod": 100.0},
+    {"name": "Ironling", "base_hp": 38, "base_attack": 8, "base_defense": 7, "catch_rate_mod": 100.0},
+    {"name": "Emberfox", "base_hp": 32, "base_attack": 9, "base_defense": 4, "catch_rate_mod": 100.0},
+    {"name": "Riverwing", "base_hp": 27, "base_attack": 8, "base_defense": 5, "catch_rate_mod": 100.0},
 ]
 
 USERNAME_RE = re.compile(r"[^a-zA-Z0-9_]")

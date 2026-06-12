@@ -132,6 +132,25 @@ The overlay polls `Data/overlay_state.json` once per second.
 
 The current JSON uses placeholders like `${user}` and `${arg1}`. Adjust to your Streamer.bot variable syntax if needed.
 
+## Tools
+
+The `Tools/` folder contains helper scripts that generate Streamer.bot exports or patch the engine source during development.
+
+| File | Purpose |
+| --- | --- |
+| `Tools/gen_streamerbot_export.py` | Generates the basic `Streamerbot/import_actions.json` export. |
+| `Tools/gen_full_import.py` | Generates a fuller Streamer.bot import that launches the EXE directly. |
+| `Tools/gen_full_import_with_chat.py` | Generates a full import that also reads `Data/last_chat_message.txt` and sends the result back to chat. |
+| `Tools/gen_full_import_with_csharp.py` | Generates a Streamer.bot export that embeds C# for the chat bridge flow. |
+| `Tools/gen_full_import_csharp_runner.py` | Generates a C# runner variant that starts the EXE and forwards stdout back to chat. |
+| `Tools/patch_chat_file.py` | Patch helper for adding chat message file support to `src/game_engine.py`. |
+| `Tools/patch_chat_file2.py` | Alternate patch helper for the same chat file support change. |
+| `Tools/patch_chat_output.py` | Patch helper that makes engine responses write to the chat output file too. |
+| `Tools/patch_chat_paths.py` | Patch helper that adds `last_chat_message.txt` to the engine path setup. |
+| `Tools/patch_overlay.py` | Patch helper that adjusts overlay behavior after catch and battle results. |
+
+These scripts were written for this checkout, so if you move the project elsewhere you may need to update the hardcoded root path inside them.
+
 
 ## Setup on Another PC (End User)
 

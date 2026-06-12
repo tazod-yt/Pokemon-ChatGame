@@ -1,8 +1,8 @@
 {
-  "spawn_interval_seconds": 300,
+  "spawn_interval_seconds": 3,
   "catch_timeout_seconds": 60,
   "base_catch_rate": 0.35,
   "battle_timeout_seconds": 120,
-  "cooldown_seconds": 20,
+  "cooldown_seconds": 1,
   "max_inventory_size": 50
 }
