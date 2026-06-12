@@ -158,7 +158,7 @@ These scripts were written for this checkout, so if you move the project elsewhe
 2. Run `GameEngine\GameEngine.exe` once to auto-create the database, config, and logs.
 3. In OBS, add a Browser Source with Local File enabled and select:
    - `Pokemon Chat Game/Overlay/index.html`
-4. In Streamer.bot, import `Streamerbot/import_actions.json`.
+4. In Streamer.bot, import `Streamerbot/import_actions.txt` (copy paste).
 5. Update action paths if your Streamer.bot working directory differs.
 6. Bind actions to chat commands (for example `!spawn`, `!catch`, `!inventory`, `!battle`).
 
@@ -199,4 +199,49 @@ Tests cover spawn, catch success/failure, inventory retrieval, battle simulation
 - Placeholder creature data is seeded; replace with full Pokémon specs later.
 
 
+# Downloaded Pokémon Data
 
+This project now includes a small data-downloading workflow for PokémonDB assets.
+
+## Generated Sprite Images
+
+The sprite downloader saves Gen 1 Pokémon sprites using Gen 6 artwork from PokémonDB. Files are written to:
+
+`data_downloader/images/pokemon`
+
+Filename format:
+
+- `001_Bulbasaur.png`
+- `002_Ivysaur.png`
+- `003_Venusaur.png`
+
+Run the sprite downloader with:
+
+```powershell
+python .\data_downloader\download_sprites.py
+```
+
+## Base Stats JSON
+
+The base stats downloader creates one JSON file containing the Gen 1 roster and their stats from PokémonDB. The file is written to:
+
+`data_downloader/pokemon_base_stats.json`
+
+Each Pokémon entry includes:
+
+- `name`
+- `base_stats` with `hp`, `attack`, `defense`, `sp_atk`, `sp_def`, `speed`, and `total`
+- `catch_rate`
+- `image_file`
+
+Run the stats downloader with:
+
+```powershell
+python .\data_downloader\download_base_stats.py
+```
+
+## Game Engine Data Source
+
+`src/game_engine.py` now loads its default creature roster from `data_downloader/pokemon_base_stats.json` instead of using a hard-coded list.
+
+If you regenerate the JSON file, rerun the game or rebuild the executable so it picks up the updated data.

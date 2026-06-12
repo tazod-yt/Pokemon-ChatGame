@@ -9,7 +9,7 @@ $dist = Join-Path $root "GameEngine"
 $work = Join-Path $root "build"
 
 Write-Host "Building GameEngine.exe..."
-& $Python -m PyInstaller --console --onefile --name GameEngine --distpath $dist --workpath $work --specpath $work $src
+& $Python -m PyInstaller --console --onefile --name GameEngine --distpath $dist --workpath $work --specpath $work --add-data "$root\data_downloader;data_downloader" $src
 if ($LASTEXITCODE -ne 0) {
   exit $LASTEXITCODE
 }

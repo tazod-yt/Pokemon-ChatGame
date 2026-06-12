@@ -20,18 +20,53 @@ DEFAULT_SETTINGS = {
     "max_inventory_size": 50,
 }
 
-DEFAULT_CREATURES = [
-    {"name": "Cinderling", "base_hp": 30, "base_attack": 8, "base_defense": 4, "catch_rate_mod": 100.0},
-    {"name": "Frostkit", "base_hp": 28, "base_attack": 7, "base_defense": 5, "catch_rate_mod": 100.0},
-    {"name": "Leaflet", "base_hp": 35, "base_attack": 6, "base_defense": 6, "catch_rate_mod": 100.0},
-    {"name": "Sparkfin", "base_hp": 26, "base_attack": 9, "base_defense": 3, "catch_rate_mod": 100.0},
-    {"name": "Stonepaw", "base_hp": 40, "base_attack": 6, "base_defense": 8, "catch_rate_mod": 100.0},
-    {"name": "Glimmerbug", "base_hp": 22, "base_attack": 10, "base_defense": 2, "catch_rate_mod": 100.0},
-    {"name": "Mistwisp", "base_hp": 25, "base_attack": 7, "base_defense": 4, "catch_rate_mod": 100.0},
-    {"name": "Ironling", "base_hp": 38, "base_attack": 8, "base_defense": 7, "catch_rate_mod": 100.0},
-    {"name": "Emberfox", "base_hp": 32, "base_attack": 9, "base_defense": 4, "catch_rate_mod": 100.0},
-    {"name": "Riverwing", "base_hp": 27, "base_attack": 8, "base_defense": 5, "catch_rate_mod": 100.0},
-]
+def get_data_downloader_dir() -> Path:
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        base_dir = Path(sys._MEIPASS)
+    else:
+        base_dir = Path(__file__).resolve().parent.parent
+    return base_dir / "data_downloader"
+
+
+DATA_DOWNLOADER_DIR = get_data_downloader_dir()
+POKEMON_STATS_FILE = DATA_DOWNLOADER_DIR / "pokemon_base_stats.json"
+
+
+def load_default_creatures() -> list[dict]:
+    """
+    Load the default creature roster from the downloaded JSON file.
+
+    The JSON stores PokémonDB stats as:
+    - name
+    - base_stats.hp / attack / defense
+    - catch_rate.value
+
+    We convert that into the engine's existing shape so the rest of the game
+    code can keep using base_hp/base_attack/base_defense/catch_rate_mod.
+    """
+    if not POKEMON_STATS_FILE.exists():
+        raise FileNotFoundError(f"Missing stats file: {POKEMON_STATS_FILE}")
+
+    payload = json.loads(POKEMON_STATS_FILE.read_text(encoding="utf-8"))
+    pokemon = payload.get("pokemon", {})
+
+    creatures: list[dict] = []
+    for entry in pokemon.values():
+        base_stats = entry.get("base_stats", {})
+        catch_rate = entry.get("catch_rate", {})
+        creatures.append(
+            {
+                "name": entry.get("name", ""),
+                "base_hp": int(base_stats.get("hp", 0)),
+                "base_attack": int(base_stats.get("attack", 0)),
+                "base_defense": int(base_stats.get("defense", 0)),
+                "catch_rate_mod": float(catch_rate.get("value", 100)),
+            }
+        )
+    return creatures
+
+
+DEFAULT_CREATURES = load_default_creatures()
 
 USERNAME_RE = re.compile(r"[^a-zA-Z0-9_]")
 

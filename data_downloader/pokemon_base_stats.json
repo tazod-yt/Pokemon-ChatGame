@@ -1,0 +1,2876 @@
+{
+  "source": "https://pokemondb.net/pokedex",
+  "generation": 1,
+  "count": 151,
+  "pokemon": {
+    "001_Bulbasaur": {
+      "dex_number": 1,
+      "name": "Bulbasaur",
+      "slug": "bulbasaur",
+      "url": "https://pokemondb.net/pokedex/bulbasaur",
+      "image_file": "001_Bulbasaur.png",
+      "base_stats": {
+        "hp": 45,
+        "attack": 49,
+        "defense": 49,
+        "sp_atk": 65,
+        "sp_def": 65,
+        "speed": 45,
+        "total": 318
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "002_Ivysaur": {
+      "dex_number": 2,
+      "name": "Ivysaur",
+      "slug": "ivysaur",
+      "url": "https://pokemondb.net/pokedex/ivysaur",
+      "image_file": "002_Ivysaur.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 62,
+        "defense": 63,
+        "sp_atk": 80,
+        "sp_def": 80,
+        "speed": 60,
+        "total": 405
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "003_Venusaur": {
+      "dex_number": 3,
+      "name": "Venusaur",
+      "slug": "venusaur",
+      "url": "https://pokemondb.net/pokedex/venusaur",
+      "image_file": "003_Venusaur.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 82,
+        "defense": 83,
+        "sp_atk": 100,
+        "sp_def": 100,
+        "speed": 80,
+        "total": 525
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "004_Charmander": {
+      "dex_number": 4,
+      "name": "Charmander",
+      "slug": "charmander",
+      "url": "https://pokemondb.net/pokedex/charmander",
+      "image_file": "004_Charmander.png",
+      "base_stats": {
+        "hp": 39,
+        "attack": 52,
+        "defense": 43,
+        "sp_atk": 60,
+        "sp_def": 50,
+        "speed": 65,
+        "total": 309
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "005_Charmeleon": {
+      "dex_number": 5,
+      "name": "Charmeleon",
+      "slug": "charmeleon",
+      "url": "https://pokemondb.net/pokedex/charmeleon",
+      "image_file": "005_Charmeleon.png",
+      "base_stats": {
+        "hp": 58,
+        "attack": 64,
+        "defense": 58,
+        "sp_atk": 80,
+        "sp_def": 65,
+        "speed": 80,
+        "total": 405
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "006_Charizard": {
+      "dex_number": 6,
+      "name": "Charizard",
+      "slug": "charizard",
+      "url": "https://pokemondb.net/pokedex/charizard",
+      "image_file": "006_Charizard.png",
+      "base_stats": {
+        "hp": 78,
+        "attack": 84,
+        "defense": 78,
+        "sp_atk": 109,
+        "sp_def": 85,
+        "speed": 100,
+        "total": 534
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "007_Squirtle": {
+      "dex_number": 7,
+      "name": "Squirtle",
+      "slug": "squirtle",
+      "url": "https://pokemondb.net/pokedex/squirtle",
+      "image_file": "007_Squirtle.png",
+      "base_stats": {
+        "hp": 44,
+        "attack": 48,
+        "defense": 65,
+        "sp_atk": 50,
+        "sp_def": 64,
+        "speed": 43,
+        "total": 314
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "008_Wartortle": {
+      "dex_number": 8,
+      "name": "Wartortle",
+      "slug": "wartortle",
+      "url": "https://pokemondb.net/pokedex/wartortle",
+      "image_file": "008_Wartortle.png",
+      "base_stats": {
+        "hp": 59,
+        "attack": 63,
+        "defense": 80,
+        "sp_atk": 65,
+        "sp_def": 80,
+        "speed": 58,
+        "total": 405
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "009_Blastoise": {
+      "dex_number": 9,
+      "name": "Blastoise",
+      "slug": "blastoise",
+      "url": "https://pokemondb.net/pokedex/blastoise",
+      "image_file": "009_Blastoise.png",
+      "base_stats": {
+        "hp": 79,
+        "attack": 83,
+        "defense": 100,
+        "sp_atk": 85,
+        "sp_def": 105,
+        "speed": 78,
+        "total": 530
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "010_Caterpie": {
+      "dex_number": 10,
+      "name": "Caterpie",
+      "slug": "caterpie",
+      "url": "https://pokemondb.net/pokedex/caterpie",
+      "image_file": "010_Caterpie.png",
+      "base_stats": {
+        "hp": 45,
+        "attack": 30,
+        "defense": 35,
+        "sp_atk": 20,
+        "sp_def": 20,
+        "speed": 45,
+        "total": 195
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "011_Metapod": {
+      "dex_number": 11,
+      "name": "Metapod",
+      "slug": "metapod",
+      "url": "https://pokemondb.net/pokedex/metapod",
+      "image_file": "011_Metapod.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 20,
+        "defense": 55,
+        "sp_atk": 25,
+        "sp_def": 25,
+        "speed": 30,
+        "total": 205
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "012_Butterfree": {
+      "dex_number": 12,
+      "name": "Butterfree",
+      "slug": "butterfree",
+      "url": "https://pokemondb.net/pokedex/butterfree",
+      "image_file": "012_Butterfree.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 45,
+        "defense": 50,
+        "sp_atk": 90,
+        "sp_def": 80,
+        "speed": 70,
+        "total": 395
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "013_Weedle": {
+      "dex_number": 13,
+      "name": "Weedle",
+      "slug": "weedle",
+      "url": "https://pokemondb.net/pokedex/weedle",
+      "image_file": "013_Weedle.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 35,
+        "defense": 30,
+        "sp_atk": 20,
+        "sp_def": 20,
+        "speed": 50,
+        "total": 195
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "014_Kakuna": {
+      "dex_number": 14,
+      "name": "Kakuna",
+      "slug": "kakuna",
+      "url": "https://pokemondb.net/pokedex/kakuna",
+      "image_file": "014_Kakuna.png",
+      "base_stats": {
+        "hp": 45,
+        "attack": 25,
+        "defense": 50,
+        "sp_atk": 25,
+        "sp_def": 25,
+        "speed": 35,
+        "total": 205
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "015_Beedrill": {
+      "dex_number": 15,
+      "name": "Beedrill",
+      "slug": "beedrill",
+      "url": "https://pokemondb.net/pokedex/beedrill",
+      "image_file": "015_Beedrill.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 90,
+        "defense": 40,
+        "sp_atk": 45,
+        "sp_def": 80,
+        "speed": 75,
+        "total": 395
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "016_Pidgey": {
+      "dex_number": 16,
+      "name": "Pidgey",
+      "slug": "pidgey",
+      "url": "https://pokemondb.net/pokedex/pidgey",
+      "image_file": "016_Pidgey.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 45,
+        "defense": 40,
+        "sp_atk": 35,
+        "sp_def": 35,
+        "speed": 56,
+        "total": 251
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "017_Pidgeotto": {
+      "dex_number": 17,
+      "name": "Pidgeotto",
+      "slug": "pidgeotto",
+      "url": "https://pokemondb.net/pokedex/pidgeotto",
+      "image_file": "017_Pidgeotto.png",
+      "base_stats": {
+        "hp": 63,
+        "attack": 60,
+        "defense": 55,
+        "sp_atk": 50,
+        "sp_def": 50,
+        "speed": 71,
+        "total": 349
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "018_Pidgeot": {
+      "dex_number": 18,
+      "name": "Pidgeot",
+      "slug": "pidgeot",
+      "url": "https://pokemondb.net/pokedex/pidgeot",
+      "image_file": "018_Pidgeot.png",
+      "base_stats": {
+        "hp": 83,
+        "attack": 80,
+        "defense": 75,
+        "sp_atk": 70,
+        "sp_def": 70,
+        "speed": 101,
+        "total": 479
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "019_Rattata": {
+      "dex_number": 19,
+      "name": "Rattata",
+      "slug": "rattata",
+      "url": "https://pokemondb.net/pokedex/rattata",
+      "image_file": "019_Rattata.png",
+      "base_stats": {
+        "hp": 30,
+        "attack": 56,
+        "defense": 35,
+        "sp_atk": 25,
+        "sp_def": 35,
+        "speed": 72,
+        "total": 253
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "020_Raticate": {
+      "dex_number": 20,
+      "name": "Raticate",
+      "slug": "raticate",
+      "url": "https://pokemondb.net/pokedex/raticate",
+      "image_file": "020_Raticate.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 81,
+        "defense": 60,
+        "sp_atk": 50,
+        "sp_def": 70,
+        "speed": 97,
+        "total": 413
+      },
+      "catch_rate": {
+        "value": 127
+      }
+    },
+    "021_Spearow": {
+      "dex_number": 21,
+      "name": "Spearow",
+      "slug": "spearow",
+      "url": "https://pokemondb.net/pokedex/spearow",
+      "image_file": "021_Spearow.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 60,
+        "defense": 30,
+        "sp_atk": 31,
+        "sp_def": 31,
+        "speed": 70,
+        "total": 262
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "022_Fearow": {
+      "dex_number": 22,
+      "name": "Fearow",
+      "slug": "fearow",
+      "url": "https://pokemondb.net/pokedex/fearow",
+      "image_file": "022_Fearow.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 90,
+        "defense": 65,
+        "sp_atk": 61,
+        "sp_def": 61,
+        "speed": 100,
+        "total": 442
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "023_Ekans": {
+      "dex_number": 23,
+      "name": "Ekans",
+      "slug": "ekans",
+      "url": "https://pokemondb.net/pokedex/ekans",
+      "image_file": "023_Ekans.png",
+      "base_stats": {
+        "hp": 35,
+        "attack": 60,
+        "defense": 44,
+        "sp_atk": 40,
+        "sp_def": 54,
+        "speed": 55,
+        "total": 288
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "024_Arbok": {
+      "dex_number": 24,
+      "name": "Arbok",
+      "slug": "arbok",
+      "url": "https://pokemondb.net/pokedex/arbok",
+      "image_file": "024_Arbok.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 95,
+        "defense": 69,
+        "sp_atk": 65,
+        "sp_def": 79,
+        "speed": 80,
+        "total": 448
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "025_Pikachu": {
+      "dex_number": 25,
+      "name": "Pikachu",
+      "slug": "pikachu",
+      "url": "https://pokemondb.net/pokedex/pikachu",
+      "image_file": "025_Pikachu.png",
+      "base_stats": {
+        "hp": 35,
+        "attack": 55,
+        "defense": 40,
+        "sp_atk": 50,
+        "sp_def": 50,
+        "speed": 90,
+        "total": 320
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "026_Raichu": {
+      "dex_number": 26,
+      "name": "Raichu",
+      "slug": "raichu",
+      "url": "https://pokemondb.net/pokedex/raichu",
+      "image_file": "026_Raichu.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 90,
+        "defense": 55,
+        "sp_atk": 90,
+        "sp_def": 80,
+        "speed": 110,
+        "total": 485
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "027_Sandshrew": {
+      "dex_number": 27,
+      "name": "Sandshrew",
+      "slug": "sandshrew",
+      "url": "https://pokemondb.net/pokedex/sandshrew",
+      "image_file": "027_Sandshrew.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 75,
+        "defense": 85,
+        "sp_atk": 20,
+        "sp_def": 30,
+        "speed": 40,
+        "total": 300
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "028_Sandslash": {
+      "dex_number": 28,
+      "name": "Sandslash",
+      "slug": "sandslash",
+      "url": "https://pokemondb.net/pokedex/sandslash",
+      "image_file": "028_Sandslash.png",
+      "base_stats": {
+        "hp": 75,
+        "attack": 100,
+        "defense": 110,
+        "sp_atk": 45,
+        "sp_def": 55,
+        "speed": 65,
+        "total": 450
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "029_Nidoran♀": {
+      "dex_number": 29,
+      "name": "Nidoran♀",
+      "slug": "nidoran-f",
+      "url": "https://pokemondb.net/pokedex/nidoran-f",
+      "image_file": "029_Nidoran♀.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 47,
+        "defense": 52,
+        "sp_atk": 40,
+        "sp_def": 40,
+        "speed": 41,
+        "total": 275
+      },
+      "catch_rate": {
+        "value": 235
+      }
+    },
+    "030_Nidorina": {
+      "dex_number": 30,
+      "name": "Nidorina",
+      "slug": "nidorina",
+      "url": "https://pokemondb.net/pokedex/nidorina",
+      "image_file": "030_Nidorina.png",
+      "base_stats": {
+        "hp": 70,
+        "attack": 62,
+        "defense": 67,
+        "sp_atk": 55,
+        "sp_def": 55,
+        "speed": 56,
+        "total": 365
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "031_Nidoqueen": {
+      "dex_number": 31,
+      "name": "Nidoqueen",
+      "slug": "nidoqueen",
+      "url": "https://pokemondb.net/pokedex/nidoqueen",
+      "image_file": "031_Nidoqueen.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 92,
+        "defense": 87,
+        "sp_atk": 75,
+        "sp_def": 85,
+        "speed": 76,
+        "total": 505
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "032_Nidoran♂": {
+      "dex_number": 32,
+      "name": "Nidoran♂",
+      "slug": "nidoran-m",
+      "url": "https://pokemondb.net/pokedex/nidoran-m",
+      "image_file": "032_Nidoran♂.png",
+      "base_stats": {
+        "hp": 46,
+        "attack": 57,
+        "defense": 40,
+        "sp_atk": 40,
+        "sp_def": 40,
+        "speed": 50,
+        "total": 273
+      },
+      "catch_rate": {
+        "value": 235
+      }
+    },
+    "033_Nidorino": {
+      "dex_number": 33,
+      "name": "Nidorino",
+      "slug": "nidorino",
+      "url": "https://pokemondb.net/pokedex/nidorino",
+      "image_file": "033_Nidorino.png",
+      "base_stats": {
+        "hp": 61,
+        "attack": 72,
+        "defense": 57,
+        "sp_atk": 55,
+        "sp_def": 55,
+        "speed": 65,
+        "total": 365
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "034_Nidoking": {
+      "dex_number": 34,
+      "name": "Nidoking",
+      "slug": "nidoking",
+      "url": "https://pokemondb.net/pokedex/nidoking",
+      "image_file": "034_Nidoking.png",
+      "base_stats": {
+        "hp": 81,
+        "attack": 102,
+        "defense": 77,
+        "sp_atk": 85,
+        "sp_def": 75,
+        "speed": 85,
+        "total": 505
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "035_Clefairy": {
+      "dex_number": 35,
+      "name": "Clefairy",
+      "slug": "clefairy",
+      "url": "https://pokemondb.net/pokedex/clefairy",
+      "image_file": "035_Clefairy.png",
+      "base_stats": {
+        "hp": 70,
+        "attack": 45,
+        "defense": 48,
+        "sp_atk": 60,
+        "sp_def": 65,
+        "speed": 35,
+        "total": 323
+      },
+      "catch_rate": {
+        "value": 150
+      }
+    },
+    "036_Clefable": {
+      "dex_number": 36,
+      "name": "Clefable",
+      "slug": "clefable",
+      "url": "https://pokemondb.net/pokedex/clefable",
+      "image_file": "036_Clefable.png",
+      "base_stats": {
+        "hp": 95,
+        "attack": 70,
+        "defense": 73,
+        "sp_atk": 95,
+        "sp_def": 90,
+        "speed": 60,
+        "total": 483
+      },
+      "catch_rate": {
+        "value": 25
+      }
+    },
+    "037_Vulpix": {
+      "dex_number": 37,
+      "name": "Vulpix",
+      "slug": "vulpix",
+      "url": "https://pokemondb.net/pokedex/vulpix",
+      "image_file": "037_Vulpix.png",
+      "base_stats": {
+        "hp": 38,
+        "attack": 41,
+        "defense": 40,
+        "sp_atk": 50,
+        "sp_def": 65,
+        "speed": 65,
+        "total": 299
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "038_Ninetales": {
+      "dex_number": 38,
+      "name": "Ninetales",
+      "slug": "ninetales",
+      "url": "https://pokemondb.net/pokedex/ninetales",
+      "image_file": "038_Ninetales.png",
+      "base_stats": {
+        "hp": 73,
+        "attack": 76,
+        "defense": 75,
+        "sp_atk": 81,
+        "sp_def": 100,
+        "speed": 100,
+        "total": 505
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "039_Jigglypuff": {
+      "dex_number": 39,
+      "name": "Jigglypuff",
+      "slug": "jigglypuff",
+      "url": "https://pokemondb.net/pokedex/jigglypuff",
+      "image_file": "039_Jigglypuff.png",
+      "base_stats": {
+        "hp": 115,
+        "attack": 45,
+        "defense": 20,
+        "sp_atk": 45,
+        "sp_def": 25,
+        "speed": 20,
+        "total": 270
+      },
+      "catch_rate": {
+        "value": 170
+      }
+    },
+    "040_Wigglytuff": {
+      "dex_number": 40,
+      "name": "Wigglytuff",
+      "slug": "wigglytuff",
+      "url": "https://pokemondb.net/pokedex/wigglytuff",
+      "image_file": "040_Wigglytuff.png",
+      "base_stats": {
+        "hp": 140,
+        "attack": 70,
+        "defense": 45,
+        "sp_atk": 85,
+        "sp_def": 50,
+        "speed": 45,
+        "total": 435
+      },
+      "catch_rate": {
+        "value": 50
+      }
+    },
+    "041_Zubat": {
+      "dex_number": 41,
+      "name": "Zubat",
+      "slug": "zubat",
+      "url": "https://pokemondb.net/pokedex/zubat",
+      "image_file": "041_Zubat.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 45,
+        "defense": 35,
+        "sp_atk": 30,
+        "sp_def": 40,
+        "speed": 55,
+        "total": 245
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "042_Golbat": {
+      "dex_number": 42,
+      "name": "Golbat",
+      "slug": "golbat",
+      "url": "https://pokemondb.net/pokedex/golbat",
+      "image_file": "042_Golbat.png",
+      "base_stats": {
+        "hp": 75,
+        "attack": 80,
+        "defense": 70,
+        "sp_atk": 65,
+        "sp_def": 75,
+        "speed": 90,
+        "total": 455
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "043_Oddish": {
+      "dex_number": 43,
+      "name": "Oddish",
+      "slug": "oddish",
+      "url": "https://pokemondb.net/pokedex/oddish",
+      "image_file": "043_Oddish.png",
+      "base_stats": {
+        "hp": 45,
+        "attack": 50,
+        "defense": 55,
+        "sp_atk": 75,
+        "sp_def": 65,
+        "speed": 30,
+        "total": 320
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "044_Gloom": {
+      "dex_number": 44,
+      "name": "Gloom",
+      "slug": "gloom",
+      "url": "https://pokemondb.net/pokedex/gloom",
+      "image_file": "044_Gloom.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 65,
+        "defense": 70,
+        "sp_atk": 85,
+        "sp_def": 75,
+        "speed": 40,
+        "total": 395
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "045_Vileplume": {
+      "dex_number": 45,
+      "name": "Vileplume",
+      "slug": "vileplume",
+      "url": "https://pokemondb.net/pokedex/vileplume",
+      "image_file": "045_Vileplume.png",
+      "base_stats": {
+        "hp": 75,
+        "attack": 80,
+        "defense": 85,
+        "sp_atk": 110,
+        "sp_def": 90,
+        "speed": 50,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "046_Paras": {
+      "dex_number": 46,
+      "name": "Paras",
+      "slug": "paras",
+      "url": "https://pokemondb.net/pokedex/paras",
+      "image_file": "046_Paras.png",
+      "base_stats": {
+        "hp": 35,
+        "attack": 70,
+        "defense": 55,
+        "sp_atk": 45,
+        "sp_def": 55,
+        "speed": 25,
+        "total": 285
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "047_Parasect": {
+      "dex_number": 47,
+      "name": "Parasect",
+      "slug": "parasect",
+      "url": "https://pokemondb.net/pokedex/parasect",
+      "image_file": "047_Parasect.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 95,
+        "defense": 80,
+        "sp_atk": 60,
+        "sp_def": 80,
+        "speed": 30,
+        "total": 405
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "048_Venonat": {
+      "dex_number": 48,
+      "name": "Venonat",
+      "slug": "venonat",
+      "url": "https://pokemondb.net/pokedex/venonat",
+      "image_file": "048_Venonat.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 55,
+        "defense": 50,
+        "sp_atk": 40,
+        "sp_def": 55,
+        "speed": 45,
+        "total": 305
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "049_Venomoth": {
+      "dex_number": 49,
+      "name": "Venomoth",
+      "slug": "venomoth",
+      "url": "https://pokemondb.net/pokedex/venomoth",
+      "image_file": "049_Venomoth.png",
+      "base_stats": {
+        "hp": 70,
+        "attack": 65,
+        "defense": 60,
+        "sp_atk": 90,
+        "sp_def": 75,
+        "speed": 90,
+        "total": 450
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "050_Diglett": {
+      "dex_number": 50,
+      "name": "Diglett",
+      "slug": "diglett",
+      "url": "https://pokemondb.net/pokedex/diglett",
+      "image_file": "050_Diglett.png",
+      "base_stats": {
+        "hp": 10,
+        "attack": 55,
+        "defense": 25,
+        "sp_atk": 35,
+        "sp_def": 45,
+        "speed": 95,
+        "total": 265
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "051_Dugtrio": {
+      "dex_number": 51,
+      "name": "Dugtrio",
+      "slug": "dugtrio",
+      "url": "https://pokemondb.net/pokedex/dugtrio",
+      "image_file": "051_Dugtrio.png",
+      "base_stats": {
+        "hp": 35,
+        "attack": 100,
+        "defense": 50,
+        "sp_atk": 50,
+        "sp_def": 70,
+        "speed": 120,
+        "total": 425
+      },
+      "catch_rate": {
+        "value": 50
+      }
+    },
+    "052_Meowth": {
+      "dex_number": 52,
+      "name": "Meowth",
+      "slug": "meowth",
+      "url": "https://pokemondb.net/pokedex/meowth",
+      "image_file": "052_Meowth.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 45,
+        "defense": 35,
+        "sp_atk": 40,
+        "sp_def": 40,
+        "speed": 90,
+        "total": 290
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "053_Persian": {
+      "dex_number": 53,
+      "name": "Persian",
+      "slug": "persian",
+      "url": "https://pokemondb.net/pokedex/persian",
+      "image_file": "053_Persian.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 70,
+        "defense": 60,
+        "sp_atk": 65,
+        "sp_def": 65,
+        "speed": 115,
+        "total": 440
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "054_Psyduck": {
+      "dex_number": 54,
+      "name": "Psyduck",
+      "slug": "psyduck",
+      "url": "https://pokemondb.net/pokedex/psyduck",
+      "image_file": "054_Psyduck.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 52,
+        "defense": 48,
+        "sp_atk": 65,
+        "sp_def": 50,
+        "speed": 55,
+        "total": 320
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "055_Golduck": {
+      "dex_number": 55,
+      "name": "Golduck",
+      "slug": "golduck",
+      "url": "https://pokemondb.net/pokedex/golduck",
+      "image_file": "055_Golduck.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 82,
+        "defense": 78,
+        "sp_atk": 95,
+        "sp_def": 80,
+        "speed": 85,
+        "total": 500
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "056_Mankey": {
+      "dex_number": 56,
+      "name": "Mankey",
+      "slug": "mankey",
+      "url": "https://pokemondb.net/pokedex/mankey",
+      "image_file": "056_Mankey.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 80,
+        "defense": 35,
+        "sp_atk": 35,
+        "sp_def": 45,
+        "speed": 70,
+        "total": 305
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "057_Primeape": {
+      "dex_number": 57,
+      "name": "Primeape",
+      "slug": "primeape",
+      "url": "https://pokemondb.net/pokedex/primeape",
+      "image_file": "057_Primeape.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 105,
+        "defense": 60,
+        "sp_atk": 60,
+        "sp_def": 70,
+        "speed": 95,
+        "total": 455
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "058_Growlithe": {
+      "dex_number": 58,
+      "name": "Growlithe",
+      "slug": "growlithe",
+      "url": "https://pokemondb.net/pokedex/growlithe",
+      "image_file": "058_Growlithe.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 70,
+        "defense": 45,
+        "sp_atk": 70,
+        "sp_def": 50,
+        "speed": 60,
+        "total": 350
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "059_Arcanine": {
+      "dex_number": 59,
+      "name": "Arcanine",
+      "slug": "arcanine",
+      "url": "https://pokemondb.net/pokedex/arcanine",
+      "image_file": "059_Arcanine.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 110,
+        "defense": 80,
+        "sp_atk": 100,
+        "sp_def": 80,
+        "speed": 95,
+        "total": 555
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "060_Poliwag": {
+      "dex_number": 60,
+      "name": "Poliwag",
+      "slug": "poliwag",
+      "url": "https://pokemondb.net/pokedex/poliwag",
+      "image_file": "060_Poliwag.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 50,
+        "defense": 40,
+        "sp_atk": 40,
+        "sp_def": 40,
+        "speed": 90,
+        "total": 300
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "061_Poliwhirl": {
+      "dex_number": 61,
+      "name": "Poliwhirl",
+      "slug": "poliwhirl",
+      "url": "https://pokemondb.net/pokedex/poliwhirl",
+      "image_file": "061_Poliwhirl.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 65,
+        "defense": 65,
+        "sp_atk": 50,
+        "sp_def": 50,
+        "speed": 90,
+        "total": 385
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "062_Poliwrath": {
+      "dex_number": 62,
+      "name": "Poliwrath",
+      "slug": "poliwrath",
+      "url": "https://pokemondb.net/pokedex/poliwrath",
+      "image_file": "062_Poliwrath.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 95,
+        "defense": 95,
+        "sp_atk": 70,
+        "sp_def": 90,
+        "speed": 70,
+        "total": 510
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "063_Abra": {
+      "dex_number": 63,
+      "name": "Abra",
+      "slug": "abra",
+      "url": "https://pokemondb.net/pokedex/abra",
+      "image_file": "063_Abra.png",
+      "base_stats": {
+        "hp": 25,
+        "attack": 20,
+        "defense": 15,
+        "sp_atk": 105,
+        "sp_def": 55,
+        "speed": 90,
+        "total": 310
+      },
+      "catch_rate": {
+        "value": 200
+      }
+    },
+    "064_Kadabra": {
+      "dex_number": 64,
+      "name": "Kadabra",
+      "slug": "kadabra",
+      "url": "https://pokemondb.net/pokedex/kadabra",
+      "image_file": "064_Kadabra.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 35,
+        "defense": 30,
+        "sp_atk": 120,
+        "sp_def": 70,
+        "speed": 105,
+        "total": 400
+      },
+      "catch_rate": {
+        "value": 100
+      }
+    },
+    "065_Alakazam": {
+      "dex_number": 65,
+      "name": "Alakazam",
+      "slug": "alakazam",
+      "url": "https://pokemondb.net/pokedex/alakazam",
+      "image_file": "065_Alakazam.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 50,
+        "defense": 45,
+        "sp_atk": 135,
+        "sp_def": 95,
+        "speed": 120,
+        "total": 500
+      },
+      "catch_rate": {
+        "value": 50
+      }
+    },
+    "066_Machop": {
+      "dex_number": 66,
+      "name": "Machop",
+      "slug": "machop",
+      "url": "https://pokemondb.net/pokedex/machop",
+      "image_file": "066_Machop.png",
+      "base_stats": {
+        "hp": 70,
+        "attack": 80,
+        "defense": 50,
+        "sp_atk": 35,
+        "sp_def": 35,
+        "speed": 35,
+        "total": 305
+      },
+      "catch_rate": {
+        "value": 180
+      }
+    },
+    "067_Machoke": {
+      "dex_number": 67,
+      "name": "Machoke",
+      "slug": "machoke",
+      "url": "https://pokemondb.net/pokedex/machoke",
+      "image_file": "067_Machoke.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 100,
+        "defense": 70,
+        "sp_atk": 50,
+        "sp_def": 60,
+        "speed": 45,
+        "total": 405
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "068_Machamp": {
+      "dex_number": 68,
+      "name": "Machamp",
+      "slug": "machamp",
+      "url": "https://pokemondb.net/pokedex/machamp",
+      "image_file": "068_Machamp.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 130,
+        "defense": 80,
+        "sp_atk": 65,
+        "sp_def": 85,
+        "speed": 55,
+        "total": 505
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "069_Bellsprout": {
+      "dex_number": 69,
+      "name": "Bellsprout",
+      "slug": "bellsprout",
+      "url": "https://pokemondb.net/pokedex/bellsprout",
+      "image_file": "069_Bellsprout.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 75,
+        "defense": 35,
+        "sp_atk": 70,
+        "sp_def": 30,
+        "speed": 40,
+        "total": 300
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "070_Weepinbell": {
+      "dex_number": 70,
+      "name": "Weepinbell",
+      "slug": "weepinbell",
+      "url": "https://pokemondb.net/pokedex/weepinbell",
+      "image_file": "070_Weepinbell.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 90,
+        "defense": 50,
+        "sp_atk": 85,
+        "sp_def": 45,
+        "speed": 55,
+        "total": 390
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "071_Victreebel": {
+      "dex_number": 71,
+      "name": "Victreebel",
+      "slug": "victreebel",
+      "url": "https://pokemondb.net/pokedex/victreebel",
+      "image_file": "071_Victreebel.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 105,
+        "defense": 65,
+        "sp_atk": 100,
+        "sp_def": 70,
+        "speed": 70,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "072_Tentacool": {
+      "dex_number": 72,
+      "name": "Tentacool",
+      "slug": "tentacool",
+      "url": "https://pokemondb.net/pokedex/tentacool",
+      "image_file": "072_Tentacool.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 40,
+        "defense": 35,
+        "sp_atk": 50,
+        "sp_def": 100,
+        "speed": 70,
+        "total": 335
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "073_Tentacruel": {
+      "dex_number": 73,
+      "name": "Tentacruel",
+      "slug": "tentacruel",
+      "url": "https://pokemondb.net/pokedex/tentacruel",
+      "image_file": "073_Tentacruel.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 70,
+        "defense": 65,
+        "sp_atk": 80,
+        "sp_def": 120,
+        "speed": 100,
+        "total": 515
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "074_Geodude": {
+      "dex_number": 74,
+      "name": "Geodude",
+      "slug": "geodude",
+      "url": "https://pokemondb.net/pokedex/geodude",
+      "image_file": "074_Geodude.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 80,
+        "defense": 100,
+        "sp_atk": 30,
+        "sp_def": 30,
+        "speed": 20,
+        "total": 300
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "075_Graveler": {
+      "dex_number": 75,
+      "name": "Graveler",
+      "slug": "graveler",
+      "url": "https://pokemondb.net/pokedex/graveler",
+      "image_file": "075_Graveler.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 95,
+        "defense": 115,
+        "sp_atk": 45,
+        "sp_def": 45,
+        "speed": 35,
+        "total": 390
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "076_Golem": {
+      "dex_number": 76,
+      "name": "Golem",
+      "slug": "golem",
+      "url": "https://pokemondb.net/pokedex/golem",
+      "image_file": "076_Golem.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 120,
+        "defense": 130,
+        "sp_atk": 55,
+        "sp_def": 65,
+        "speed": 45,
+        "total": 495
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "077_Ponyta": {
+      "dex_number": 77,
+      "name": "Ponyta",
+      "slug": "ponyta",
+      "url": "https://pokemondb.net/pokedex/ponyta",
+      "image_file": "077_Ponyta.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 85,
+        "defense": 55,
+        "sp_atk": 65,
+        "sp_def": 65,
+        "speed": 90,
+        "total": 410
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "078_Rapidash": {
+      "dex_number": 78,
+      "name": "Rapidash",
+      "slug": "rapidash",
+      "url": "https://pokemondb.net/pokedex/rapidash",
+      "image_file": "078_Rapidash.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 100,
+        "defense": 70,
+        "sp_atk": 80,
+        "sp_def": 80,
+        "speed": 105,
+        "total": 500
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "079_Slowpoke": {
+      "dex_number": 79,
+      "name": "Slowpoke",
+      "slug": "slowpoke",
+      "url": "https://pokemondb.net/pokedex/slowpoke",
+      "image_file": "079_Slowpoke.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 65,
+        "defense": 65,
+        "sp_atk": 40,
+        "sp_def": 40,
+        "speed": 15,
+        "total": 315
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "080_Slowbro": {
+      "dex_number": 80,
+      "name": "Slowbro",
+      "slug": "slowbro",
+      "url": "https://pokemondb.net/pokedex/slowbro",
+      "image_file": "080_Slowbro.png",
+      "base_stats": {
+        "hp": 95,
+        "attack": 75,
+        "defense": 110,
+        "sp_atk": 100,
+        "sp_def": 80,
+        "speed": 30,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "081_Magnemite": {
+      "dex_number": 81,
+      "name": "Magnemite",
+      "slug": "magnemite",
+      "url": "https://pokemondb.net/pokedex/magnemite",
+      "image_file": "081_Magnemite.png",
+      "base_stats": {
+        "hp": 25,
+        "attack": 35,
+        "defense": 70,
+        "sp_atk": 95,
+        "sp_def": 55,
+        "speed": 45,
+        "total": 325
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "082_Magneton": {
+      "dex_number": 82,
+      "name": "Magneton",
+      "slug": "magneton",
+      "url": "https://pokemondb.net/pokedex/magneton",
+      "image_file": "082_Magneton.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 60,
+        "defense": 95,
+        "sp_atk": 120,
+        "sp_def": 70,
+        "speed": 70,
+        "total": 465
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "083_Farfetch'd": {
+      "dex_number": 83,
+      "name": "Farfetch'd",
+      "slug": "farfetchd",
+      "url": "https://pokemondb.net/pokedex/farfetchd",
+      "image_file": "083_Farfetch'd.png",
+      "base_stats": {
+        "hp": 52,
+        "attack": 90,
+        "defense": 55,
+        "sp_atk": 58,
+        "sp_def": 62,
+        "speed": 60,
+        "total": 377
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "084_Doduo": {
+      "dex_number": 84,
+      "name": "Doduo",
+      "slug": "doduo",
+      "url": "https://pokemondb.net/pokedex/doduo",
+      "image_file": "084_Doduo.png",
+      "base_stats": {
+        "hp": 35,
+        "attack": 85,
+        "defense": 45,
+        "sp_atk": 35,
+        "sp_def": 35,
+        "speed": 75,
+        "total": 310
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "085_Dodrio": {
+      "dex_number": 85,
+      "name": "Dodrio",
+      "slug": "dodrio",
+      "url": "https://pokemondb.net/pokedex/dodrio",
+      "image_file": "085_Dodrio.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 110,
+        "defense": 70,
+        "sp_atk": 60,
+        "sp_def": 60,
+        "speed": 110,
+        "total": 470
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "086_Seel": {
+      "dex_number": 86,
+      "name": "Seel",
+      "slug": "seel",
+      "url": "https://pokemondb.net/pokedex/seel",
+      "image_file": "086_Seel.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 45,
+        "defense": 55,
+        "sp_atk": 45,
+        "sp_def": 70,
+        "speed": 45,
+        "total": 325
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "087_Dewgong": {
+      "dex_number": 87,
+      "name": "Dewgong",
+      "slug": "dewgong",
+      "url": "https://pokemondb.net/pokedex/dewgong",
+      "image_file": "087_Dewgong.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 70,
+        "defense": 80,
+        "sp_atk": 70,
+        "sp_def": 95,
+        "speed": 70,
+        "total": 475
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "088_Grimer": {
+      "dex_number": 88,
+      "name": "Grimer",
+      "slug": "grimer",
+      "url": "https://pokemondb.net/pokedex/grimer",
+      "image_file": "088_Grimer.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 80,
+        "defense": 50,
+        "sp_atk": 40,
+        "sp_def": 50,
+        "speed": 25,
+        "total": 325
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "089_Muk": {
+      "dex_number": 89,
+      "name": "Muk",
+      "slug": "muk",
+      "url": "https://pokemondb.net/pokedex/muk",
+      "image_file": "089_Muk.png",
+      "base_stats": {
+        "hp": 105,
+        "attack": 105,
+        "defense": 75,
+        "sp_atk": 65,
+        "sp_def": 100,
+        "speed": 50,
+        "total": 500
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "090_Shellder": {
+      "dex_number": 90,
+      "name": "Shellder",
+      "slug": "shellder",
+      "url": "https://pokemondb.net/pokedex/shellder",
+      "image_file": "090_Shellder.png",
+      "base_stats": {
+        "hp": 30,
+        "attack": 65,
+        "defense": 100,
+        "sp_atk": 45,
+        "sp_def": 25,
+        "speed": 40,
+        "total": 305
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "091_Cloyster": {
+      "dex_number": 91,
+      "name": "Cloyster",
+      "slug": "cloyster",
+      "url": "https://pokemondb.net/pokedex/cloyster",
+      "image_file": "091_Cloyster.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 95,
+        "defense": 180,
+        "sp_atk": 85,
+        "sp_def": 45,
+        "speed": 70,
+        "total": 525
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "092_Gastly": {
+      "dex_number": 92,
+      "name": "Gastly",
+      "slug": "gastly",
+      "url": "https://pokemondb.net/pokedex/gastly",
+      "image_file": "092_Gastly.png",
+      "base_stats": {
+        "hp": 30,
+        "attack": 35,
+        "defense": 30,
+        "sp_atk": 100,
+        "sp_def": 35,
+        "speed": 80,
+        "total": 310
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "093_Haunter": {
+      "dex_number": 93,
+      "name": "Haunter",
+      "slug": "haunter",
+      "url": "https://pokemondb.net/pokedex/haunter",
+      "image_file": "093_Haunter.png",
+      "base_stats": {
+        "hp": 45,
+        "attack": 50,
+        "defense": 45,
+        "sp_atk": 115,
+        "sp_def": 55,
+        "speed": 95,
+        "total": 405
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "094_Gengar": {
+      "dex_number": 94,
+      "name": "Gengar",
+      "slug": "gengar",
+      "url": "https://pokemondb.net/pokedex/gengar",
+      "image_file": "094_Gengar.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 65,
+        "defense": 60,
+        "sp_atk": 130,
+        "sp_def": 75,
+        "speed": 110,
+        "total": 500
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "095_Onix": {
+      "dex_number": 95,
+      "name": "Onix",
+      "slug": "onix",
+      "url": "https://pokemondb.net/pokedex/onix",
+      "image_file": "095_Onix.png",
+      "base_stats": {
+        "hp": 35,
+        "attack": 45,
+        "defense": 160,
+        "sp_atk": 30,
+        "sp_def": 45,
+        "speed": 70,
+        "total": 385
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "096_Drowzee": {
+      "dex_number": 96,
+      "name": "Drowzee",
+      "slug": "drowzee",
+      "url": "https://pokemondb.net/pokedex/drowzee",
+      "image_file": "096_Drowzee.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 48,
+        "defense": 45,
+        "sp_atk": 43,
+        "sp_def": 90,
+        "speed": 42,
+        "total": 328
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "097_Hypno": {
+      "dex_number": 97,
+      "name": "Hypno",
+      "slug": "hypno",
+      "url": "https://pokemondb.net/pokedex/hypno",
+      "image_file": "097_Hypno.png",
+      "base_stats": {
+        "hp": 85,
+        "attack": 73,
+        "defense": 70,
+        "sp_atk": 73,
+        "sp_def": 115,
+        "speed": 67,
+        "total": 483
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "098_Krabby": {
+      "dex_number": 98,
+      "name": "Krabby",
+      "slug": "krabby",
+      "url": "https://pokemondb.net/pokedex/krabby",
+      "image_file": "098_Krabby.png",
+      "base_stats": {
+        "hp": 30,
+        "attack": 105,
+        "defense": 90,
+        "sp_atk": 25,
+        "sp_def": 25,
+        "speed": 50,
+        "total": 325
+      },
+      "catch_rate": {
+        "value": 225
+      }
+    },
+    "099_Kingler": {
+      "dex_number": 99,
+      "name": "Kingler",
+      "slug": "kingler",
+      "url": "https://pokemondb.net/pokedex/kingler",
+      "image_file": "099_Kingler.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 130,
+        "defense": 115,
+        "sp_atk": 50,
+        "sp_def": 50,
+        "speed": 75,
+        "total": 475
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "100_Voltorb": {
+      "dex_number": 100,
+      "name": "Voltorb",
+      "slug": "voltorb",
+      "url": "https://pokemondb.net/pokedex/voltorb",
+      "image_file": "100_Voltorb.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 30,
+        "defense": 50,
+        "sp_atk": 55,
+        "sp_def": 55,
+        "speed": 100,
+        "total": 330
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "101_Electrode": {
+      "dex_number": 101,
+      "name": "Electrode",
+      "slug": "electrode",
+      "url": "https://pokemondb.net/pokedex/electrode",
+      "image_file": "101_Electrode.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 50,
+        "defense": 70,
+        "sp_atk": 80,
+        "sp_def": 80,
+        "speed": 150,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "102_Exeggcute": {
+      "dex_number": 102,
+      "name": "Exeggcute",
+      "slug": "exeggcute",
+      "url": "https://pokemondb.net/pokedex/exeggcute",
+      "image_file": "102_Exeggcute.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 40,
+        "defense": 80,
+        "sp_atk": 60,
+        "sp_def": 45,
+        "speed": 40,
+        "total": 325
+      },
+      "catch_rate": {
+        "value": 90
+      }
+    },
+    "103_Exeggutor": {
+      "dex_number": 103,
+      "name": "Exeggutor",
+      "slug": "exeggutor",
+      "url": "https://pokemondb.net/pokedex/exeggutor",
+      "image_file": "103_Exeggutor.png",
+      "base_stats": {
+        "hp": 95,
+        "attack": 95,
+        "defense": 85,
+        "sp_atk": 125,
+        "sp_def": 75,
+        "speed": 55,
+        "total": 530
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "104_Cubone": {
+      "dex_number": 104,
+      "name": "Cubone",
+      "slug": "cubone",
+      "url": "https://pokemondb.net/pokedex/cubone",
+      "image_file": "104_Cubone.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 50,
+        "defense": 95,
+        "sp_atk": 40,
+        "sp_def": 50,
+        "speed": 35,
+        "total": 320
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "105_Marowak": {
+      "dex_number": 105,
+      "name": "Marowak",
+      "slug": "marowak",
+      "url": "https://pokemondb.net/pokedex/marowak",
+      "image_file": "105_Marowak.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 80,
+        "defense": 110,
+        "sp_atk": 50,
+        "sp_def": 80,
+        "speed": 45,
+        "total": 425
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "106_Hitmonlee": {
+      "dex_number": 106,
+      "name": "Hitmonlee",
+      "slug": "hitmonlee",
+      "url": "https://pokemondb.net/pokedex/hitmonlee",
+      "image_file": "106_Hitmonlee.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 120,
+        "defense": 53,
+        "sp_atk": 35,
+        "sp_def": 110,
+        "speed": 87,
+        "total": 455
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "107_Hitmonchan": {
+      "dex_number": 107,
+      "name": "Hitmonchan",
+      "slug": "hitmonchan",
+      "url": "https://pokemondb.net/pokedex/hitmonchan",
+      "image_file": "107_Hitmonchan.png",
+      "base_stats": {
+        "hp": 50,
+        "attack": 105,
+        "defense": 79,
+        "sp_atk": 35,
+        "sp_def": 110,
+        "speed": 76,
+        "total": 455
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "108_Lickitung": {
+      "dex_number": 108,
+      "name": "Lickitung",
+      "slug": "lickitung",
+      "url": "https://pokemondb.net/pokedex/lickitung",
+      "image_file": "108_Lickitung.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 55,
+        "defense": 75,
+        "sp_atk": 60,
+        "sp_def": 75,
+        "speed": 30,
+        "total": 385
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "109_Koffing": {
+      "dex_number": 109,
+      "name": "Koffing",
+      "slug": "koffing",
+      "url": "https://pokemondb.net/pokedex/koffing",
+      "image_file": "109_Koffing.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 65,
+        "defense": 95,
+        "sp_atk": 60,
+        "sp_def": 45,
+        "speed": 35,
+        "total": 340
+      },
+      "catch_rate": {
+        "value": 190
+      }
+    },
+    "110_Weezing": {
+      "dex_number": 110,
+      "name": "Weezing",
+      "slug": "weezing",
+      "url": "https://pokemondb.net/pokedex/weezing",
+      "image_file": "110_Weezing.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 90,
+        "defense": 120,
+        "sp_atk": 85,
+        "sp_def": 70,
+        "speed": 60,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "111_Rhyhorn": {
+      "dex_number": 111,
+      "name": "Rhyhorn",
+      "slug": "rhyhorn",
+      "url": "https://pokemondb.net/pokedex/rhyhorn",
+      "image_file": "111_Rhyhorn.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 85,
+        "defense": 95,
+        "sp_atk": 30,
+        "sp_def": 30,
+        "speed": 25,
+        "total": 345
+      },
+      "catch_rate": {
+        "value": 120
+      }
+    },
+    "112_Rhydon": {
+      "dex_number": 112,
+      "name": "Rhydon",
+      "slug": "rhydon",
+      "url": "https://pokemondb.net/pokedex/rhydon",
+      "image_file": "112_Rhydon.png",
+      "base_stats": {
+        "hp": 105,
+        "attack": 130,
+        "defense": 120,
+        "sp_atk": 45,
+        "sp_def": 45,
+        "speed": 40,
+        "total": 485
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "113_Chansey": {
+      "dex_number": 113,
+      "name": "Chansey",
+      "slug": "chansey",
+      "url": "https://pokemondb.net/pokedex/chansey",
+      "image_file": "113_Chansey.png",
+      "base_stats": {
+        "hp": 250,
+        "attack": 5,
+        "defense": 5,
+        "sp_atk": 35,
+        "sp_def": 105,
+        "speed": 50,
+        "total": 450
+      },
+      "catch_rate": {
+        "value": 30
+      }
+    },
+    "114_Tangela": {
+      "dex_number": 114,
+      "name": "Tangela",
+      "slug": "tangela",
+      "url": "https://pokemondb.net/pokedex/tangela",
+      "image_file": "114_Tangela.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 55,
+        "defense": 115,
+        "sp_atk": 100,
+        "sp_def": 40,
+        "speed": 60,
+        "total": 435
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "115_Kangaskhan": {
+      "dex_number": 115,
+      "name": "Kangaskhan",
+      "slug": "kangaskhan",
+      "url": "https://pokemondb.net/pokedex/kangaskhan",
+      "image_file": "115_Kangaskhan.png",
+      "base_stats": {
+        "hp": 105,
+        "attack": 95,
+        "defense": 80,
+        "sp_atk": 40,
+        "sp_def": 80,
+        "speed": 90,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "116_Horsea": {
+      "dex_number": 116,
+      "name": "Horsea",
+      "slug": "horsea",
+      "url": "https://pokemondb.net/pokedex/horsea",
+      "image_file": "116_Horsea.png",
+      "base_stats": {
+        "hp": 30,
+        "attack": 40,
+        "defense": 70,
+        "sp_atk": 70,
+        "sp_def": 25,
+        "speed": 60,
+        "total": 295
+      },
+      "catch_rate": {
+        "value": 225
+      }
+    },
+    "117_Seadra": {
+      "dex_number": 117,
+      "name": "Seadra",
+      "slug": "seadra",
+      "url": "https://pokemondb.net/pokedex/seadra",
+      "image_file": "117_Seadra.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 65,
+        "defense": 95,
+        "sp_atk": 95,
+        "sp_def": 45,
+        "speed": 85,
+        "total": 440
+      },
+      "catch_rate": {
+        "value": 75
+      }
+    },
+    "118_Goldeen": {
+      "dex_number": 118,
+      "name": "Goldeen",
+      "slug": "goldeen",
+      "url": "https://pokemondb.net/pokedex/goldeen",
+      "image_file": "118_Goldeen.png",
+      "base_stats": {
+        "hp": 45,
+        "attack": 67,
+        "defense": 60,
+        "sp_atk": 35,
+        "sp_def": 50,
+        "speed": 63,
+        "total": 320
+      },
+      "catch_rate": {
+        "value": 225
+      }
+    },
+    "119_Seaking": {
+      "dex_number": 119,
+      "name": "Seaking",
+      "slug": "seaking",
+      "url": "https://pokemondb.net/pokedex/seaking",
+      "image_file": "119_Seaking.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 92,
+        "defense": 65,
+        "sp_atk": 65,
+        "sp_def": 80,
+        "speed": 68,
+        "total": 450
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "120_Staryu": {
+      "dex_number": 120,
+      "name": "Staryu",
+      "slug": "staryu",
+      "url": "https://pokemondb.net/pokedex/staryu",
+      "image_file": "120_Staryu.png",
+      "base_stats": {
+        "hp": 30,
+        "attack": 45,
+        "defense": 55,
+        "sp_atk": 70,
+        "sp_def": 55,
+        "speed": 85,
+        "total": 340
+      },
+      "catch_rate": {
+        "value": 225
+      }
+    },
+    "121_Starmie": {
+      "dex_number": 121,
+      "name": "Starmie",
+      "slug": "starmie",
+      "url": "https://pokemondb.net/pokedex/starmie",
+      "image_file": "121_Starmie.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 75,
+        "defense": 85,
+        "sp_atk": 100,
+        "sp_def": 85,
+        "speed": 115,
+        "total": 520
+      },
+      "catch_rate": {
+        "value": 60
+      }
+    },
+    "122_Mr._Mime": {
+      "dex_number": 122,
+      "name": "Mr. Mime",
+      "slug": "mr-mime",
+      "url": "https://pokemondb.net/pokedex/mr-mime",
+      "image_file": "122_Mr._Mime.png",
+      "base_stats": {
+        "hp": 40,
+        "attack": 45,
+        "defense": 65,
+        "sp_atk": 100,
+        "sp_def": 120,
+        "speed": 90,
+        "total": 460
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "123_Scyther": {
+      "dex_number": 123,
+      "name": "Scyther",
+      "slug": "scyther",
+      "url": "https://pokemondb.net/pokedex/scyther",
+      "image_file": "123_Scyther.png",
+      "base_stats": {
+        "hp": 70,
+        "attack": 110,
+        "defense": 80,
+        "sp_atk": 55,
+        "sp_def": 80,
+        "speed": 105,
+        "total": 500
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "124_Jynx": {
+      "dex_number": 124,
+      "name": "Jynx",
+      "slug": "jynx",
+      "url": "https://pokemondb.net/pokedex/jynx",
+      "image_file": "124_Jynx.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 50,
+        "defense": 35,
+        "sp_atk": 115,
+        "sp_def": 95,
+        "speed": 95,
+        "total": 455
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "125_Electabuzz": {
+      "dex_number": 125,
+      "name": "Electabuzz",
+      "slug": "electabuzz",
+      "url": "https://pokemondb.net/pokedex/electabuzz",
+      "image_file": "125_Electabuzz.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 83,
+        "defense": 57,
+        "sp_atk": 95,
+        "sp_def": 85,
+        "speed": 105,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "126_Magmar": {
+      "dex_number": 126,
+      "name": "Magmar",
+      "slug": "magmar",
+      "url": "https://pokemondb.net/pokedex/magmar",
+      "image_file": "126_Magmar.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 95,
+        "defense": 57,
+        "sp_atk": 100,
+        "sp_def": 85,
+        "speed": 93,
+        "total": 495
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "127_Pinsir": {
+      "dex_number": 127,
+      "name": "Pinsir",
+      "slug": "pinsir",
+      "url": "https://pokemondb.net/pokedex/pinsir",
+      "image_file": "127_Pinsir.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 125,
+        "defense": 100,
+        "sp_atk": 55,
+        "sp_def": 70,
+        "speed": 85,
+        "total": 500
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "128_Tauros": {
+      "dex_number": 128,
+      "name": "Tauros",
+      "slug": "tauros",
+      "url": "https://pokemondb.net/pokedex/tauros",
+      "image_file": "128_Tauros.png",
+      "base_stats": {
+        "hp": 75,
+        "attack": 100,
+        "defense": 95,
+        "sp_atk": 40,
+        "sp_def": 70,
+        "speed": 110,
+        "total": 490
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "129_Magikarp": {
+      "dex_number": 129,
+      "name": "Magikarp",
+      "slug": "magikarp",
+      "url": "https://pokemondb.net/pokedex/magikarp",
+      "image_file": "129_Magikarp.png",
+      "base_stats": {
+        "hp": 20,
+        "attack": 10,
+        "defense": 55,
+        "sp_atk": 15,
+        "sp_def": 20,
+        "speed": 80,
+        "total": 200
+      },
+      "catch_rate": {
+        "value": 255
+      }
+    },
+    "130_Gyarados": {
+      "dex_number": 130,
+      "name": "Gyarados",
+      "slug": "gyarados",
+      "url": "https://pokemondb.net/pokedex/gyarados",
+      "image_file": "130_Gyarados.png",
+      "base_stats": {
+        "hp": 95,
+        "attack": 125,
+        "defense": 79,
+        "sp_atk": 60,
+        "sp_def": 100,
+        "speed": 81,
+        "total": 540
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "131_Lapras": {
+      "dex_number": 131,
+      "name": "Lapras",
+      "slug": "lapras",
+      "url": "https://pokemondb.net/pokedex/lapras",
+      "image_file": "131_Lapras.png",
+      "base_stats": {
+        "hp": 130,
+        "attack": 85,
+        "defense": 80,
+        "sp_atk": 85,
+        "sp_def": 95,
+        "speed": 60,
+        "total": 535
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "132_Ditto": {
+      "dex_number": 132,
+      "name": "Ditto",
+      "slug": "ditto",
+      "url": "https://pokemondb.net/pokedex/ditto",
+      "image_file": "132_Ditto.png",
+      "base_stats": {
+        "hp": 48,
+        "attack": 48,
+        "defense": 48,
+        "sp_atk": 48,
+        "sp_def": 48,
+        "speed": 48,
+        "total": 288
+      },
+      "catch_rate": {
+        "value": 35
+      }
+    },
+    "133_Eevee": {
+      "dex_number": 133,
+      "name": "Eevee",
+      "slug": "eevee",
+      "url": "https://pokemondb.net/pokedex/eevee",
+      "image_file": "133_Eevee.png",
+      "base_stats": {
+        "hp": 55,
+        "attack": 55,
+        "defense": 50,
+        "sp_atk": 45,
+        "sp_def": 65,
+        "speed": 55,
+        "total": 325
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "134_Vaporeon": {
+      "dex_number": 134,
+      "name": "Vaporeon",
+      "slug": "vaporeon",
+      "url": "https://pokemondb.net/pokedex/vaporeon",
+      "image_file": "134_Vaporeon.png",
+      "base_stats": {
+        "hp": 130,
+        "attack": 65,
+        "defense": 60,
+        "sp_atk": 110,
+        "sp_def": 95,
+        "speed": 65,
+        "total": 525
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "135_Jolteon": {
+      "dex_number": 135,
+      "name": "Jolteon",
+      "slug": "jolteon",
+      "url": "https://pokemondb.net/pokedex/jolteon",
+      "image_file": "135_Jolteon.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 65,
+        "defense": 60,
+        "sp_atk": 110,
+        "sp_def": 95,
+        "speed": 130,
+        "total": 525
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "136_Flareon": {
+      "dex_number": 136,
+      "name": "Flareon",
+      "slug": "flareon",
+      "url": "https://pokemondb.net/pokedex/flareon",
+      "image_file": "136_Flareon.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 130,
+        "defense": 60,
+        "sp_atk": 95,
+        "sp_def": 110,
+        "speed": 65,
+        "total": 525
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "137_Porygon": {
+      "dex_number": 137,
+      "name": "Porygon",
+      "slug": "porygon",
+      "url": "https://pokemondb.net/pokedex/porygon",
+      "image_file": "137_Porygon.png",
+      "base_stats": {
+        "hp": 65,
+        "attack": 60,
+        "defense": 70,
+        "sp_atk": 85,
+        "sp_def": 75,
+        "speed": 40,
+        "total": 395
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "138_Omanyte": {
+      "dex_number": 138,
+      "name": "Omanyte",
+      "slug": "omanyte",
+      "url": "https://pokemondb.net/pokedex/omanyte",
+      "image_file": "138_Omanyte.png",
+      "base_stats": {
+        "hp": 35,
+        "attack": 40,
+        "defense": 100,
+        "sp_atk": 90,
+        "sp_def": 55,
+        "speed": 35,
+        "total": 355
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "139_Omastar": {
+      "dex_number": 139,
+      "name": "Omastar",
+      "slug": "omastar",
+      "url": "https://pokemondb.net/pokedex/omastar",
+      "image_file": "139_Omastar.png",
+      "base_stats": {
+        "hp": 70,
+        "attack": 60,
+        "defense": 125,
+        "sp_atk": 115,
+        "sp_def": 70,
+        "speed": 55,
+        "total": 495
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "140_Kabuto": {
+      "dex_number": 140,
+      "name": "Kabuto",
+      "slug": "kabuto",
+      "url": "https://pokemondb.net/pokedex/kabuto",
+      "image_file": "140_Kabuto.png",
+      "base_stats": {
+        "hp": 30,
+        "attack": 80,
+        "defense": 90,
+        "sp_atk": 55,
+        "sp_def": 45,
+        "speed": 55,
+        "total": 355
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "141_Kabutops": {
+      "dex_number": 141,
+      "name": "Kabutops",
+      "slug": "kabutops",
+      "url": "https://pokemondb.net/pokedex/kabutops",
+      "image_file": "141_Kabutops.png",
+      "base_stats": {
+        "hp": 60,
+        "attack": 115,
+        "defense": 105,
+        "sp_atk": 65,
+        "sp_def": 70,
+        "speed": 80,
+        "total": 495
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "142_Aerodactyl": {
+      "dex_number": 142,
+      "name": "Aerodactyl",
+      "slug": "aerodactyl",
+      "url": "https://pokemondb.net/pokedex/aerodactyl",
+      "image_file": "142_Aerodactyl.png",
+      "base_stats": {
+        "hp": 80,
+        "attack": 105,
+        "defense": 65,
+        "sp_atk": 60,
+        "sp_def": 75,
+        "speed": 130,
+        "total": 515
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "143_Snorlax": {
+      "dex_number": 143,
+      "name": "Snorlax",
+      "slug": "snorlax",
+      "url": "https://pokemondb.net/pokedex/snorlax",
+      "image_file": "143_Snorlax.png",
+      "base_stats": {
+        "hp": 160,
+        "attack": 110,
+        "defense": 65,
+        "sp_atk": 65,
+        "sp_def": 110,
+        "speed": 30,
+        "total": 540
+      },
+      "catch_rate": {
+        "value": 25
+      }
+    },
+    "144_Articuno": {
+      "dex_number": 144,
+      "name": "Articuno",
+      "slug": "articuno",
+      "url": "https://pokemondb.net/pokedex/articuno",
+      "image_file": "144_Articuno.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 85,
+        "defense": 100,
+        "sp_atk": 95,
+        "sp_def": 125,
+        "speed": 85,
+        "total": 580
+      },
+      "catch_rate": {
+        "value": 3
+      }
+    },
+    "145_Zapdos": {
+      "dex_number": 145,
+      "name": "Zapdos",
+      "slug": "zapdos",
+      "url": "https://pokemondb.net/pokedex/zapdos",
+      "image_file": "145_Zapdos.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 90,
+        "defense": 85,
+        "sp_atk": 125,
+        "sp_def": 90,
+        "speed": 100,
+        "total": 580
+      },
+      "catch_rate": {
+        "value": 3
+      }
+    },
+    "146_Moltres": {
+      "dex_number": 146,
+      "name": "Moltres",
+      "slug": "moltres",
+      "url": "https://pokemondb.net/pokedex/moltres",
+      "image_file": "146_Moltres.png",
+      "base_stats": {
+        "hp": 90,
+        "attack": 100,
+        "defense": 90,
+        "sp_atk": 125,
+        "sp_def": 85,
+        "speed": 90,
+        "total": 580
+      },
+      "catch_rate": {
+        "value": 3
+      }
+    },
+    "147_Dratini": {
+      "dex_number": 147,
+      "name": "Dratini",
+      "slug": "dratini",
+      "url": "https://pokemondb.net/pokedex/dratini",
+      "image_file": "147_Dratini.png",
+      "base_stats": {
+        "hp": 41,
+        "attack": 64,
+        "defense": 45,
+        "sp_atk": 50,
+        "sp_def": 50,
+        "speed": 50,
+        "total": 300
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "148_Dragonair": {
+      "dex_number": 148,
+      "name": "Dragonair",
+      "slug": "dragonair",
+      "url": "https://pokemondb.net/pokedex/dragonair",
+      "image_file": "148_Dragonair.png",
+      "base_stats": {
+        "hp": 61,
+        "attack": 84,
+        "defense": 65,
+        "sp_atk": 70,
+        "sp_def": 70,
+        "speed": 70,
+        "total": 420
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "149_Dragonite": {
+      "dex_number": 149,
+      "name": "Dragonite",
+      "slug": "dragonite",
+      "url": "https://pokemondb.net/pokedex/dragonite",
+      "image_file": "149_Dragonite.png",
+      "base_stats": {
+        "hp": 91,
+        "attack": 134,
+        "defense": 95,
+        "sp_atk": 100,
+        "sp_def": 100,
+        "speed": 80,
+        "total": 600
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    },
+    "150_Mewtwo": {
+      "dex_number": 150,
+      "name": "Mewtwo",
+      "slug": "mewtwo",
+      "url": "https://pokemondb.net/pokedex/mewtwo",
+      "image_file": "150_Mewtwo.png",
+      "base_stats": {
+        "hp": 106,
+        "attack": 110,
+        "defense": 90,
+        "sp_atk": 154,
+        "sp_def": 90,
+        "speed": 130,
+        "total": 680
+      },
+      "catch_rate": {
+        "value": 3
+      }
+    },
+    "151_Mew": {
+      "dex_number": 151,
+      "name": "Mew",
+      "slug": "mew",
+      "url": "https://pokemondb.net/pokedex/mew",
+      "image_file": "151_Mew.png",
+      "base_stats": {
+        "hp": 100,
+        "attack": 100,
+        "defense": 100,
+        "sp_atk": 100,
+        "sp_def": 100,
+        "speed": 100,
+        "total": 600
+      },
+      "catch_rate": {
+        "value": 45
+      }
+    }
+  }
+}
