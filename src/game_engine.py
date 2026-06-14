@@ -21,11 +21,37 @@ DEFAULT_SETTINGS = {
 }
 
 def get_data_downloader_dir() -> Path:
+    candidates = []
+
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        base_dir = Path(sys._MEIPASS)
-    else:
-        base_dir = Path(__file__).resolve().parent.parent
-    return base_dir / "data_downloader"
+        candidates.append(Path(sys._MEIPASS) / "data_downloader")
+
+    repo_base = Path(__file__).resolve().parent.parent
+    candidates.append(repo_base / "data_downloader")
+    candidates.append(Path(sys.argv[0]).resolve().parent / "data_downloader")
+    candidates.append(Path.cwd() / "data_downloader")
+
+    def find_up(start: Path) -> Optional[Path]:
+        current = start.resolve()
+        for _ in range(8):
+            candidate = current / "data_downloader"
+            if candidate.exists():
+                return candidate
+            if current.parent == current:
+                break
+            current = current.parent
+        return None
+
+    for start in [Path.cwd(), Path(sys.argv[0]).resolve().parent, repo_base]:
+        found = find_up(start)
+        if found:
+            return found
+
+    for candidate in candidates:
+        if (candidate / "pokemon_base_stats.json").exists():
+            return candidate
+
+    return candidates[0]
 
 
 DATA_DOWNLOADER_DIR = get_data_downloader_dir()

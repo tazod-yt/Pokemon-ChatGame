@@ -66,6 +66,7 @@ def make_action(name, args, command_id):
             {
                 "command": exe,
                 "arguments": args,
+                "parseVariables": True,
                 "workingDir": root,
                 "envVars": {},
                 "waitForExit": 0,

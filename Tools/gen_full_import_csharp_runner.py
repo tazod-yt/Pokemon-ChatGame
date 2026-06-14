@@ -20,9 +20,54 @@ meta = {
 
 
 def csharp_bytecode(args: str) -> str:
-    source = f"""using System;\nusing System.Diagnostics;\nusing System.IO;\nusing System.Linq;\n\npublic class CPHInline\n{{\n    public bool Execute()\n    {{\n        string exe = @\"{exe}\";\n        string args = @\"{args}\";\n        string runner = \"cmd.exe\";\n        string runnerArgs = \"/k \"\" + exe + \" \" + args + \"\"\";\n\n        var psi = new ProcessStartInfo\n        {{\n            FileName = runner,\n            Arguments = runnerArgs,\n            UseShellExecute = false,\n            CreateNoWindow = false,\n            WorkingDirectory = @\"{root}\"\n        }};\n\n        Process.Start(psi);\n\n        string msg = \"GameEngine launched in visible console window: \" + exe + \" \" + args;\n        try\n        {{\n            string logPath = Path.Combine(@\"{root}\", \"Logs\", \"game.log\");\n            if (File.Exists(logPath))\n            {{\n                var lines = File.ReadAllLines(logPath);\n                var tail = lines.Skip(Math.Max(0, lines.Length - 10));\n                msg += \"\n--- last game.log lines ---\n\" + string.Join(\"\n\", tail);\n            }}\n        }}\n        catch\n        {{\n            // ignore log tail errors\n        }}\n\n        CPH.SendYouTubeMessage(msg);\n        return true;\n    }}\n}}\n"""
+    lines = [
+        "using System;",
+        "using System.Diagnostics;",
+        "using System.IO;",
+        "using System.Linq;",
+        "",
+        "public class CPHInline",
+        "{",
+        "    public bool Execute()",
+        "    {",
+        f"        string exe = @\"{exe}\";",
+        f"        string args = @\"{args}\";",
+        "",
+        "        var psi = new ProcessStartInfo",
+        "        {",
+        "            FileName = exe,",
+        "            Arguments = args,",
+        "            UseShellExecute = false,",
+        "            RedirectStandardOutput = true,",
+        "            RedirectStandardError = true,",
+        "            CreateNoWindow = true,",
+        f"            WorkingDirectory = @\"{root}\"",
+        "        };",
+        "",
+        "        var process = Process.Start(psi);",
+        "        string output = string.Empty;",
+        "        string error = string.Empty;",
+        "        if (process != null)",
+        "        {",
+        "            output = process.StandardOutput.ReadToEnd();",
+        "            error = process.StandardError.ReadToEnd();",
+        "            process.WaitForExit();",
+        "        }",
+        "",
+        "        string msg = string.IsNullOrWhiteSpace(output) ? \"GameEngine launched.\" : output.Trim();",
+        "        if (!string.IsNullOrWhiteSpace(error))",
+        "        {",
+        "            msg += \" Error: \" + error.Trim();",
+        "        }",
+        "",
+        "        CPH.SendYouTubeMessage(msg);",
+        "        return true;",
+        "    }",
+        "}",
+        "",
+    ]
+    source = "\n".join(lines)
     return base64.b64encode(source.encode("utf-8")).decode("ascii")
-
 
 def make_command(name, command_text):
     return {

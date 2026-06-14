@@ -30,6 +30,7 @@ def action(name, args):
             {
                 "command": r"..\GameEngine\GameEngine.exe",
                 "arguments": args,
+                "parseVariables": True,
                 "workingDir": r"..",
                 "envVars": {},
                 "waitForExit": 0,
