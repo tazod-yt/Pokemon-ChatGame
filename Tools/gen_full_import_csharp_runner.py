@@ -1,4 +1,5 @@
 ﻿import json
+import os
 import uuid
 import gzip
 import base64
@@ -19,7 +20,7 @@ meta = {
 
 
 def csharp_bytecode(args: str) -> str:
-    source = f"""using System;\nusing System.Diagnostics;\n\npublic class CPHInline\n{{\n    public bool Execute()\n    {{\n        string exe = @\"{exe}\";\n        string args = @\"{args}\";\n\n        var psi = new ProcessStartInfo\n        {{\n            FileName = exe,\n            Arguments = args,\n            UseShellExecute = false,\n            RedirectStandardOutput = true,\n            CreateNoWindow = true,\n            WorkingDirectory = @\"{root}\"\n        }};\n\n        using (var p = Process.Start(psi))\n        {{\n            string output = p.StandardOutput.ReadToEnd();\n            p.WaitForExit();\n\n            string msg = output.Trim();\n            if (!string.IsNullOrEmpty(msg))\n            {{\n                CPH.SendYouTubeMessage(msg);\n            }}\n        }}\n\n        return true;\n    }}\n}}\n"""
+    source = f"""using System;\nusing System.Diagnostics;\nusing System.IO;\nusing System.Linq;\n\npublic class CPHInline\n{{\n    public bool Execute()\n    {{\n        string exe = @\"{exe}\";\n        string args = @\"{args}\";\n        string runner = \"cmd.exe\";\n        string runnerArgs = \"/k \"\" + exe + \" \" + args + \"\"\";\n\n        var psi = new ProcessStartInfo\n        {{\n            FileName = runner,\n            Arguments = runnerArgs,\n            UseShellExecute = false,\n            CreateNoWindow = false,\n            WorkingDirectory = @\"{root}\"\n        }};\n\n        Process.Start(psi);\n\n        string msg = \"GameEngine launched in visible console window: \" + exe + \" \" + args;\n        try\n        {{\n            string logPath = Path.Combine(@\"{root}\", \"Logs\", \"game.log\");\n            if (File.Exists(logPath))\n            {{\n                var lines = File.ReadAllLines(logPath);\n                var tail = lines.Skip(Math.Max(0, lines.Length - 10));\n                msg += \"\n--- last game.log lines ---\n\" + string.Join(\"\n\", tail);\n            }}\n        }}\n        catch\n        {{\n            // ignore log tail errors\n        }}\n\n        CPH.SendYouTubeMessage(msg);\n        return true;\n    }}\n}}\n"""
     return base64.b64encode(source.encode("utf-8")).decode("ascii")
 
 
@@ -122,13 +123,13 @@ export = {
     "minimumVersion": "1.0.0-alpha.1",
 }
 
-out_json = r"Pokemon ChatGame\\Streamerbot\\import_actions_full.json"
+out_json = os.path.join(root, "Streamerbot", "import_actions_full.json")
 with open(out_json, "w", encoding="utf-8") as handle:
     json.dump(export, handle, indent=2)
 
 raw = json.dumps(export, indent=2).encode("utf-8")
 blob = b"SBAE" + gzip.compress(raw)
-out_txt = r"Pokemon ChatGame\\Streamerbot\\import_actions_full.txt"
+out_txt = os.path.join(root, "Streamerbot", "import_actions_full.txt")
 with open(out_txt, "w", encoding="utf-8") as handle:
     handle.write(base64.b64encode(blob).decode("ascii"))
 
