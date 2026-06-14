@@ -527,8 +527,8 @@ class GameEngine:
             if not creature_row:
                 return self._respond("Spawn creature missing.")
 
-            base_rate = float(self.settings["base_catch_rate"])
-            catch_rate = min(0.95, max(0.05, base_rate * float(creature_row[3])))
+            catch_rate = float(creature_row[3]) / 1000.0
+            catch_rate = min(1.0, max(0.0, catch_rate))
             roll = self.rng.random()
             success = roll <= catch_rate
             now = now_ts()
