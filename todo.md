@@ -8,11 +8,10 @@ Update the battle system so battles become explicit challenge/accept flows with 
 - The challenger selects a specific Pokémon from their inventory.
 - The challenged user must accept with: `!accept <pokemon name or number>`
 - Only after `!accept` should the battle begin.
-- Track pending battles in state (database table or JSON file) with challenger, challenged, selected creatures, timestamps, and rematch/cooldown enforcement.
+- Track pending battles in the database using a new pending battles table with challenger, challenged, selected creature inventory IDs, timestamps, status, and rematch/cooldown enforcement.
 
 ## 2. Pokémon data model updates
-- Extend creature/inventory data with:
-  - `species`
+- Extend inventory data with:
   - `level`
   - `xp`
   - `wins`
@@ -20,7 +19,9 @@ Update the battle system so battles become explicit challenge/accept flows with 
   - `hp_iv`, `atk_iv`, `def_iv`, `spd_iv`
   - `trait`
   - `elo`
-- Assign `trait` randomly when a Pokémon is caught.
+  - `species` or maintain `creature_id` to reference base species stats.
+- Continue using `creature_id` as the species reference, while storing per-caught stats in inventory.
+- Assign `trait` equally randomly when a Pokémon is caught.
 - Ensure default `elo = 1000` for new catches.
 
 ## 3. Trait system
@@ -52,13 +53,14 @@ Update the battle system so battles become explicit challenge/accept flows with 
 - Subtract damage from target HP and log messages until one Pokémon hits 0 HP.
 
 ## 6. Battle messages
-- Record a battle transcript with messages such as:
+- Display a screen/overlay-facing battle transcript with messages such as:
   - `⚡ Pikachu attacks for 22 damage`
   - `🌿 Bulbasaur attacks for 18 damage`
   - `⚡ Critical hit!`
   - `🌿 Bulbasaur fainted`
   - `🏆 Pikachu wins`
-- Use the chosen Pokémon and user names in summary output.
+- Use the chosen Pokémon and user names in the screen summary output.
+- Write the battle transcript into overlay state or screen state, not just chat.
 
 ## 7. XP and leveling
 - XP gains:
@@ -73,12 +75,13 @@ Update the battle system so battles become explicit challenge/accept flows with 
 - Update current HP after leveling, e.g. `current_hp = base_hp + level * 5` or derived formula.
 
 ## 8. Evolution
-- After battle, evaluate species evolution thresholds:
+- After battle, evaluate species evolution thresholds using `evolution_rules.json`.
+- Example mappings:
   - `Charmander -> Charmeleon` at level >= 16
   - `Charmeleon -> Charizard` at level >= 36
   - `Bulbasaur -> Ivysaur` at level >= 16
   - `Ivysaur -> Venusaur` at level >= 32
-- Add more species if needed.
+- Add more species to `evolution_rules.json` as needed.
 
 ## 9. ELO system
 - Maintain `elo` per captured Pokémon.
@@ -96,13 +99,13 @@ Update the battle system so battles become explicit challenge/accept flows with 
 - Enforce `REMATCH_COOLDOWN = 5 minutes` between same players
 - Store timestamps for last battle and last same-opponent battle.
 
-## 12. Integration questions / implementation uncertainties
-- Current `inventory` schema only stores `level`, `exp`, `current_hp`; does it already carry enough fields for new IV/trait/elo data, or should we migrate the schema?
-- Should the challenge/accept state be persisted in the database or can it remain in JSON overlay state?
-- How should invalid selections be handled if the chosen Pokémon name/number is not found or already fainted?
-- Do we add a separate `!battle` help response listing usage, or update existing command bindings only?
-- For the special trait assignment on catch, do we want every caught Pokémon to receive one trait automatically, with equal probability?
-- Should battle results update current HP in inventory permanently, or only reset after each fight?
+## 12. Integration decisions
+- Persist challenge/accept state in the database using a new pending battles table.
+- Inventory details are stored in the `inventory` table, so add IV/trait/elo fields there.
+- Keep `creature_id` as the species reference; this is the canonical meaning of "species" in the current schema.
+- Do not persist battle HP between fights; each battle uses derived max HP and resets per encounter.
+- Assign traits equally randomly on catch.
+- Do not implement moves/types now; use stat-based attack behavior instead.
 
 ## 13. Implementation notes
 - Existing battle logic is in `src/game_engine.py`.

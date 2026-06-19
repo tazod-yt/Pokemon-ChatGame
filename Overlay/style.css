@@ -99,8 +99,9 @@ body {
 }
 
 .spawn-smoke {
-  width: 92px;
-  height: 92px;
+  /* increased size by 50% */
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   display: none;
   background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0.08) 65%, transparent 80%);
@@ -112,6 +113,7 @@ body {
 }
 
 .spawn-gif {
+  /* gif size reverted to original to keep GIF compact; smoke remains larger */
   display: none;
   width: 83px;
   height: auto;
@@ -126,7 +128,8 @@ body {
 }
 
 .spawn-smoke.show {
-  animation: smokeIn 0.55s ease forwards;
+  /* increased duration by 50% (0.55s -> 0.825s) */
+  animation: smokeIn 0.825s ease forwards;
 }
 
 @keyframes smokeIn {
