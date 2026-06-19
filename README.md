@@ -196,7 +196,6 @@ Tests cover spawn, catch success/failure, inventory retrieval, battle simulation
 - The game runs fully offline and stores all data locally.
 - Only one active spawn exists at a time.
 - Catch and battle cooldowns are enforced globally per user.
-- Placeholder creature data is seeded; replace with full Pokémon specs later.
 
 
 # Downloaded Pokémon Data

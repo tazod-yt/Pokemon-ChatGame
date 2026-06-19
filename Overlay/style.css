@@ -16,11 +16,9 @@ body {
   padding: 0;
   font-family: "Trebuchet MS", "Candara", "Segoe Print", sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+  background: transparent;
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
 }
 
 .overlay {
@@ -86,7 +84,64 @@ body {
 }
 
 .hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Floating spawn smoke + GIF (bottom-right) */
+.spawn-smoke,
+.spawn-gif {
+  position: fixed;
+  bottom: 38px;
+  right: 48px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.spawn-smoke {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
   display: none;
+  background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0.08) 65%, transparent 80%);
+  box-shadow: 0 0 28px rgba(255,255,255,0.35);
+  opacity: 0;
+  transform: scale(0.2);
+  filter: blur(3px);
+  z-index: 10001;
+}
+
+.spawn-gif {
+  display: none;
+  width: 83px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.15);
+  padding: 4px;
+}
+
+.spawn-gif.visible {
+  display: block;
+}
+
+.spawn-smoke.show {
+  animation: smokeIn 0.55s ease forwards;
+}
+
+@keyframes smokeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) translateY(12px);
+  }
+  40% {
+    opacity: 0.65;
+    transform: scale(1.05) translateY(-8px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) translateY(-22px);
+  }
 }
 
 @keyframes fadeIn {
