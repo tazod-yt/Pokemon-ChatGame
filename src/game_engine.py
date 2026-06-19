@@ -532,7 +532,9 @@ class GameEngine:
             roll = self.rng.random()
             success = roll <= catch_rate
             now = now_ts()
+            catch_event_expires_at = now + 4
 
+            catch_event_expires_at = now + 4
             conn.execute(
                 "UPDATE users SET last_catch_at = ? WHERE id = ?",
                 (now, user_id),
@@ -549,11 +551,17 @@ class GameEngine:
                 self._write_active_spawn({})
                 self._write_overlay(
                     {
-                        "state": "idle",
+                        "state": "catch",
                         "message": "",
                         "spawn": None,
                         "timer": 0,
                         "result": None,
+                        "catch": {
+                            "pokemon_name": spawn.get("name"),
+                            "name": spawn.get("name"),
+                            "result": "success",
+                            "expires_at": catch_event_expires_at,
+                        },
                     }
                 )
                 logging.info("Catch success: %s caught %s", username, spawn.get("name"))
@@ -561,11 +569,17 @@ class GameEngine:
 
             self._write_overlay(
                 {
-                    "state": "spawn",
+                    "state": "catch",
                     "message": "",
                     "spawn": spawn,
                     "timer": max(0, int(spawn.get("expires_at", now)) - now),
                     "result": None,
+                    "catch": {
+                        "pokemon_name": spawn.get("name"),
+                        "name": spawn.get("name"),
+                        "result": "failure",
+                        "expires_at": catch_event_expires_at,
+                    },
                 }
             )
             logging.info("Catch failed: %s vs %s", username, spawn.get("name"))

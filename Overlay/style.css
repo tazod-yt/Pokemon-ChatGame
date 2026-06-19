@@ -157,3 +157,117 @@ body {
     transform: translateY(0);
   }
 }
+
+.catch-area {
+  position: fixed;
+  left: 50%;
+  top: 35%;
+  transform: translate(-50%, -50%);
+  width: 240px;
+  height: 240px;
+  pointer-events: none;
+  z-index: 10010;
+}
+
+.catch-pokemon-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: 140px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.catch-pokemon-gif {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: center;
+}
+
+.catch-pokemon-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  box-shadow: 0 0 30px 14px rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.pokeball {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  transform-origin: center;
+  opacity: 0;
+}
+
+.pokeball.visible {
+  opacity: 1;
+}
+
+.pokeball-top,
+.pokeball-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border: 2px solid #333;
+}
+
+.pokeball-top {
+  top: 0;
+  height: 50%;
+  border-bottom: none;
+  border-radius: 24px 24px 0 0;
+  background: radial-gradient(circle at 30% 20%, #ffefef, #f52222);
+}
+
+.pokeball-bottom {
+  bottom: 0;
+  height: 50%;
+  border-top: none;
+  border-radius: 0 0 24px 24px;
+  background: white;
+}
+
+.pokeball-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #333;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+.pokeball.locked .pokeball-center {
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15), 0 0 8px 3px rgba(255, 255, 255, 0.8);
+}
+
+.pokeball.open .pokeball-top {
+  transform-origin: bottom center;
+  transform: translateY(-10px) rotate(-20deg);
+}
+
+.pokeball.open .pokeball-bottom {
+  transform-origin: top center;
+  transform: translateY(10px) rotate(15deg);
+}
+
+.pokeball.shake {
+  animation: pokeball-shake 0.2s ease-in-out infinite alternate;
+}
+
+@keyframes pokeball-shake {
+  from {
+    transform: rotate(-12deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
