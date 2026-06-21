@@ -62,8 +62,13 @@ def csharp_bytecode(args: str) -> str:
         "        }",
         "        else if (command == \"battle\")",
         "        {",
-        "            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(userArg)) return true;",
-        "            processArgs += \" \" + userName + \" \" + userArg;",
+        "            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(userArg) || string.IsNullOrWhiteSpace(arg2)) return true;",
+        "            processArgs += \" \" + userName + \" \" + userArg + \" \" + arg2;",
+        "        }",
+        "        else if (command == \"accept\")",
+        "        {",
+        "            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(userArg) || string.IsNullOrWhiteSpace(arg2)) return true;",
+        "            processArgs += \" \" + userName + \" \" + userArg + \" \" + arg2;",
         "        }",
         "",
         "        var psi = new ProcessStartInfo",
@@ -101,6 +106,7 @@ def csharp_bytecode(args: str) -> str:
     ]
     source = "\n".join(lines)
     return base64.b64encode(source.encode("utf-8")).decode("ascii")
+
 
 def make_command(name, command_text):
     return {
@@ -178,6 +184,8 @@ commands = [
     make_command("catch", "!catch"),
     make_command("inventory", "!inventory"),
     make_command("battle", "!battle"),
+    make_command("accept", "!accept"),
+    make_command("leaderboard", "!leaderboard"),
 ]
 
 actions = [
@@ -185,6 +193,8 @@ actions = [
     make_action("Pokemon Chat Game Catch", "catch", commands[1]["id"]),
     make_action("Pokemon Chat Game Inventory", "inventory", commands[2]["id"]),
     make_action("Pokemon Chat Game Battle", "battle", commands[3]["id"]),
+    make_action("Pokemon Chat Game Accept", "accept", commands[4]["id"]),
+    make_action("Pokemon Chat Game Leaderboard", "leaderboard", commands[5]["id"]),
 ]
 
 export = {

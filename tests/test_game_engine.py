@@ -11,6 +11,9 @@ sys.path.append(str(ROOT / "src"))
 from game_engine import (  # noqa: E402
     GameEngine,
     build_paths,
+    compute_derived_hp,
+    compute_derived_stats,
+    db_session,
     ensure_data_files,
     ensure_dirs,
     init_db,
@@ -30,6 +33,28 @@ def make_engine(tmp_path: Path) -> GameEngine:
     return GameEngine(paths, settings)
 
 
+def catch_for_user(engine: GameEngine, username: str, base_seed: int = 1) -> None:
+    start = base_seed * 1000
+    for seed in range(start, start + 500):
+        with db_session(engine.paths) as conn:
+            conn.execute("DELETE FROM settings WHERE key = 'last_spawn_at'")
+            row = conn.execute(
+                "SELECT id FROM users WHERE username = ?", (username,)
+            ).fetchone()
+            if row:
+                conn.execute(
+                    "UPDATE users SET last_catch_at = NULL WHERE id = ?", (row[0],)
+                )
+        engine.rng.seed(seed)
+        engine.spawn()
+        engine.rng.seed(seed)
+        result = engine.catch(username)
+        if "caught" in result:
+            return
+        engine.reset_spawn()
+    raise RuntimeError(f"Could not catch pokemon for {username}")
+
+
 def test_spawn_creation():
     with tempfile.TemporaryDirectory() as tmp:
         engine = make_engine(Path(tmp))
@@ -40,10 +65,9 @@ def test_spawn_creation():
 def test_catch_success():
     with tempfile.TemporaryDirectory() as tmp:
         engine = make_engine(Path(tmp))
-        engine.rng.seed(1)
-        engine.spawn()
-        result = engine.catch("ankit")
-        assert "caught" in result
+        catch_for_user(engine, "ankit", 1)
+        result = engine.inventory("ankit")
+        assert "ankit" in result
 
 
 def test_catch_failure():
@@ -58,33 +82,59 @@ def test_catch_failure():
 def test_inventory_retrieval():
     with tempfile.TemporaryDirectory() as tmp:
         engine = make_engine(Path(tmp))
-        engine.rng.seed(1)
-        engine.spawn()
-        engine.catch("ankit")
+        catch_for_user(engine, "ankit", 1)
         result = engine.inventory("ankit")
+        assert "ankit" in result
+        assert "ELO" in result
+
+
+def test_inventory_item_includes_username():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        catch_for_user(engine, "ankit", 1)
+        result = engine.inventory("ankit")
+        assert "1. ankit:" in result
+
+
+def test_battle_challenge_and_accept():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        catch_for_user(engine, "user1", 1)
+        catch_for_user(engine, "user2", 2)
+
+        challenge = engine.battle("user1", "user2", "1")
+        assert "challenged" in challenge
+
+        result = engine.accept("user2", "user1", "1")
+        assert "wins" in result.lower()
+
+
+def test_leaderboard():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        catch_for_user(engine, "ankit", 1)
+        result = engine.leaderboard()
+        assert "Top" in result and "ELO" in result
         assert "ankit" in result
 
 
-def test_battle_simulation():
+def test_derived_stats():
     with tempfile.TemporaryDirectory() as tmp:
-        engine = make_engine(Path(tmp))
-        engine.rng.seed(1)
-        engine.spawn()
-        engine.catch("user1")
-        engine.rng.seed(2)
-        engine.spawn()
-        engine.catch("user2")
-        result = engine.battle("user1", "user2")
-        assert "wins" in result
+        tmp_path = Path(tmp)
+        ensure_dirs(build_paths(tmp_path))
+        settings = load_settings(build_paths(tmp_path))
+        hp = compute_derived_hp(45, 10, 5)
+        assert hp == 45 + 30 + 5
+        atk, defense, speed = compute_derived_stats(49, 49, 45, 10, 5, 5, 5, "Brave", settings)
+        assert atk > 49
+        assert defense == 49 + 20 + 5
 
 
 def test_data_persistence():
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         engine = make_engine(root)
-        engine.rng.seed(1)
-        engine.spawn()
-        engine.catch("ankit")
+        catch_for_user(engine, "ankit", 1)
         engine2 = make_engine(root)
         result = engine2.inventory("ankit")
         assert "ankit" in result
