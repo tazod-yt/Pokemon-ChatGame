@@ -340,6 +340,41 @@ def migrate_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE creatures ADD COLUMN base_speed INTEGER NOT NULL DEFAULT 0")
 
     inventory_cols = _table_columns(conn, "inventory")
+    # If an old `current_hp` column exists (legacy), remove it by recreating the table
+    if "current_hp" in inventory_cols:
+        # Recreate inventory table without current_hp while preserving data
+        conn.execute("PRAGMA foreign_keys=OFF;")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS inventory_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            username TEXT NOT NULL DEFAULT '',
+            creature_id INTEGER NOT NULL,
+            level INTEGER NOT NULL DEFAULT 1,
+            xp INTEGER NOT NULL DEFAULT 0,
+            obtained_at INTEGER NOT NULL,
+            wins INTEGER NOT NULL DEFAULT 0,
+            losses INTEGER NOT NULL DEFAULT 0,
+            hp_iv INTEGER NOT NULL DEFAULT 0,
+            atk_iv INTEGER NOT NULL DEFAULT 0,
+            def_iv INTEGER NOT NULL DEFAULT 0,
+            spd_iv INTEGER NOT NULL DEFAULT 0,
+            trait TEXT NOT NULL DEFAULT 'Brave',
+            elo INTEGER NOT NULL DEFAULT 1000,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(creature_id) REFERENCES creatures(id) ON DELETE CASCADE
+            )
+            """
+        )
+        # copy all columns except current_hp
+        copy_cols = [c for c in inventory_cols if c != "current_hp"]
+        copy_cols_sorted = ", ".join(copy_cols)
+        conn.execute(f"INSERT INTO inventory_new ({copy_cols_sorted}) SELECT {copy_cols_sorted} FROM inventory")
+        conn.execute("DROP TABLE inventory")
+        conn.execute("ALTER TABLE inventory_new RENAME TO inventory")
+        conn.execute("PRAGMA foreign_keys=ON;")
+        inventory_cols = _table_columns(conn, "inventory")
     if "exp" in inventory_cols and "xp" not in inventory_cols:
         conn.execute("ALTER TABLE inventory RENAME COLUMN exp TO xp")
         inventory_cols = _table_columns(conn, "inventory")
