@@ -1,3 +1,7 @@
+"""Game engine implementation for Pokemon ChatGame.
+
+Contains database migration, inventory, battle, and spawn commands."""
+
 import argparse
 import json
 import logging
@@ -7,20 +11,55 @@ import re
 import sqlite3
 import sys
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 DEFAULT_SETTINGS = {
-    "spawn_interval_seconds": 300,
+    "spawn_interval_seconds": 3,
     "catch_timeout_seconds": 60,
     "base_catch_rate": 0.35,
     "battle_timeout_seconds": 120,
-    "cooldown_seconds": 20,
+    "battle_cooldown_seconds": 60,
+    "rematch_cooldown_seconds": 300,
+    "cooldown_seconds": 1,
     "max_inventory_size": 50,
+    "max_level": 100,
+    "crit_chance": 0.10,
+    "miss_chance": 0.05,
+    "crit_multiplier": 1.5,
+    "berserk_crit_bonus": 0.15,
+    "lucky_xp_multiplier": 1.15,
+    "trait_attack_multiplier": 1.10,
+    "trait_defense_multiplier": 1.10,
+    "trait_speed_multiplier": 1.10,
+    "iv_min": 0,
+    "iv_max": 15,
+    "default_elo": 1000,
+    "elo_win": 25,
+    "elo_loss": 20,
+    "min_battle_damage": 5,
+    "leaderboard_size": 10,
+    "xp_winner_base": 50,
+    "xp_winner_level_mult": 5,
+    "xp_loser_base": 15,
+    "xp_loser_level_mult": 2,
 }
 
+TRAITS = ["Brave", "Tank", "Swift", "Lucky", "Berserk"]
+
+CREATURE_EMOJI = {
+    "Electric": "⚡",
+    "Grass": "🌿",
+    "Fire": "🔥",
+    "Water": "💧",
+    "Normal": "⭐",
+}
+
+
 def get_data_downloader_dir() -> Path:
+    """Get data downloader dir."""
     candidates = []
 
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
@@ -32,6 +71,7 @@ def get_data_downloader_dir() -> Path:
     candidates.append(Path.cwd() / "data_downloader")
 
     def find_up(start: Path) -> Optional[Path]:
+        """Find up."""
         current = start.resolve()
         for _ in range(8):
             candidate = current / "data_downloader"
@@ -56,20 +96,11 @@ def get_data_downloader_dir() -> Path:
 
 DATA_DOWNLOADER_DIR = get_data_downloader_dir()
 POKEMON_STATS_FILE = DATA_DOWNLOADER_DIR / "pokemon_base_stats.json"
+EVOLUTION_RULES_FILE = Path(__file__).resolve().parent.parent / "evolution_rules.json"
 
 
 def load_default_creatures() -> list[dict]:
-    """
-    Load the default creature roster from the downloaded JSON file.
-
-    The JSON stores PokémonDB stats as:
-    - name
-    - base_stats.hp / attack / defense
-    - catch_rate.value
-
-    We convert that into the engine's existing shape so the rest of the game
-    code can keep using base_hp/base_attack/base_defense/catch_rate_mod.
-    """
+    """Load default creatures."""
     if not POKEMON_STATS_FILE.exists():
         raise FileNotFoundError(f"Missing stats file: {POKEMON_STATS_FILE}")
 
@@ -86,6 +117,7 @@ def load_default_creatures() -> list[dict]:
                 "base_hp": int(base_stats.get("hp", 0)),
                 "base_attack": int(base_stats.get("attack", 0)),
                 "base_defense": int(base_stats.get("defense", 0)),
+                "base_speed": int(base_stats.get("speed", 0)),
                 "catch_rate_mod": float(catch_rate.get("value", 100)),
             }
         )
@@ -99,6 +131,7 @@ USERNAME_RE = re.compile(r"[^a-zA-Z0-9_]")
 
 @dataclass
 class Paths:
+    """Paths holds related game data and behavior."""
     root: Path
     data_dir: Path
     config_dir: Path
@@ -115,7 +148,50 @@ class Paths:
     chat_message_txt: Path
 
 
+@dataclass
+class BattlePokemon:
+    """BattlePokemon holds related game data and behavior."""
+    inv_id: int
+    owner: str
+    name: str
+    level: int
+    xp: int
+    trait: str
+    elo: int
+    wins: int
+    losses: int
+    hp_iv: int
+    atk_iv: int
+    def_iv: int
+    spd_iv: int
+    base_hp: int
+    base_attack: int
+    base_defense: int
+    base_speed: int
+    creature_id: int
+
+    @property
+    def derived_hp(self) -> int:
+        """Derived hp."""
+        return compute_derived_hp(self.base_hp, self.level, self.hp_iv)
+
+    def derived_stats(self, settings: Dict[str, Any]) -> Tuple[int, int, int]:
+        """Derived stats."""
+        return compute_derived_stats(
+            self.base_attack,
+            self.base_defense,
+            self.base_speed,
+            self.level,
+            self.atk_iv,
+            self.def_iv,
+            self.spd_iv,
+            self.trait,
+            settings,
+        )
+
+
 def find_root() -> Path:
+    """Find root."""
     env_root = os.environ.get("CHATGAME_ROOT")
     if env_root:
         return Path(env_root).resolve()
@@ -136,6 +212,7 @@ def find_root() -> Path:
 
 
 def build_paths(root: Path) -> Paths:
+    """Build paths."""
     data_dir = root / "Data"
     config_dir = root / "Config"
     logs_dir = root / "Logs"
@@ -161,6 +238,7 @@ def build_paths(root: Path) -> Paths:
 
 
 def ensure_dirs(paths: Paths) -> None:
+    """Ensure dirs."""
     for directory in [
         paths.root,
         paths.data_dir,
@@ -177,6 +255,7 @@ def ensure_dirs(paths: Paths) -> None:
 
 
 def load_settings(paths: Paths) -> Dict[str, Any]:
+    """Load settings."""
     if not paths.settings_json.exists():
         write_json(paths.settings_json, DEFAULT_SETTINGS)
         return dict(DEFAULT_SETTINGS)
@@ -193,6 +272,7 @@ def load_settings(paths: Paths) -> Dict[str, Any]:
 
 
 def setup_logging(paths: Paths) -> None:
+    """Setup logging."""
     paths.logs_dir.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
@@ -204,11 +284,13 @@ def setup_logging(paths: Paths) -> None:
 
 
 def read_json(path: Path) -> Any:
+    """Read json."""
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
 def write_json(path: Path, payload: Any) -> None:
+    """Write json."""
     tmp_path = path.with_suffix(path.suffix + ".tmp")
     with tmp_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2)
@@ -216,66 +298,174 @@ def write_json(path: Path, payload: Any) -> None:
 
 
 def now_ts() -> int:
+    """Now ts."""
     return int(time.time())
 
 
 def normalize_username(username: str) -> str:
+    """Normalize username."""
     cleaned = USERNAME_RE.sub("", username.strip())
     return cleaned.lower()
 
 
 def connect_db(paths: Paths) -> sqlite3.Connection:
+    """Connect db."""
     conn = sqlite3.connect(paths.game_db)
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA foreign_keys=ON;")
     return conn
 
 
-def init_db(paths: Paths) -> None:
+@contextmanager
+def db_session(paths: Paths):
+    """Db session."""
     conn = connect_db(paths)
-    with conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS users (
+    try:
+        with conn:
+            yield conn
+    finally:
+        conn.close()
+
+
+def _table_columns(conn: sqlite3.Connection, table: str) -> set[str]:
+    """Internal helper to table columns."""
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    return {row[1] for row in rows}
+
+
+def migrate_db(conn: sqlite3.Connection) -> None:
+    """Migrate db."""
+    creature_cols = _table_columns(conn, "creatures")
+    if "base_speed" not in creature_cols:
+        conn.execute("ALTER TABLE creatures ADD COLUMN base_speed INTEGER NOT NULL DEFAULT 0")
+
+    inventory_cols = _table_columns(conn, "inventory")
+    if "exp" in inventory_cols and "xp" not in inventory_cols:
+        conn.execute("ALTER TABLE inventory RENAME COLUMN exp TO xp")
+        inventory_cols = _table_columns(conn, "inventory")
+
+    inventory_additions = {
+        "username": "TEXT NOT NULL DEFAULT ''",
+        "wins": "INTEGER NOT NULL DEFAULT 0",
+        "losses": "INTEGER NOT NULL DEFAULT 0",
+        "hp_iv": "INTEGER NOT NULL DEFAULT 0",
+        "atk_iv": "INTEGER NOT NULL DEFAULT 0",
+        "def_iv": "INTEGER NOT NULL DEFAULT 0",
+        "spd_iv": "INTEGER NOT NULL DEFAULT 0",
+        "trait": "TEXT",
+        "elo": "INTEGER NOT NULL DEFAULT 1000",
+    }
+    trait_column_added = False
+    for col, definition in inventory_additions.items():
+        if col not in inventory_cols:
+            conn.execute(f"ALTER TABLE inventory ADD COLUMN {col} {definition}")
+            if col == "trait":
+                trait_column_added = True
+            inventory_cols.add(col)
+
+    if trait_column_added:
+        rows = conn.execute("SELECT id FROM inventory").fetchall()
+        for row in rows:
+            trait = random.choice(TRAITS)
+            conn.execute("UPDATE inventory SET trait = ? WHERE id = ?", (trait, row[0]))
+    else:
+        rows = conn.execute(
+            "SELECT id FROM inventory WHERE trait IS NULL OR trait = ''"
+        ).fetchall()
+        for row in rows:
+            trait = random.choice(TRAITS)
+            conn.execute("UPDATE inventory SET trait = ? WHERE id = ?", (trait, row[0]))
+
+    conn.execute(
+        """
+        UPDATE inventory SET username = (
+            SELECT username FROM users WHERE users.id = inventory.user_id
+        ) WHERE username = ''
+        """
+    )
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS pending_battles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            challenger_id INTEGER NOT NULL,
+            challenged_id INTEGER NOT NULL,
+            challenger_inventory_id INTEGER NOT NULL,
+            challenged_inventory_id INTEGER,
+            status TEXT NOT NULL DEFAULT 'pending',
+            created_at INTEGER NOT NULL,
+            expires_at INTEGER NOT NULL,
+            FOREIGN KEY(challenger_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(challenged_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(challenger_inventory_id) REFERENCES inventory(id) ON DELETE CASCADE,
+            FOREIGN KEY(challenged_inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+    speed_by_name = {c["name"]: c["base_speed"] for c in DEFAULT_CREATURES}
+    creature_rows = conn.execute("SELECT id, name FROM creatures").fetchall()
+    for creature_id, name in creature_rows:
+        speed = speed_by_name.get(name, 0)
+        conn.execute("UPDATE creatures SET base_speed = ? WHERE id = ?", (speed, creature_id))
+
+
+def init_db(paths: Paths) -> None:
+    """Init db."""
+    conn = connect_db(paths)
+    try:
+        with conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 created_at INTEGER NOT NULL,
                 last_catch_at INTEGER,
                 last_battle_at INTEGER
+                )
+                """
             )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS creatures (
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS creatures (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 base_hp INTEGER NOT NULL,
                 base_attack INTEGER NOT NULL,
                 base_defense INTEGER NOT NULL,
+                base_speed INTEGER NOT NULL DEFAULT 0,
                 catch_rate_mod REAL NOT NULL DEFAULT 1.0,
                 created_at INTEGER NOT NULL
+                )
+                """
             )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS inventory (
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS inventory (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
+                username TEXT NOT NULL DEFAULT '',
                 creature_id INTEGER NOT NULL,
                 level INTEGER NOT NULL DEFAULT 1,
-                exp INTEGER NOT NULL DEFAULT 0,
-                current_hp INTEGER NOT NULL,
+                xp INTEGER NOT NULL DEFAULT 0,
                 obtained_at INTEGER NOT NULL,
+                wins INTEGER NOT NULL DEFAULT 0,
+                losses INTEGER NOT NULL DEFAULT 0,
+                hp_iv INTEGER NOT NULL DEFAULT 0,
+                atk_iv INTEGER NOT NULL DEFAULT 0,
+                def_iv INTEGER NOT NULL DEFAULT 0,
+                spd_iv INTEGER NOT NULL DEFAULT 0,
+                trait TEXT NOT NULL DEFAULT 'Brave',
+                elo INTEGER NOT NULL DEFAULT 1000,
                 FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY(creature_id) REFERENCES creatures(id) ON DELETE CASCADE
+                    FOREIGN KEY(creature_id) REFERENCES creatures(id) ON DELETE CASCADE
+                )
+                """
             )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS battles (
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS battles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user1_id INTEGER NOT NULL,
                 user2_id INTEGER NOT NULL,
@@ -284,46 +474,53 @@ def init_db(paths: Paths) -> None:
                 created_at INTEGER NOT NULL,
                 FOREIGN KEY(user1_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY(user2_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY(winner_id) REFERENCES users(id) ON DELETE CASCADE
+                    FOREIGN KEY(winner_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+                """
             )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS settings (
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS settings (
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
+                )
+                """
             )
-            """
-        )
-    conn.close()
+            migrate_db(conn)
+    finally:
+        conn.close()
 
 
 def seed_creatures(paths: Paths) -> None:
+    """Seed creatures."""
     conn = connect_db(paths)
-    with conn:
-        row = conn.execute("SELECT COUNT(*) FROM creatures").fetchone()
-        if row and row[0] > 0:
-            return
-        for creature in DEFAULT_CREATURES:
-            conn.execute(
-                """
-                INSERT INTO creatures (name, base_hp, base_attack, base_defense, catch_rate_mod, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    creature["name"],
-                    creature["base_hp"],
-                    creature["base_attack"],
-                    creature["base_defense"],
-                    creature["catch_rate_mod"],
-                    now_ts(),
-                ),
-            )
-    conn.close()
+    try:
+        with conn:
+            row = conn.execute("SELECT COUNT(*) FROM creatures").fetchone()
+            if row and row[0] > 0:
+                return
+            for creature in DEFAULT_CREATURES:
+                conn.execute(
+                    """
+                    INSERT INTO creatures (name, base_hp, base_attack, base_defense, base_speed, catch_rate_mod, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        creature["name"],
+                        creature["base_hp"],
+                        creature["base_attack"],
+                        creature["base_defense"],
+                        creature["base_speed"],
+                        creature["catch_rate_mod"],
+                        now_ts(),
+                    ),
+                )
+    finally:
+        conn.close()
 
 
 def ensure_data_files(paths: Paths) -> None:
+    """Ensure data files."""
     if not paths.active_spawn_json.exists():
         write_json(paths.active_spawn_json, {})
     if not paths.users_cache_json.exists():
@@ -345,6 +542,7 @@ def ensure_data_files(paths: Paths) -> None:
 
 
 def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
+    """Set setting."""
     conn.execute(
         "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
         (key, value),
@@ -352,19 +550,82 @@ def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
 
 
 def get_setting(conn: sqlite3.Connection, key: str) -> Optional[str]:
+    """Get setting."""
     row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()
     if row:
         return row[0]
     return None
 
 
+def compute_derived_hp(base_hp: int, level: int, hp_iv: int) -> int:
+    """Compute derived hp."""
+    return base_hp + level * 3 + hp_iv
+
+
+def compute_derived_stats(
+    base_attack: int,
+    base_defense: int,
+    base_speed: int,
+    level: int,
+    atk_iv: int,
+    def_iv: int,
+    spd_iv: int,
+    trait: str,
+    settings: Dict[str, Any],
+) -> Tuple[int, int, int]:
+    """Compute derived stats."""
+    attack = base_attack + level * 2 + atk_iv
+    defense = base_defense + level * 2 + def_iv
+    speed = base_speed + int(level * 1.5) + spd_iv
+
+    if trait == "Brave":
+        attack = int(attack * settings["trait_attack_multiplier"])
+    if trait == "Tank":
+        defense = int(defense * settings["trait_defense_multiplier"])
+    if trait == "Swift":
+        speed = int(speed * settings["trait_speed_multiplier"])
+
+    return attack, defense, speed
+
+
+def creature_emoji(name: str) -> str:
+    """Creature emoji."""
+    name_lower = name.lower()
+    if any(x in name_lower for x in ("pika", "volt", "elect", "jolt")):
+        return CREATURE_EMOJI["Electric"]
+    if any(x in name_lower for x in ("bulba", "ivy", "venus", "oddish", "bellsprout")):
+        return CREATURE_EMOJI["Grass"]
+    if any(x in name_lower for x in ("char", "growl", "ponyta", "magmar")):
+        return CREATURE_EMOJI["Fire"]
+    if any(x in name_lower for x in ("squirt", "wartort", "psyduck", "poli", "seel")):
+        return CREATURE_EMOJI["Water"]
+    return CREATURE_EMOJI["Normal"]
+
+
 class GameEngine:
+    """GameEngine holds related game data and behavior."""
     def __init__(self, paths: Paths, settings: Dict[str, Any], rng: Optional[random.Random] = None):
+        """Initialize the game engine with paths, settings, and RNG."""
         self.paths = paths
         self.settings = settings
         self.rng = rng or random.Random()
+        self._evolution_rules: Optional[Dict[str, Any]] = None
+
+    def _load_evolution_rules(self) -> Dict[str, Any]:
+        """Internal helper to load evolution rules."""
+        if self._evolution_rules is not None:
+            return self._evolution_rules
+        if not EVOLUTION_RULES_FILE.exists():
+            self._evolution_rules = {}
+            return self._evolution_rules
+        try:
+            self._evolution_rules = json.loads(EVOLUTION_RULES_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            self._evolution_rules = {}
+        return self._evolution_rules
 
     def _load_active_spawn(self) -> Dict[str, Any]:
+        """Internal helper to load active spawn."""
         try:
             data = read_json(self.paths.active_spawn_json)
         except Exception:
@@ -374,30 +635,36 @@ class GameEngine:
         return data
 
     def _write_active_spawn(self, payload: Dict[str, Any]) -> None:
+        """Internal helper to write active spawn."""
         write_json(self.paths.active_spawn_json, payload)
 
     def _write_overlay(self, payload: Dict[str, Any]) -> None:
+        """Internal helper to write overlay."""
         payload = dict(payload)
         payload["updated_at"] = now_ts()
         write_json(self.paths.overlay_state_json, payload)
 
     def _write_chat_message(self, message: str) -> None:
+        """Internal helper to write chat message."""
         try:
             self.paths.chat_message_txt.write_text(message, encoding="utf-8")
         except Exception:
             logging.exception("Failed to write chat message")
 
     def _respond(self, message: str) -> str:
+        """Internal helper to respond."""
         self._write_chat_message(message)
         return message
 
     def _spawn_is_expired(self, spawn: Dict[str, Any]) -> bool:
+        """Internal helper to spawn is expired."""
         expires_at = spawn.get("expires_at")
         if not expires_at:
             return True
         return now_ts() >= int(expires_at)
 
     def _ensure_user(self, conn: sqlite3.Connection, username: str) -> int:
+        """Internal helper to ensure user."""
         row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
         if row:
             return int(row[0])
@@ -409,16 +676,26 @@ class GameEngine:
         row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
         return int(row[0])
 
-    def _get_cooldown_remaining(self, last_time: Optional[int]) -> int:
+    def _get_cooldown_remaining(self, last_time: Optional[int], cooldown_key: str) -> int:
+        """Internal helper to get cooldown remaining."""
         if not last_time:
             return 0
-        cooldown = int(self.settings["cooldown_seconds"])
+        cooldown = int(self.settings[cooldown_key])
         remaining = cooldown - (now_ts() - int(last_time))
         return max(0, remaining)
 
+    def _expire_pending_battles(self, conn: sqlite3.Connection) -> None:
+        """Internal helper to expire pending battles."""
+        now = now_ts()
+        conn.execute(
+            "UPDATE pending_battles SET status = 'expired' WHERE status = 'pending' AND expires_at < ?",
+            (now,),
+        )
+
     def _select_random_creature(self, conn: sqlite3.Connection) -> Tuple[int, Dict[str, Any]]:
+        """Internal helper to select random creature."""
         rows = conn.execute(
-            "SELECT id, name, base_hp, base_attack, base_defense, catch_rate_mod FROM creatures"
+            "SELECT id, name, base_hp, base_attack, base_defense, base_speed, catch_rate_mod FROM creatures"
         ).fetchall()
         if not rows:
             raise RuntimeError("No creatures available")
@@ -428,10 +705,100 @@ class GameEngine:
             "base_hp": int(row[2]),
             "base_attack": int(row[3]),
             "base_defense": int(row[4]),
-            "catch_rate_mod": float(row[5]),
+            "base_speed": int(row[5]),
+            "catch_rate_mod": float(row[6]),
         }
 
+    def _random_trait(self) -> str:
+        """Internal helper to random trait."""
+        return self.rng.choice(TRAITS)
+
+    def _random_iv(self) -> int:
+        """Internal helper to random iv."""
+        return self.rng.randint(int(self.settings["iv_min"]), int(self.settings["iv_max"]))
+
+    def _resolve_inventory_pokemon(
+        self,
+        conn: sqlite3.Connection,
+        user_id: int,
+        selector: str,
+    ) -> Optional[Tuple[Any, ...]]:
+        """Internal helper to resolve inventory pokemon."""
+        rows = conn.execute(
+            """
+            SELECT inventory.id, inventory.creature_id, creatures.name,
+                   creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                   inventory.level, inventory.xp, inventory.wins, inventory.losses,
+                   inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
+                   inventory.trait, inventory.elo
+            FROM inventory
+            JOIN creatures ON creatures.id = inventory.creature_id
+            WHERE inventory.user_id = ?
+            ORDER BY inventory.obtained_at DESC
+            """,
+            (user_id,),
+        ).fetchall()
+
+        if not rows:
+            return None
+
+        selector = selector.strip()
+        if selector.isdigit():
+            index = int(selector) - 1
+            if 0 <= index < len(rows):
+                return rows[index]
+            return None
+
+        selector_lower = selector.lower()
+        for row in rows:
+            if row[2].lower() == selector_lower:
+                return row
+        for row in rows:
+            if selector_lower in row[2].lower():
+                return row
+        return None
+
+    def _load_battle_pokemon(self, row: Tuple[Any, ...], owner: str) -> BattlePokemon:
+        """Internal helper to load battle pokemon."""
+        return BattlePokemon(
+            inv_id=int(row[0]),
+            creature_id=int(row[1]),
+            name=row[2],
+            base_hp=int(row[3]),
+            base_attack=int(row[4]),
+            base_defense=int(row[5]),
+            base_speed=int(row[6]),
+            level=int(row[7]),
+            xp=int(row[8]),
+            wins=int(row[9]),
+            losses=int(row[10]),
+            hp_iv=int(row[11]),
+            atk_iv=int(row[12]),
+            def_iv=int(row[13]),
+            spd_iv=int(row[14]),
+            trait=row[15],
+            elo=int(row[16]),
+            owner=owner,
+        )
+
+    def _get_rematch_cooldown_remaining(
+        self, conn: sqlite3.Connection, user1_id: int, user2_id: int
+    ) -> int:
+        """Internal helper to get rematch cooldown remaining."""
+        row = conn.execute(
+            """
+            SELECT created_at FROM battles
+            WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)
+            ORDER BY created_at DESC LIMIT 1
+            """,
+            (user1_id, user2_id, user2_id, user1_id),
+        ).fetchone()
+        if not row:
+            return 0
+        return self._get_cooldown_remaining(row[0], "rematch_cooldown_seconds")
+
     def spawn(self) -> str:
+        """Spawn."""
         logging.info("Command: spawn")
         spawn = self._load_active_spawn()
         if spawn and not self._spawn_is_expired(spawn):
@@ -448,8 +815,7 @@ class GameEngine:
                 }
             )
 
-        conn = connect_db(self.paths)
-        with conn:
+        with db_session(self.paths) as conn:
             last_spawn_at = get_setting(conn, "last_spawn_at")
             if last_spawn_at:
                 interval = int(self.settings["spawn_interval_seconds"])
@@ -482,6 +848,7 @@ class GameEngine:
         return self._respond(f"Spawned {creature['name']}")
 
     def catch(self, username: str) -> str:
+        """Catch."""
         username = normalize_username(username)
         if not username:
             return self._respond("Invalid username.")
@@ -502,14 +869,13 @@ class GameEngine:
         if not spawn or self._spawn_is_expired(spawn):
             return self._respond("No active spawn to catch.")
 
-        conn = connect_db(self.paths)
-        with conn:
+        with db_session(self.paths) as conn:
             user_id = self._ensure_user(conn, username)
             last_catch_at = conn.execute(
                 "SELECT last_catch_at FROM users WHERE id = ?",
                 (user_id,),
             ).fetchone()[0]
-            remaining = self._get_cooldown_remaining(last_catch_at)
+            remaining = self._get_cooldown_remaining(last_catch_at, "cooldown_seconds")
             if remaining > 0:
                 return self._respond(f"Catch cooldown active. Try again in {remaining}s.")
 
@@ -541,12 +907,35 @@ class GameEngine:
             )
 
             if success:
+                trait = self._random_trait()
+                hp_iv = self._random_iv()
+                atk_iv = self._random_iv()
+                def_iv = self._random_iv()
+                spd_iv = self._random_iv()
                 conn.execute(
                     """
-                    INSERT INTO inventory (user_id, creature_id, level, exp, current_hp, obtained_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO inventory (
+                        user_id, username, creature_id, level, xp, obtained_at,
+                        wins, losses, hp_iv, atk_iv, def_iv, spd_iv, trait, elo
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (user_id, spawn["creature_id"], 1, 0, int(creature_row[0]), now),
+                    (
+                        user_id,
+                        username,
+                        spawn["creature_id"],
+                        1,
+                        0,
+                        now,
+                        0,
+                        0,
+                        hp_iv,
+                        atk_iv,
+                        def_iv,
+                        spd_iv,
+                        trait,
+                        int(self.settings["default_elo"]),
+                    ),
                 )
                 self._write_active_spawn({})
                 self._write_overlay(
@@ -565,7 +954,7 @@ class GameEngine:
                     }
                 )
                 logging.info("Catch success: %s caught %s", username, spawn.get("name"))
-                return self._respond(f"{username} caught {spawn.get('name')}!")
+                return self._respond(f"{username} caught {spawn.get('name')}! ({trait})")
 
             self._write_overlay(
                 {
@@ -586,20 +975,21 @@ class GameEngine:
             return self._respond(f"{username} failed to catch {spawn.get('name')}.")
 
     def inventory(self, username: str) -> str:
+        """Inventory."""
         username = normalize_username(username)
         if not username:
             return self._respond("Invalid username.")
 
         logging.info("Command: inventory %s", username)
-        conn = connect_db(self.paths)
-        with conn:
+        with db_session(self.paths) as conn:
             row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
             if not row:
                 return self._respond(f"{username} has no creatures yet.")
             user_id = int(row[0])
             rows = conn.execute(
                 """
-                SELECT creatures.name, inventory.level, inventory.exp, inventory.current_hp
+                SELECT inventory.username, creatures.name, inventory.level, inventory.xp, inventory.trait,
+                       inventory.elo, inventory.wins, inventory.losses
                 FROM inventory
                 JOIN creatures ON creatures.id = inventory.creature_id
                 WHERE inventory.user_id = ?
@@ -612,140 +1002,446 @@ class GameEngine:
             return self._respond(f"{username} has no creatures yet.")
 
         lines = [f"{username}'s creatures:"]
-        for name, level, exp, hp in rows:
-            lines.append(f"- {name} (Lv {level}, EXP {exp}, HP {hp})")
+        for idx, (inventory_username, name, level, xp, trait, elo, wins, losses) in enumerate(rows, start=1):
+            lines.append(
+                f"{idx}. {inventory_username}: {name} (Lv {level}, XP {xp}, {trait}, ELO {elo}, W/L {wins}/{losses})"
+            )
         return self._respond("\n".join(lines))
 
-    def battle(self, user1: str, user2: str) -> str:
-        user1 = normalize_username(user1)
-        user2 = normalize_username(user2)
-        if not user1 or not user2 or user1 == user2:
+    def battle(self, challenger: str, opponent: str, pokemon: str) -> str:
+        """Battle."""
+        challenger = normalize_username(challenger)
+        opponent = normalize_username(opponent)
+        if not challenger or not opponent or challenger == opponent:
             return self._respond("Invalid battle participants.")
+        if not pokemon or not pokemon.strip():
+            return self._respond("Specify a Pokémon name or number.")
 
-        logging.info("Command: battle %s vs %s", user1, user2)
-        conn = connect_db(self.paths)
-        with conn:
-            user1_id = self._ensure_user(conn, user1)
-            user2_id = self._ensure_user(conn, user2)
+        logging.info("Command: battle %s vs %s with %s", challenger, opponent, pokemon)
+        with db_session(self.paths) as conn:
+            self._expire_pending_battles(conn)
+            challenger_id = self._ensure_user(conn, challenger)
+            opponent_id = self._ensure_user(conn, opponent)
 
-            for uid in [user1_id, user2_id]:
-                last_battle_at = conn.execute(
-                    "SELECT last_battle_at FROM users WHERE id = ?",
-                    (uid,),
-                ).fetchone()[0]
-                remaining = self._get_cooldown_remaining(last_battle_at)
-                if remaining > 0:
-                    return self._respond(f"Battle cooldown active. Try again in {remaining}s.")
+            last_battle_at = conn.execute(
+                "SELECT last_battle_at FROM users WHERE id = ?",
+                (challenger_id,),
+            ).fetchone()[0]
+            remaining = self._get_cooldown_remaining(last_battle_at, "battle_cooldown_seconds")
+            if remaining > 0:
+                return self._respond(f"Battle cooldown active. Try again in {remaining}s.")
 
-            inv1 = conn.execute(
+            rematch_remaining = self._get_rematch_cooldown_remaining(conn, challenger_id, opponent_id)
+            if rematch_remaining > 0:
+                return self._respond(
+                    f"Rematch cooldown active. Try again in {rematch_remaining}s."
+                )
+
+            existing = conn.execute(
                 """
-                SELECT inventory.id, creatures.name, creatures.base_hp, creatures.base_attack, creatures.base_defense, inventory.level, inventory.exp
-                FROM inventory
-                JOIN creatures ON creatures.id = inventory.creature_id
-                WHERE inventory.user_id = ?
+                SELECT id FROM pending_battles
+                WHERE challenger_id = ? AND challenged_id = ? AND status = 'pending'
                 """,
-                (user1_id,),
-            ).fetchall()
-            inv2 = conn.execute(
-                """
-                SELECT inventory.id, creatures.name, creatures.base_hp, creatures.base_attack, creatures.base_defense, inventory.level, inventory.exp
-                FROM inventory
-                JOIN creatures ON creatures.id = inventory.creature_id
-                WHERE inventory.user_id = ?
-                """,
-                (user2_id,),
-            ).fetchall()
+                (challenger_id, opponent_id),
+            ).fetchone()
+            if existing:
+                return self._respond(f"You already challenged {opponent}. Waiting for accept.")
 
-            if not inv1 or not inv2:
-                return self._respond("Both users need at least one creature to battle.")
+            inv_row = self._resolve_inventory_pokemon(conn, challenger_id, pokemon)
+            if not inv_row:
+                return self._respond(f"{challenger} does not have that Pokémon.")
 
-            c1 = self.rng.choice(inv1)
-            c2 = self.rng.choice(inv2)
+            opponent_has = conn.execute(
+                "SELECT COUNT(*) FROM inventory WHERE user_id = ?",
+                (opponent_id,),
+            ).fetchone()[0]
+            if opponent_has == 0:
+                return self._respond(f"{opponent} has no creatures to battle.")
 
-            battle_log, winner = self._simulate_battle(c1, c2, user1, user2)
             now = now_ts()
-
-            winner_id = user1_id if winner == user1 else user2_id
+            expires_at = now + int(self.settings["battle_timeout_seconds"])
             conn.execute(
-                "UPDATE users SET last_battle_at = ? WHERE id IN (?, ?)",
-                (now, user1_id, user2_id),
+                """
+                INSERT INTO pending_battles (
+                    challenger_id, challenged_id, challenger_inventory_id,
+                    status, created_at, expires_at
+                )
+                VALUES (?, ?, ?, 'pending', ?, ?)
+                """,
+                (challenger_id, opponent_id, int(inv_row[0]), now, expires_at),
             )
 
-            winner_inv_id = c1[0] if winner == user1 else c2[0]
-            loser_inv_id = c2[0] if winner == user1 else c1[0]
+        pokemon_name = inv_row[2]
+        msg = (
+            f"{challenger} challenged {opponent} with {pokemon_name}! "
+            f"{opponent}, use !accept @{challenger} <pokemon> within "
+            f"{int(self.settings['battle_timeout_seconds'])}s."
+        )
+        logging.info("Battle challenge: %s -> %s", challenger, opponent)
+        return self._respond(msg)
 
-            self._award_battle_exp(conn, winner_inv_id, 12)
-            self._award_battle_exp(conn, loser_inv_id, 4)
+    def accept(self, accepter: str, challenger: str, pokemon: str) -> str:
+        """Accept."""
+        accepter = normalize_username(accepter)
+        challenger = normalize_username(challenger)
+        if not accepter or not challenger or accepter == challenger:
+            return self._respond("Invalid accept participants.")
+        if not pokemon or not pokemon.strip():
+            return self._respond("Specify a Pokémon name or number.")
+
+        logging.info("Command: accept %s from %s with %s", accepter, challenger, pokemon)
+        with db_session(self.paths) as conn:
+            self._expire_pending_battles(conn)
+            accepter_id = self._ensure_user(conn, accepter)
+            challenger_id = self._ensure_user(conn, challenger)
+
+            pending = conn.execute(
+                """
+                SELECT id, challenger_inventory_id, expires_at
+                FROM pending_battles
+                WHERE challenger_id = ? AND challenged_id = ? AND status = 'pending'
+                ORDER BY created_at DESC LIMIT 1
+                """,
+                (challenger_id, accepter_id),
+            ).fetchone()
+            if not pending:
+                return self._respond(f"No pending challenge from {challenger}.")
+
+            pending_id, challenger_inv_id, expires_at = pending
+            if now_ts() >= int(expires_at):
+                conn.execute(
+                    "UPDATE pending_battles SET status = 'expired' WHERE id = ?",
+                    (pending_id,),
+                )
+                return self._respond(f"Challenge from {challenger} has expired.")
+
+            last_battle_at = conn.execute(
+                "SELECT last_battle_at FROM users WHERE id = ?",
+                (accepter_id,),
+            ).fetchone()[0]
+            remaining = self._get_cooldown_remaining(last_battle_at, "battle_cooldown_seconds")
+            if remaining > 0:
+                return self._respond(f"Battle cooldown active. Try again in {remaining}s.")
+
+            rematch_remaining = self._get_rematch_cooldown_remaining(
+                conn, challenger_id, accepter_id
+            )
+            if rematch_remaining > 0:
+                return self._respond(
+                    f"Rematch cooldown active. Try again in {rematch_remaining}s."
+                )
+
+            accepter_row = self._resolve_inventory_pokemon(conn, accepter_id, pokemon)
+            if not accepter_row:
+                return self._respond(f"{accepter} does not have that Pokémon.")
+
+            challenger_row = conn.execute(
+                """
+                SELECT inventory.id, inventory.creature_id, creatures.name,
+                       creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                       inventory.level, inventory.xp, inventory.wins, inventory.losses,
+                       inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
+                       inventory.trait, inventory.elo
+                FROM inventory
+                JOIN creatures ON creatures.id = inventory.creature_id
+                WHERE inventory.id = ? AND inventory.user_id = ?
+                """,
+                (challenger_inv_id, challenger_id),
+            ).fetchone()
+            if not challenger_row:
+                return self._respond("Challenger's Pokémon is no longer available.")
+
+            p1 = self._load_battle_pokemon(challenger_row, challenger)
+            p2 = self._load_battle_pokemon(accepter_row, accepter)
+
+            transcript, battle_log, winner_owner = self._simulate_battle(p1, p2)
+            now = now_ts()
+
+            winner_id = challenger_id if winner_owner == challenger else accepter_id
+            loser_owner = accepter if winner_owner == challenger else challenger
+            winner_pokemon = p1 if winner_owner == challenger else p2
+            loser_pokemon = p2 if winner_owner == challenger else p1
+
+            conn.execute(
+                "UPDATE users SET last_battle_at = ? WHERE id IN (?, ?)",
+                (now, challenger_id, accepter_id),
+            )
+
+            conn.execute(
+                """
+                UPDATE pending_battles
+                SET status = 'completed', challenged_inventory_id = ?
+                WHERE id = ?
+                """,
+                (int(accepter_row[0]), pending_id),
+            )
+
+            self._apply_battle_rewards(conn, winner_pokemon, loser_pokemon)
+            self._apply_elo_changes(conn, winner_pokemon, loser_pokemon)
+            self._check_evolution(conn, winner_pokemon)
+            self._check_evolution(conn, loser_pokemon)
 
             conn.execute(
                 "INSERT INTO battles (user1_id, user2_id, winner_id, log_json, created_at) VALUES (?, ?, ?, ?, ?)",
-                (user1_id, user2_id, winner_id, json.dumps(battle_log), now),
+                (challenger_id, accepter_id, winner_id, json.dumps(battle_log), now),
             )
 
         self._write_overlay(
             {
-                "state": "idle",
-                "message": "",
+                "state": "battle",
+                "message": transcript[-1] if transcript else f"{winner_owner} wins!",
                 "spawn": None,
                 "timer": 0,
-                "result": None,
+                "result": {
+                    "type": "battle",
+                    "winner": winner_owner,
+                    "loser": loser_owner,
+                    "transcript": transcript,
+                },
             }
         )
-        logging.info("Battle result: %s vs %s => %s", user1, user2, winner)
-        return self._respond(f"{winner} wins the battle!")
+        logging.info("Battle result: %s vs %s => %s", challenger, accepter, winner_owner)
+        summary = "\n".join(transcript)
+        return self._respond(summary)
 
-    def _award_battle_exp(self, conn: sqlite3.Connection, inv_id: int, exp_gain: int) -> None:
+    def leaderboard(self) -> str:
+        """Leaderboard."""
+        logging.info("Command: leaderboard")
+        limit = int(self.settings["leaderboard_size"])
+        with db_session(self.paths) as conn:
+            rows = conn.execute(
+                """
+                SELECT creatures.name, users.username, inventory.elo
+                FROM inventory
+                JOIN creatures ON creatures.id = inventory.creature_id
+                JOIN users ON users.id = inventory.user_id
+                ORDER BY inventory.elo DESC, inventory.level DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+
+        if not rows:
+            return self._respond("No Pokémon on the leaderboard yet.")
+
+        lines = ["Top Pokémon by ELO:"]
+        for idx, (name, owner, elo) in enumerate(rows, start=1):
+            lines.append(f"{idx}. {name} ({owner}) {elo}")
+        return self._respond("\n".join(lines))
+
+    def _apply_battle_rewards(
+        self,
+        conn: sqlite3.Connection,
+        winner: BattlePokemon,
+        loser: BattlePokemon,
+    ) -> None:
+        """Internal helper to apply battle rewards."""
+        winner_xp = (
+            int(self.settings["xp_winner_base"])
+            + loser.level * int(self.settings["xp_winner_level_mult"])
+        )
+        loser_xp = (
+            int(self.settings["xp_loser_base"])
+            + winner.level * int(self.settings["xp_loser_level_mult"])
+        )
+        if winner.trait == "Lucky":
+            winner_xp = int(winner_xp * self.settings["lucky_xp_multiplier"])
+        if loser.trait == "Lucky":
+            loser_xp = int(loser_xp * self.settings["lucky_xp_multiplier"])
+
+        self._award_battle_xp(conn, winner.inv_id, winner_xp, is_winner=True)
+        self._award_battle_xp(conn, loser.inv_id, loser_xp, is_winner=False)
+
+    def _award_battle_xp(
+        self, conn: sqlite3.Connection, inv_id: int, xp_gain: int, is_winner: bool
+    ) -> None:
+        """Internal helper to award battle xp."""
         row = conn.execute(
-            "SELECT level, exp, current_hp, creatures.base_hp FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = ?",
+            "SELECT level, xp, wins, losses FROM inventory WHERE id = ?",
             (inv_id,),
         ).fetchone()
         if not row:
             return
-        level, exp, current_hp, base_hp = row
-        exp += exp_gain
-        while exp >= 100:
-            exp -= 100
+        level, xp, wins, losses = row
+        xp += xp_gain
+        if is_winner:
+            wins += 1
+        else:
+            losses += 1
+
+        max_level = int(self.settings["max_level"])
+        while level < max_level and xp >= level * 100:
+            xp -= level * 100
             level += 1
-            current_hp = base_hp + level * 5
+
         conn.execute(
-            "UPDATE inventory SET level = ?, exp = ?, current_hp = ? WHERE id = ?",
-            (level, exp, current_hp, inv_id),
+            "UPDATE inventory SET level = ?, xp = ?, wins = ?, losses = ? WHERE id = ?",
+            (level, xp, wins, losses, inv_id),
         )
+
+    def _apply_elo_changes(
+        self,
+        conn: sqlite3.Connection,
+        winner: BattlePokemon,
+        loser: BattlePokemon,
+    ) -> None:
+        """Internal helper to apply elo changes."""
+        winner_elo = winner.elo + int(self.settings["elo_win"])
+        loser_elo = max(0, loser.elo - int(self.settings["elo_loss"]))
+        conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (winner_elo, winner.inv_id))
+        conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (loser_elo, loser.inv_id))
+
+    def _check_evolution(self, conn: sqlite3.Connection, pokemon: BattlePokemon) -> None:
+        """Internal helper to check evolution."""
+        rules = self._load_evolution_rules()
+        species_rules = rules.get(pokemon.name, [])
+        if not species_rules:
+            return
+
+        row = conn.execute(
+            "SELECT level FROM inventory WHERE id = ?",
+            (pokemon.inv_id,),
+        ).fetchone()
+        if not row:
+            return
+        level = int(row[0])
+
+        for rule in species_rules:
+            if rule.get("type") != "level-up":
+                continue
+            required_level = rule.get("level")
+            if required_level is None or level < int(required_level):
+                continue
+            evolves_to = rule.get("to")
+            if not evolves_to:
+                continue
+            new_creature = conn.execute(
+                "SELECT id FROM creatures WHERE name = ?",
+                (evolves_to,),
+            ).fetchone()
+            if not new_creature:
+                logging.warning("Evolution target missing: %s", evolves_to)
+                continue
+            conn.execute(
+                "UPDATE inventory SET creature_id = ? WHERE id = ?",
+                (int(new_creature[0]), pokemon.inv_id),
+            )
+            logging.info("Evolution: %s evolved into %s", pokemon.name, evolves_to)
+            break
 
     def _simulate_battle(
         self,
-        c1: Tuple[Any, ...],
-        c2: Tuple[Any, ...],
-        user1: str,
-        user2: str,
-    ) -> Tuple[List[Dict[str, Any]], str]:
-        _, c1_name, c1_hp, c1_atk, c1_def, c1_level, _ = c1
-        _, c2_name, c2_hp, c2_atk, c2_def, c2_level, _ = c2
+        p1: BattlePokemon,
+        p2: BattlePokemon,
+    ) -> Tuple[List[str], List[Dict[str, Any]], str]:
+        """Internal helper to simulate battle."""
+        p1_hp = p1.derived_hp
+        p2_hp = p2.derived_hp
+        p1_atk, p1_def, p1_spd = compute_derived_stats(
+            p1.base_attack,
+            p1.base_defense,
+            p1.base_speed,
+            p1.level,
+            p1.atk_iv,
+            p1.def_iv,
+            p1.spd_iv,
+            p1.trait,
+            self.settings,
+        )
+        p2_atk, p2_def, p2_spd = compute_derived_stats(
+            p2.base_attack,
+            p2.base_defense,
+            p2.base_speed,
+            p2.level,
+            p2.atk_iv,
+            p2.def_iv,
+            p2.spd_iv,
+            p2.trait,
+            self.settings,
+        )
 
-        p1_hp = c1_hp + c1_level * 5
-        p2_hp = c2_hp + c2_level * 5
-
+        transcript: List[str] = []
         log: List[Dict[str, Any]] = []
-        attacker = 0
-        rounds = 0
-        while p1_hp > 0 and p2_hp > 0 and rounds < 50:
-            rounds += 1
-            if attacker == 0:
-                damage = max(1, int(c1_atk + c1_level * 2 - (c2_def + c2_level) * 0.5 + self.rng.randint(0, 4)))
-                p2_hp -= damage
-                log.append({"attacker": user1, "creature": c1_name, "damage": damage, "target": user2})
-                attacker = 1
-            else:
-                damage = max(1, int(c2_atk + c2_level * 2 - (c1_def + c1_level) * 0.5 + self.rng.randint(0, 4)))
-                p1_hp -= damage
-                log.append({"attacker": user2, "creature": c2_name, "damage": damage, "target": user1})
-                attacker = 0
 
-        winner = user1 if p1_hp > 0 else user2
-        log.append({"result": "win", "winner": winner})
-        return log, winner
+        if p1_spd >= p2_spd:
+            attackers = [
+                (p1, p2, p1_atk, p2_def, p1.owner, p2.owner, "p1_hp", "p2_hp"),
+                (p2, p1, p2_atk, p1_def, p2.owner, p1.owner, "p2_hp", "p1_hp"),
+            ]
+        else:
+            attackers = [
+                (p2, p1, p2_atk, p1_def, p2.owner, p1.owner, "p2_hp", "p1_hp"),
+                (p1, p2, p1_atk, p2_def, p1.owner, p2.owner, "p1_hp", "p2_hp"),
+            ]
+
+        hp_map = {"p1_hp": p1_hp, "p2_hp": p2_hp}
+        rounds = 0
+        turn_index = 0
+
+        while hp_map["p1_hp"] > 0 and hp_map["p2_hp"] > 0 and rounds < 50:
+            attacker_data = attackers[turn_index % 2]
+            atk_pokemon, def_pokemon, atk, defense, atk_owner, def_owner, atk_hp_key, def_hp_key = attacker_data
+            emoji = creature_emoji(atk_pokemon.name)
+
+            crit_chance = float(self.settings["crit_chance"])
+            if atk_pokemon.trait == "Berserk":
+                crit_chance += float(self.settings["berserk_crit_bonus"])
+
+            damage = 0
+            is_crit = False
+            is_miss = self.rng.random() < float(self.settings["miss_chance"])
+
+            if is_miss:
+                transcript.append(f"{emoji} {atk_pokemon.name} missed!")
+                log.append(
+                    {
+                        "attacker": atk_owner,
+                        "creature": atk_pokemon.name,
+                        "damage": 0,
+                        "target": def_owner,
+                        "miss": True,
+                    }
+                )
+            else:
+                raw_damage = (atk * self.rng.uniform(0.9, 1.1)) - (defense * 0.5)
+                if self.rng.random() < crit_chance:
+                    is_crit = True
+                    raw_damage *= float(self.settings["crit_multiplier"])
+                damage = max(int(self.settings["min_battle_damage"]), int(raw_damage))
+                hp_map[def_hp_key] -= damage
+                transcript.append(f"{emoji} {atk_pokemon.name} attacks for {damage} damage")
+                if is_crit:
+                    transcript.append(f"{emoji} Critical hit!")
+                log.append(
+                    {
+                        "attacker": atk_owner,
+                        "creature": atk_pokemon.name,
+                        "damage": damage,
+                        "target": def_owner,
+                        "crit": is_crit,
+                    }
+                )
+
+            if hp_map[def_hp_key] <= 0:
+                faint_emoji = creature_emoji(def_pokemon.name)
+                transcript.append(f"{faint_emoji} {def_pokemon.name} fainted")
+                log.append({"fainted": def_pokemon.name, "owner": def_owner})
+                break
+
+            turn_index += 1
+            if turn_index % 2 == 0:
+                rounds += 1
+
+        winner_owner = p1.owner if hp_map["p1_hp"] > 0 else p2.owner
+        winner_pokemon = p1 if winner_owner == p1.owner else p2
+        win_emoji = creature_emoji(winner_pokemon.name)
+        transcript.append(f"🏆 {winner_pokemon.name} wins")
+        log.append({"result": "win", "winner": winner_owner})
+
+        return transcript, log, winner_owner
 
     def reset_spawn(self) -> str:
+        """Reset spawn."""
         logging.info("Command: reset_spawn")
         self._write_active_spawn({})
         self._write_overlay(
@@ -761,6 +1457,7 @@ class GameEngine:
 
 
 def build_engine() -> GameEngine:
+    """Build engine."""
     root = find_root()
     paths = build_paths(root)
     ensure_dirs(paths)
@@ -774,6 +1471,7 @@ def build_engine() -> GameEngine:
 
 
 def main() -> int:
+    """Main."""
     engine = build_engine()
     parser = argparse.ArgumentParser(prog="GameEngine")
     subparsers = parser.add_subparsers(dest="command")
@@ -787,8 +1485,16 @@ def main() -> int:
     inv_parser.add_argument("username")
 
     battle_parser = subparsers.add_parser("battle")
-    battle_parser.add_argument("user1")
-    battle_parser.add_argument("user2")
+    battle_parser.add_argument("challenger")
+    battle_parser.add_argument("opponent")
+    battle_parser.add_argument("pokemon")
+
+    accept_parser = subparsers.add_parser("accept")
+    accept_parser.add_argument("accepter")
+    accept_parser.add_argument("challenger")
+    accept_parser.add_argument("pokemon")
+
+    subparsers.add_parser("leaderboard")
 
     subparsers.add_parser("reset_spawn")
 
@@ -807,7 +1513,13 @@ def main() -> int:
         print(engine.inventory(args.username), flush=True)
         return 0
     if args.command == "battle":
-        print(engine.battle(args.user1, args.user2), flush=True)
+        print(engine.battle(args.challenger, args.opponent, args.pokemon), flush=True)
+        return 0
+    if args.command == "accept":
+        print(engine.accept(args.accepter, args.challenger, args.pokemon), flush=True)
+        return 0
+    if args.command == "leaderboard":
+        print(engine.leaderboard(), flush=True)
         return 0
     if args.command == "reset_spawn":
         print(engine.reset_spawn(), flush=True)

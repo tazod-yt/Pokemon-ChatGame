@@ -38,7 +38,7 @@ GameEngine/
 - `GameEngine.exe`: Standalone engine built with PyInstaller. Streamer.bot calls this.
 
 Data/
-- `game.db`: SQLite database (users, creatures, inventory, battles, settings). Auto-created.
+- `game.db`: SQLite database (users, creatures, inventory, battles, pending_battles, settings). Auto-created.
 - `active_spawn.json`: Current spawn state (one active spawn). Auto-created.
 - `users_cache.json`: Reserved for future optimization. Auto-created.
 - `overlay_state.json`: Overlay data source read by OBS browser source.
@@ -94,24 +94,53 @@ These commands are the contract between Streamer.bot and the engine.
   - Updates inventory and overlay
 
 - `GameEngine.exe inventory <username>`
-  - Returns a text list of the user's creatures
+  - Returns a text list of the user's creatures (level, XP, trait, ELO, wins/losses)
 
-- `GameEngine.exe battle <user1> <user2>`
-  - Simulates a turn-based battle
-  - Updates stats and records battle history
+- `GameEngine.exe battle <challenger> <opponent> <pokemon>`
+  - Challenges another user with a specific Pokémon (name or inventory slot number)
+  - Creates a pending battle that expires after `battle_timeout_seconds` (default 120s)
+  - Opponent must accept with `!accept @challenger <pokemon>`
+
+- `GameEngine.exe accept <accepter> <challenger> <pokemon>`
+  - Accepts a pending battle challenge and runs the fight
+  - Awards XP, updates ELO, checks level-up evolutions, writes battle transcript to overlay state
+
+- `GameEngine.exe leaderboard`
+  - Shows top 10 Pokémon by ELO
 
 - `GameEngine.exe reset_spawn`
   - Clears the active spawn and resets overlay state
 
+### Chat commands (Streamer.bot)
+
+| Command | Description |
+| --- | --- |
+| `!spawn` | Spawn a wild Pokémon |
+| `!catch` | Attempt to catch the active spawn |
+| `!inventory` | List your Pokémon |
+| `!battle @user <pokemon>` | Challenge a user with a chosen Pokémon |
+| `!accept @user <pokemon>` | Accept a challenge from that user |
+| `!leaderboard` | Top 10 Pokémon by ELO |
+
 ## Configuration
 
-`Config/settings.json` fields:
+`Config/settings.json` fields (defaults in `DEFAULT_SETTINGS` in `src/game_engine.py`):
+
 - `spawn_interval_seconds`
 - `catch_timeout_seconds`
 - `base_catch_rate`
-- `battle_timeout_seconds`
-- `cooldown_seconds`
+- `battle_timeout_seconds` — pending challenge expiry (120s)
+- `battle_cooldown_seconds` — per-user battle cooldown (60s)
+- `rematch_cooldown_seconds` — cooldown between same opponents (300s)
+- `cooldown_seconds` — catch cooldown
 - `max_inventory_size`
+- `max_level`
+- `crit_chance`, `miss_chance`, `crit_multiplier`, `berserk_crit_bonus`
+- `lucky_xp_multiplier`, trait multipliers
+- `iv_min`, `iv_max` — IV range on catch (0–15)
+- `default_elo`, `elo_win`, `elo_loss`
+- `leaderboard_size`
+- `xp_winner_base`, `xp_winner_level_mult`, `xp_loser_base`, `xp_loser_level_mult`
 
 You can edit these values at any time. The engine will merge missing keys with defaults.
 
@@ -128,7 +157,9 @@ The overlay polls `Data/overlay_state.json` once per second.
 
 1. Import `Streamerbot/import_actions.json`.
 2. Update any paths if your Streamer.bot setup uses a different working directory.
-3. Wire actions to chat commands (e.g., `!spawn`, `!catch`, `!inventory`, `!battle`).
+3. Wire actions to chat commands (e.g., `!spawn`, `!catch`, `!inventory`, `!battle`, `!accept`, `!leaderboard`).
+
+Import `Streamerbot/import_actions_full.json` (or `import_actions_full.txt`) for the C# runner variant with `!accept` and `!leaderboard` included.
 
 The current JSON uses placeholders like `${user}` and `${arg1}`. Adjust to your Streamer.bot variable syntax if needed.
 
@@ -160,7 +191,7 @@ These scripts were written for this checkout, so if you move the project elsewhe
    - `Pokemon Chat Game/Overlay/index.html`
 4. In Streamer.bot, import `Streamerbot/import_actions.txt` (copy paste).
 5. Update action paths if your Streamer.bot working directory differs.
-6. Bind actions to chat commands (for example `!spawn`, `!catch`, `!inventory`, `!battle`).
+6. Bind actions to chat commands (for example `!spawn`, `!catch`, `!inventory`, `!battle`, `!accept`, `!leaderboard`).
 
 No installs required. The entire game runs from the extracted folder.\n## Build Instructions (Windows)
 
@@ -189,13 +220,19 @@ From `Pokemon Chat Game`:
 pytest -q
 ```
 
-Tests cover spawn, catch success/failure, inventory retrieval, battle simulation, and persistence.
+Tests cover spawn, catch success/failure, inventory retrieval, battle challenge/accept, leaderboard, derived stats, and persistence.
 
 ## Notes / Gotchas
 
 - The game runs fully offline and stores all data locally.
 - Only one active spawn exists at a time.
-- Catch and battle cooldowns are enforced globally per user.
+- Catch cooldown (`cooldown_seconds`) and battle cooldown (`battle_cooldown_seconds`) are enforced per user.
+- Rematch cooldown (`rematch_cooldown_seconds`) applies between the same two players.
+- Battles are challenge/accept: challenger picks a Pokémon, opponent accepts with their own pick.
+- Each caught Pokémon has random IVs (0–15), a random trait, and starts at ELO 1000.
+- Battle HP is derived fresh each fight; damage is not carried between battles.
+- Level-up evolutions use `evolution_rules.json` (item/trade evolutions are not implemented yet).
+- Battle transcripts are written to `overlay_state.json`; overlay UI rendering is planned (see `todo.md`).
 
 
 # Downloaded Pokémon Data

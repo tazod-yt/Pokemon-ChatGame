@@ -87,13 +87,17 @@ commands = [
     make_command("catch", "!catch"),
     make_command("inventory", "!inventory"),
     make_command("battle", "!battle"),
+    make_command("accept", "!accept"),
+    make_command("leaderboard", "!leaderboard"),
 ]
 
 actions = [
     make_action("Pokemon Chat Game Spawn", "spawn", commands[0]["id"]),
     make_action("Pokemon Chat Game Catch", "catch ${user}", commands[1]["id"]),
     make_action("Pokemon Chat Game Inventory", "inventory ${user}", commands[2]["id"]),
-    make_action("Pokemon Chat Game Battle", "battle ${user} ${arg1}", commands[3]["id"]),
+    make_action("Pokemon Chat Game Battle", "battle ${user} ${arg1} ${arg2}", commands[3]["id"]),
+    make_action("Pokemon Chat Game Accept", "accept ${user} ${arg1} ${arg2}", commands[4]["id"]),
+    make_action("Pokemon Chat Game Leaderboard", "leaderboard", commands[5]["id"]),
 ]
 
 export = {
