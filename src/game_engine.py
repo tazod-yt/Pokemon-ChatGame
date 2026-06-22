@@ -778,10 +778,25 @@ class GameEngine:
             return None
 
         selector = selector.strip()
+        # If numeric selector, treat it as a global creature id (creatures.id)
         if selector.isdigit():
-            index = int(selector) - 1
-            if 0 <= index < len(rows):
-                return rows[index]
+            creature_id = int(selector)
+            row = conn.execute(
+                """
+                SELECT inventory.id, inventory.creature_id, creatures.name,
+                       creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                       inventory.level, inventory.xp, inventory.wins, inventory.losses,
+                       inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
+                       inventory.trait, inventory.elo
+                FROM inventory
+                JOIN creatures ON creatures.id = inventory.creature_id
+                WHERE inventory.user_id = ? AND inventory.creature_id = ?
+                ORDER BY inventory.obtained_at DESC LIMIT 1
+                """,
+                (user_id, creature_id),
+            ).fetchone()
+            if row:
+                return row
             return None
 
         selector_lower = selector.lower()
