@@ -1,3 +1,7 @@
+"""Game engine implementation for Pokemon ChatGame.
+
+Contains database migration, inventory, battle, and spawn commands."""
+
 import argparse
 import json
 import logging
@@ -55,6 +59,7 @@ CREATURE_EMOJI = {
 
 
 def get_data_downloader_dir() -> Path:
+    """Get data downloader dir."""
     candidates = []
 
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
@@ -66,6 +71,7 @@ def get_data_downloader_dir() -> Path:
     candidates.append(Path.cwd() / "data_downloader")
 
     def find_up(start: Path) -> Optional[Path]:
+        """Find up."""
         current = start.resolve()
         for _ in range(8):
             candidate = current / "data_downloader"
@@ -94,6 +100,7 @@ EVOLUTION_RULES_FILE = Path(__file__).resolve().parent.parent / "evolution_rules
 
 
 def load_default_creatures() -> list[dict]:
+    """Load default creatures."""
     if not POKEMON_STATS_FILE.exists():
         raise FileNotFoundError(f"Missing stats file: {POKEMON_STATS_FILE}")
 
@@ -124,6 +131,7 @@ USERNAME_RE = re.compile(r"[^a-zA-Z0-9_]")
 
 @dataclass
 class Paths:
+    """Paths holds related game data and behavior."""
     root: Path
     data_dir: Path
     config_dir: Path
@@ -142,6 +150,7 @@ class Paths:
 
 @dataclass
 class BattlePokemon:
+    """BattlePokemon holds related game data and behavior."""
     inv_id: int
     owner: str
     name: str
@@ -163,9 +172,11 @@ class BattlePokemon:
 
     @property
     def derived_hp(self) -> int:
+        """Derived hp."""
         return compute_derived_hp(self.base_hp, self.level, self.hp_iv)
 
     def derived_stats(self, settings: Dict[str, Any]) -> Tuple[int, int, int]:
+        """Derived stats."""
         return compute_derived_stats(
             self.base_attack,
             self.base_defense,
@@ -180,6 +191,7 @@ class BattlePokemon:
 
 
 def find_root() -> Path:
+    """Find root."""
     env_root = os.environ.get("CHATGAME_ROOT")
     if env_root:
         return Path(env_root).resolve()
@@ -200,6 +212,7 @@ def find_root() -> Path:
 
 
 def build_paths(root: Path) -> Paths:
+    """Build paths."""
     data_dir = root / "Data"
     config_dir = root / "Config"
     logs_dir = root / "Logs"
@@ -225,6 +238,7 @@ def build_paths(root: Path) -> Paths:
 
 
 def ensure_dirs(paths: Paths) -> None:
+    """Ensure dirs."""
     for directory in [
         paths.root,
         paths.data_dir,
@@ -241,6 +255,7 @@ def ensure_dirs(paths: Paths) -> None:
 
 
 def load_settings(paths: Paths) -> Dict[str, Any]:
+    """Load settings."""
     if not paths.settings_json.exists():
         write_json(paths.settings_json, DEFAULT_SETTINGS)
         return dict(DEFAULT_SETTINGS)
@@ -257,6 +272,7 @@ def load_settings(paths: Paths) -> Dict[str, Any]:
 
 
 def setup_logging(paths: Paths) -> None:
+    """Setup logging."""
     paths.logs_dir.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
@@ -268,11 +284,13 @@ def setup_logging(paths: Paths) -> None:
 
 
 def read_json(path: Path) -> Any:
+    """Read json."""
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
 def write_json(path: Path, payload: Any) -> None:
+    """Write json."""
     tmp_path = path.with_suffix(path.suffix + ".tmp")
     with tmp_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2)
@@ -280,15 +298,18 @@ def write_json(path: Path, payload: Any) -> None:
 
 
 def now_ts() -> int:
+    """Now ts."""
     return int(time.time())
 
 
 def normalize_username(username: str) -> str:
+    """Normalize username."""
     cleaned = USERNAME_RE.sub("", username.strip())
     return cleaned.lower()
 
 
 def connect_db(paths: Paths) -> sqlite3.Connection:
+    """Connect db."""
     conn = sqlite3.connect(paths.game_db)
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA foreign_keys=ON;")
@@ -297,6 +318,7 @@ def connect_db(paths: Paths) -> sqlite3.Connection:
 
 @contextmanager
 def db_session(paths: Paths):
+    """Db session."""
     conn = connect_db(paths)
     try:
         with conn:
@@ -306,11 +328,13 @@ def db_session(paths: Paths):
 
 
 def _table_columns(conn: sqlite3.Connection, table: str) -> set[str]:
+    """Internal helper to table columns."""
     rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
     return {row[1] for row in rows}
 
 
 def migrate_db(conn: sqlite3.Connection) -> None:
+    """Migrate db."""
     creature_cols = _table_columns(conn, "creatures")
     if "base_speed" not in creature_cols:
         conn.execute("ALTER TABLE creatures ADD COLUMN base_speed INTEGER NOT NULL DEFAULT 0")
@@ -387,6 +411,7 @@ def migrate_db(conn: sqlite3.Connection) -> None:
 
 
 def init_db(paths: Paths) -> None:
+    """Init db."""
     conn = connect_db(paths)
     try:
         with conn:
@@ -467,6 +492,7 @@ def init_db(paths: Paths) -> None:
 
 
 def seed_creatures(paths: Paths) -> None:
+    """Seed creatures."""
     conn = connect_db(paths)
     try:
         with conn:
@@ -494,6 +520,7 @@ def seed_creatures(paths: Paths) -> None:
 
 
 def ensure_data_files(paths: Paths) -> None:
+    """Ensure data files."""
     if not paths.active_spawn_json.exists():
         write_json(paths.active_spawn_json, {})
     if not paths.users_cache_json.exists():
@@ -515,6 +542,7 @@ def ensure_data_files(paths: Paths) -> None:
 
 
 def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
+    """Set setting."""
     conn.execute(
         "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
         (key, value),
@@ -522,6 +550,7 @@ def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
 
 
 def get_setting(conn: sqlite3.Connection, key: str) -> Optional[str]:
+    """Get setting."""
     row = conn.execute("SELECT value FROM settings WHERE key = ?", (key,)).fetchone()
     if row:
         return row[0]
@@ -529,6 +558,7 @@ def get_setting(conn: sqlite3.Connection, key: str) -> Optional[str]:
 
 
 def compute_derived_hp(base_hp: int, level: int, hp_iv: int) -> int:
+    """Compute derived hp."""
     return base_hp + level * 3 + hp_iv
 
 
@@ -543,6 +573,7 @@ def compute_derived_stats(
     trait: str,
     settings: Dict[str, Any],
 ) -> Tuple[int, int, int]:
+    """Compute derived stats."""
     attack = base_attack + level * 2 + atk_iv
     defense = base_defense + level * 2 + def_iv
     speed = base_speed + int(level * 1.5) + spd_iv
@@ -558,6 +589,7 @@ def compute_derived_stats(
 
 
 def creature_emoji(name: str) -> str:
+    """Creature emoji."""
     name_lower = name.lower()
     if any(x in name_lower for x in ("pika", "volt", "elect", "jolt")):
         return CREATURE_EMOJI["Electric"]
@@ -571,13 +603,16 @@ def creature_emoji(name: str) -> str:
 
 
 class GameEngine:
+    """GameEngine holds related game data and behavior."""
     def __init__(self, paths: Paths, settings: Dict[str, Any], rng: Optional[random.Random] = None):
+        """Initialize the game engine with paths, settings, and RNG."""
         self.paths = paths
         self.settings = settings
         self.rng = rng or random.Random()
         self._evolution_rules: Optional[Dict[str, Any]] = None
 
     def _load_evolution_rules(self) -> Dict[str, Any]:
+        """Internal helper to load evolution rules."""
         if self._evolution_rules is not None:
             return self._evolution_rules
         if not EVOLUTION_RULES_FILE.exists():
@@ -590,6 +625,7 @@ class GameEngine:
         return self._evolution_rules
 
     def _load_active_spawn(self) -> Dict[str, Any]:
+        """Internal helper to load active spawn."""
         try:
             data = read_json(self.paths.active_spawn_json)
         except Exception:
@@ -599,30 +635,36 @@ class GameEngine:
         return data
 
     def _write_active_spawn(self, payload: Dict[str, Any]) -> None:
+        """Internal helper to write active spawn."""
         write_json(self.paths.active_spawn_json, payload)
 
     def _write_overlay(self, payload: Dict[str, Any]) -> None:
+        """Internal helper to write overlay."""
         payload = dict(payload)
         payload["updated_at"] = now_ts()
         write_json(self.paths.overlay_state_json, payload)
 
     def _write_chat_message(self, message: str) -> None:
+        """Internal helper to write chat message."""
         try:
             self.paths.chat_message_txt.write_text(message, encoding="utf-8")
         except Exception:
             logging.exception("Failed to write chat message")
 
     def _respond(self, message: str) -> str:
+        """Internal helper to respond."""
         self._write_chat_message(message)
         return message
 
     def _spawn_is_expired(self, spawn: Dict[str, Any]) -> bool:
+        """Internal helper to spawn is expired."""
         expires_at = spawn.get("expires_at")
         if not expires_at:
             return True
         return now_ts() >= int(expires_at)
 
     def _ensure_user(self, conn: sqlite3.Connection, username: str) -> int:
+        """Internal helper to ensure user."""
         row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
         if row:
             return int(row[0])
@@ -635,6 +677,7 @@ class GameEngine:
         return int(row[0])
 
     def _get_cooldown_remaining(self, last_time: Optional[int], cooldown_key: str) -> int:
+        """Internal helper to get cooldown remaining."""
         if not last_time:
             return 0
         cooldown = int(self.settings[cooldown_key])
@@ -642,6 +685,7 @@ class GameEngine:
         return max(0, remaining)
 
     def _expire_pending_battles(self, conn: sqlite3.Connection) -> None:
+        """Internal helper to expire pending battles."""
         now = now_ts()
         conn.execute(
             "UPDATE pending_battles SET status = 'expired' WHERE status = 'pending' AND expires_at < ?",
@@ -649,6 +693,7 @@ class GameEngine:
         )
 
     def _select_random_creature(self, conn: sqlite3.Connection) -> Tuple[int, Dict[str, Any]]:
+        """Internal helper to select random creature."""
         rows = conn.execute(
             "SELECT id, name, base_hp, base_attack, base_defense, base_speed, catch_rate_mod FROM creatures"
         ).fetchall()
@@ -665,9 +710,11 @@ class GameEngine:
         }
 
     def _random_trait(self) -> str:
+        """Internal helper to random trait."""
         return self.rng.choice(TRAITS)
 
     def _random_iv(self) -> int:
+        """Internal helper to random iv."""
         return self.rng.randint(int(self.settings["iv_min"]), int(self.settings["iv_max"]))
 
     def _resolve_inventory_pokemon(
@@ -676,6 +723,7 @@ class GameEngine:
         user_id: int,
         selector: str,
     ) -> Optional[Tuple[Any, ...]]:
+        """Internal helper to resolve inventory pokemon."""
         rows = conn.execute(
             """
             SELECT inventory.id, inventory.creature_id, creatures.name,
@@ -711,6 +759,7 @@ class GameEngine:
         return None
 
     def _load_battle_pokemon(self, row: Tuple[Any, ...], owner: str) -> BattlePokemon:
+        """Internal helper to load battle pokemon."""
         return BattlePokemon(
             inv_id=int(row[0]),
             creature_id=int(row[1]),
@@ -735,6 +784,7 @@ class GameEngine:
     def _get_rematch_cooldown_remaining(
         self, conn: sqlite3.Connection, user1_id: int, user2_id: int
     ) -> int:
+        """Internal helper to get rematch cooldown remaining."""
         row = conn.execute(
             """
             SELECT created_at FROM battles
@@ -748,6 +798,7 @@ class GameEngine:
         return self._get_cooldown_remaining(row[0], "rematch_cooldown_seconds")
 
     def spawn(self) -> str:
+        """Spawn."""
         logging.info("Command: spawn")
         spawn = self._load_active_spawn()
         if spawn and not self._spawn_is_expired(spawn):
@@ -797,6 +848,7 @@ class GameEngine:
         return self._respond(f"Spawned {creature['name']}")
 
     def catch(self, username: str) -> str:
+        """Catch."""
         username = normalize_username(username)
         if not username:
             return self._respond("Invalid username.")
@@ -909,6 +961,7 @@ class GameEngine:
             return self._respond(f"{username} failed to catch {spawn.get('name')}.")
 
     def inventory(self, username: str) -> str:
+        """Inventory."""
         username = normalize_username(username)
         if not username:
             return self._respond("Invalid username.")
@@ -942,6 +995,7 @@ class GameEngine:
         return self._respond("\n".join(lines))
 
     def battle(self, challenger: str, opponent: str, pokemon: str) -> str:
+        """Battle."""
         challenger = normalize_username(challenger)
         opponent = normalize_username(opponent)
         if not challenger or not opponent or challenger == opponent:
@@ -1013,6 +1067,7 @@ class GameEngine:
         return self._respond(msg)
 
     def accept(self, accepter: str, challenger: str, pokemon: str) -> str:
+        """Accept."""
         accepter = normalize_username(accepter)
         challenger = normalize_username(challenger)
         if not accepter or not challenger or accepter == challenger:
@@ -1136,6 +1191,7 @@ class GameEngine:
         return self._respond(summary)
 
     def leaderboard(self) -> str:
+        """Leaderboard."""
         logging.info("Command: leaderboard")
         limit = int(self.settings["leaderboard_size"])
         with db_session(self.paths) as conn:
@@ -1165,6 +1221,7 @@ class GameEngine:
         winner: BattlePokemon,
         loser: BattlePokemon,
     ) -> None:
+        """Internal helper to apply battle rewards."""
         winner_xp = (
             int(self.settings["xp_winner_base"])
             + loser.level * int(self.settings["xp_winner_level_mult"])
@@ -1184,6 +1241,7 @@ class GameEngine:
     def _award_battle_xp(
         self, conn: sqlite3.Connection, inv_id: int, xp_gain: int, is_winner: bool
     ) -> None:
+        """Internal helper to award battle xp."""
         row = conn.execute(
             "SELECT level, xp, wins, losses FROM inventory WHERE id = ?",
             (inv_id,),
@@ -1213,12 +1271,14 @@ class GameEngine:
         winner: BattlePokemon,
         loser: BattlePokemon,
     ) -> None:
+        """Internal helper to apply elo changes."""
         winner_elo = winner.elo + int(self.settings["elo_win"])
         loser_elo = max(0, loser.elo - int(self.settings["elo_loss"]))
         conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (winner_elo, winner.inv_id))
         conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (loser_elo, loser.inv_id))
 
     def _check_evolution(self, conn: sqlite3.Connection, pokemon: BattlePokemon) -> None:
+        """Internal helper to check evolution."""
         rules = self._load_evolution_rules()
         species_rules = rules.get(pokemon.name, [])
         if not species_rules:
@@ -1260,6 +1320,7 @@ class GameEngine:
         p1: BattlePokemon,
         p2: BattlePokemon,
     ) -> Tuple[List[str], List[Dict[str, Any]], str]:
+        """Internal helper to simulate battle."""
         p1_hp = p1.derived_hp
         p2_hp = p2.derived_hp
         p1_atk, p1_def, p1_spd = compute_derived_stats(
@@ -1366,6 +1427,7 @@ class GameEngine:
         return transcript, log, winner_owner
 
     def reset_spawn(self) -> str:
+        """Reset spawn."""
         logging.info("Command: reset_spawn")
         self._write_active_spawn({})
         self._write_overlay(
@@ -1381,6 +1443,7 @@ class GameEngine:
 
 
 def build_engine() -> GameEngine:
+    """Build engine."""
     root = find_root()
     paths = build_paths(root)
     ensure_dirs(paths)
@@ -1394,6 +1457,7 @@ def build_engine() -> GameEngine:
 
 
 def main() -> int:
+    """Main."""
     engine = build_engine()
     parser = argparse.ArgumentParser(prog="GameEngine")
     subparsers = parser.add_subparsers(dest="command")
