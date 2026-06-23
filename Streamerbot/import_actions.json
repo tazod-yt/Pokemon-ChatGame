@@ -1,0 +1,238 @@
+{
+  "meta": {
+    "name": "Pokemon Chat Game Actions",
+    "author": "auto-generated",
+    "version": "1.0.0",
+    "description": "Pokemon Chat Game Streamer.bot actions",
+    "autoRunAction": null,
+    "minimumVersion": null
+  },
+  "data": {
+    "actions": [
+      {
+        "id": "0e7a3bcf-d694-4f49-b969-8bdb6aca1681",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Spawn",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "spawn",
+            "parseVariables": true,
+            "workingDir": "..",
+            "envVars": {
+              "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+              "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+              "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+              "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+              "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}"
+            },
+            "waitForExit": 0,
+            "id": "feab1be3-ca68-411b-a7e2-3b80511fd340",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "0e21f2e0-61dd-4c6e-9560-36fe236c1de3",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Catch",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "catch ${user}",
+            "parseVariables": true,
+            "workingDir": "..",
+            "envVars": {
+              "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+              "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+              "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+              "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+              "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}"
+            },
+            "waitForExit": 0,
+            "id": "6e765c9c-0917-474b-bd26-79bc22370899",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "5ec381aa-e9bb-4f1a-a3b6-b9cf8609177e",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Inventory",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "inventory ${user}",
+            "parseVariables": true,
+            "workingDir": "..",
+            "envVars": {
+              "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+              "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+              "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+              "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+              "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}"
+            },
+            "waitForExit": 0,
+            "id": "0d696a57-0383-4218-89b8-f0fd52433a70",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "e77aefe3-c28f-42dc-9e05-e4f8349eb999",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Battle",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "battle ${user} ${arg1} ${arg2}",
+            "parseVariables": true,
+            "workingDir": "..",
+            "envVars": {
+              "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+              "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+              "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+              "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+              "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}"
+            },
+            "waitForExit": 0,
+            "id": "04f2d5f6-968a-4f4c-91c0-14e22da5af84",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "33070b3b-858a-4d19-83ea-4fc761dd579f",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Accept",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "accept ${user} ${arg1} ${arg2}",
+            "parseVariables": true,
+            "workingDir": "..",
+            "envVars": {
+              "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+              "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+              "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+              "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+              "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}"
+            },
+            "waitForExit": 0,
+            "id": "d31929f7-70c3-45ac-aa9a-096e5e33b80b",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      },
+      {
+        "id": "8f79d1d8-a5e5-40ed-ba8d-e2aef0035e9b",
+        "queue": "00000000-0000-0000-0000-000000000000",
+        "enabled": true,
+        "excludeFromHistory": false,
+        "excludeFromPending": false,
+        "name": "Pokemon Chat Game Leaderboard",
+        "group": "",
+        "alwaysRun": false,
+        "randomAction": false,
+        "concurrent": false,
+        "triggers": [],
+        "subActions": [
+          {
+            "command": "..\\GameEngine\\GameEngine.exe",
+            "arguments": "leaderboard",
+            "parseVariables": true,
+            "workingDir": "..",
+            "envVars": {
+              "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+              "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+              "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+              "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+              "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}"
+            },
+            "waitForExit": 0,
+            "id": "247c942d-8bc1-4921-9665-c85aeb4c3145",
+            "weight": 0.0,
+            "type": 6,
+            "parentId": null,
+            "enabled": true,
+            "index": 0
+          }
+        ],
+        "collapsedGroups": []
+      }
+    ],
+    "queues": [],
+    "commands": [],
+    "websocketServers": [],
+    "websocketClients": [],
+    "timers": []
+  },
+  "version": 23,
+  "exportedFrom": "1.0.4",
+  "minimumVersion": "1.0.0-alpha.1"
+}

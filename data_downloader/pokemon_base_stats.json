@@ -20,7 +20,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "002_Ivysaur": {
       "dex_number": 2,
@@ -39,7 +43,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "003_Venusaur": {
       "dex_number": 3,
@@ -58,7 +66,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "004_Charmander": {
       "dex_number": 4,
@@ -77,7 +89,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "005_Charmeleon": {
       "dex_number": 5,
@@ -96,7 +111,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "006_Charizard": {
       "dex_number": 6,
@@ -115,7 +133,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fire",
+        "Flying"
+      ]
     },
     "007_Squirtle": {
       "dex_number": 7,
@@ -134,7 +156,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "008_Wartortle": {
       "dex_number": 8,
@@ -153,7 +178,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "009_Blastoise": {
       "dex_number": 9,
@@ -172,7 +200,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "010_Caterpie": {
       "dex_number": 10,
@@ -191,7 +222,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Bug"
+      ]
     },
     "011_Metapod": {
       "dex_number": 11,
@@ -210,7 +244,10 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Bug"
+      ]
     },
     "012_Butterfree": {
       "dex_number": 12,
@@ -229,7 +266,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Bug",
+        "Flying"
+      ]
     },
     "013_Weedle": {
       "dex_number": 13,
@@ -248,7 +289,11 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Bug",
+        "Poison"
+      ]
     },
     "014_Kakuna": {
       "dex_number": 14,
@@ -267,7 +312,11 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Bug",
+        "Poison"
+      ]
     },
     "015_Beedrill": {
       "dex_number": 15,
@@ -286,7 +335,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Bug",
+        "Poison"
+      ]
     },
     "016_Pidgey": {
       "dex_number": 16,
@@ -305,7 +358,11 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "017_Pidgeotto": {
       "dex_number": 17,
@@ -324,7 +381,11 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "018_Pidgeot": {
       "dex_number": 18,
@@ -343,7 +404,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "019_Rattata": {
       "dex_number": 19,
@@ -362,7 +427,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "020_Raticate": {
       "dex_number": 20,
@@ -381,7 +449,10 @@
       },
       "catch_rate": {
         "value": 127
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "021_Spearow": {
       "dex_number": 21,
@@ -400,7 +471,11 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "022_Fearow": {
       "dex_number": 22,
@@ -419,7 +494,11 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "023_Ekans": {
       "dex_number": 23,
@@ -438,7 +517,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "024_Arbok": {
       "dex_number": 24,
@@ -457,7 +539,10 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "025_Pikachu": {
       "dex_number": 25,
@@ -476,7 +561,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Electric"
+      ]
     },
     "026_Raichu": {
       "dex_number": 26,
@@ -495,7 +583,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Electric"
+      ]
     },
     "027_Sandshrew": {
       "dex_number": 27,
@@ -514,7 +605,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Ground"
+      ]
     },
     "028_Sandslash": {
       "dex_number": 28,
@@ -533,7 +627,10 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Ground"
+      ]
     },
     "029_Nidoran♀": {
       "dex_number": 29,
@@ -552,7 +649,10 @@
       },
       "catch_rate": {
         "value": 235
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "030_Nidorina": {
       "dex_number": 30,
@@ -571,7 +671,10 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "031_Nidoqueen": {
       "dex_number": 31,
@@ -590,7 +693,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Poison",
+        "Ground"
+      ]
     },
     "032_Nidoran♂": {
       "dex_number": 32,
@@ -609,7 +716,10 @@
       },
       "catch_rate": {
         "value": 235
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "033_Nidorino": {
       "dex_number": 33,
@@ -628,7 +738,10 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "034_Nidoking": {
       "dex_number": 34,
@@ -647,7 +760,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Poison",
+        "Ground"
+      ]
     },
     "035_Clefairy": {
       "dex_number": 35,
@@ -666,7 +783,10 @@
       },
       "catch_rate": {
         "value": 150
-      }
+      },
+      "types": [
+        "Fairy"
+      ]
     },
     "036_Clefable": {
       "dex_number": 36,
@@ -685,7 +805,10 @@
       },
       "catch_rate": {
         "value": 25
-      }
+      },
+      "types": [
+        "Fairy"
+      ]
     },
     "037_Vulpix": {
       "dex_number": 37,
@@ -704,7 +827,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "038_Ninetales": {
       "dex_number": 38,
@@ -723,7 +849,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "039_Jigglypuff": {
       "dex_number": 39,
@@ -742,7 +871,11 @@
       },
       "catch_rate": {
         "value": 170
-      }
+      },
+      "types": [
+        "Normal",
+        "Fairy"
+      ]
     },
     "040_Wigglytuff": {
       "dex_number": 40,
@@ -761,7 +894,11 @@
       },
       "catch_rate": {
         "value": 50
-      }
+      },
+      "types": [
+        "Normal",
+        "Fairy"
+      ]
     },
     "041_Zubat": {
       "dex_number": 41,
@@ -780,7 +917,11 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Poison",
+        "Flying"
+      ]
     },
     "042_Golbat": {
       "dex_number": 42,
@@ -799,7 +940,11 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Poison",
+        "Flying"
+      ]
     },
     "043_Oddish": {
       "dex_number": 43,
@@ -818,7 +963,11 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "044_Gloom": {
       "dex_number": 44,
@@ -837,7 +986,11 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "045_Vileplume": {
       "dex_number": 45,
@@ -856,7 +1009,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "046_Paras": {
       "dex_number": 46,
@@ -875,7 +1032,11 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Bug",
+        "Grass"
+      ]
     },
     "047_Parasect": {
       "dex_number": 47,
@@ -894,7 +1055,11 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Bug",
+        "Grass"
+      ]
     },
     "048_Venonat": {
       "dex_number": 48,
@@ -913,7 +1078,11 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Bug",
+        "Poison"
+      ]
     },
     "049_Venomoth": {
       "dex_number": 49,
@@ -932,7 +1101,11 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Bug",
+        "Poison"
+      ]
     },
     "050_Diglett": {
       "dex_number": 50,
@@ -951,7 +1124,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Ground"
+      ]
     },
     "051_Dugtrio": {
       "dex_number": 51,
@@ -970,7 +1146,10 @@
       },
       "catch_rate": {
         "value": 50
-      }
+      },
+      "types": [
+        "Ground"
+      ]
     },
     "052_Meowth": {
       "dex_number": 52,
@@ -989,7 +1168,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "053_Persian": {
       "dex_number": 53,
@@ -1008,7 +1190,10 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "054_Psyduck": {
       "dex_number": 54,
@@ -1027,7 +1212,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "055_Golduck": {
       "dex_number": 55,
@@ -1046,7 +1234,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "056_Mankey": {
       "dex_number": 56,
@@ -1065,7 +1256,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Fighting"
+      ]
     },
     "057_Primeape": {
       "dex_number": 57,
@@ -1084,7 +1278,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Fighting"
+      ]
     },
     "058_Growlithe": {
       "dex_number": 58,
@@ -1103,7 +1300,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "059_Arcanine": {
       "dex_number": 59,
@@ -1122,7 +1322,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "060_Poliwag": {
       "dex_number": 60,
@@ -1141,7 +1344,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "061_Poliwhirl": {
       "dex_number": 61,
@@ -1160,7 +1366,10 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "062_Poliwrath": {
       "dex_number": 62,
@@ -1179,7 +1388,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Water",
+        "Fighting"
+      ]
     },
     "063_Abra": {
       "dex_number": 63,
@@ -1198,7 +1411,10 @@
       },
       "catch_rate": {
         "value": 200
-      }
+      },
+      "types": [
+        "Psychic"
+      ]
     },
     "064_Kadabra": {
       "dex_number": 64,
@@ -1217,7 +1433,10 @@
       },
       "catch_rate": {
         "value": 100
-      }
+      },
+      "types": [
+        "Psychic"
+      ]
     },
     "065_Alakazam": {
       "dex_number": 65,
@@ -1236,7 +1455,10 @@
       },
       "catch_rate": {
         "value": 50
-      }
+      },
+      "types": [
+        "Psychic"
+      ]
     },
     "066_Machop": {
       "dex_number": 66,
@@ -1255,7 +1477,10 @@
       },
       "catch_rate": {
         "value": 180
-      }
+      },
+      "types": [
+        "Fighting"
+      ]
     },
     "067_Machoke": {
       "dex_number": 67,
@@ -1274,7 +1499,10 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Fighting"
+      ]
     },
     "068_Machamp": {
       "dex_number": 68,
@@ -1293,7 +1521,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fighting"
+      ]
     },
     "069_Bellsprout": {
       "dex_number": 69,
@@ -1312,7 +1543,11 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "070_Weepinbell": {
       "dex_number": 70,
@@ -1331,7 +1566,11 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "071_Victreebel": {
       "dex_number": 71,
@@ -1350,7 +1589,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Grass",
+        "Poison"
+      ]
     },
     "072_Tentacool": {
       "dex_number": 72,
@@ -1369,7 +1612,11 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Water",
+        "Poison"
+      ]
     },
     "073_Tentacruel": {
       "dex_number": 73,
@@ -1388,7 +1635,11 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Water",
+        "Poison"
+      ]
     },
     "074_Geodude": {
       "dex_number": 74,
@@ -1407,7 +1658,11 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Rock",
+        "Ground"
+      ]
     },
     "075_Graveler": {
       "dex_number": 75,
@@ -1426,7 +1681,11 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Rock",
+        "Ground"
+      ]
     },
     "076_Golem": {
       "dex_number": 76,
@@ -1445,7 +1704,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Rock",
+        "Ground"
+      ]
     },
     "077_Ponyta": {
       "dex_number": 77,
@@ -1464,7 +1727,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "078_Rapidash": {
       "dex_number": 78,
@@ -1483,7 +1749,10 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "079_Slowpoke": {
       "dex_number": 79,
@@ -1502,7 +1771,11 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Water",
+        "Psychic"
+      ]
     },
     "080_Slowbro": {
       "dex_number": 80,
@@ -1521,7 +1794,11 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Water",
+        "Psychic"
+      ]
     },
     "081_Magnemite": {
       "dex_number": 81,
@@ -1540,7 +1817,11 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Electric",
+        "Steel"
+      ]
     },
     "082_Magneton": {
       "dex_number": 82,
@@ -1559,7 +1840,11 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Electric",
+        "Steel"
+      ]
     },
     "083_Farfetch'd": {
       "dex_number": 83,
@@ -1578,7 +1863,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "084_Doduo": {
       "dex_number": 84,
@@ -1597,7 +1886,11 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "085_Dodrio": {
       "dex_number": 85,
@@ -1616,7 +1909,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal",
+        "Flying"
+      ]
     },
     "086_Seel": {
       "dex_number": 86,
@@ -1635,7 +1932,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "087_Dewgong": {
       "dex_number": 87,
@@ -1654,7 +1954,11 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Water",
+        "Ice"
+      ]
     },
     "088_Grimer": {
       "dex_number": 88,
@@ -1673,7 +1977,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "089_Muk": {
       "dex_number": 89,
@@ -1692,7 +1999,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "090_Shellder": {
       "dex_number": 90,
@@ -1711,7 +2021,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "091_Cloyster": {
       "dex_number": 91,
@@ -1730,7 +2043,11 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Water",
+        "Ice"
+      ]
     },
     "092_Gastly": {
       "dex_number": 92,
@@ -1749,7 +2066,11 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Ghost",
+        "Poison"
+      ]
     },
     "093_Haunter": {
       "dex_number": 93,
@@ -1768,7 +2089,11 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Ghost",
+        "Poison"
+      ]
     },
     "094_Gengar": {
       "dex_number": 94,
@@ -1787,7 +2112,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Ghost",
+        "Poison"
+      ]
     },
     "095_Onix": {
       "dex_number": 95,
@@ -1806,7 +2135,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Rock",
+        "Ground"
+      ]
     },
     "096_Drowzee": {
       "dex_number": 96,
@@ -1825,7 +2158,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Psychic"
+      ]
     },
     "097_Hypno": {
       "dex_number": 97,
@@ -1844,7 +2180,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Psychic"
+      ]
     },
     "098_Krabby": {
       "dex_number": 98,
@@ -1863,7 +2202,10 @@
       },
       "catch_rate": {
         "value": 225
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "099_Kingler": {
       "dex_number": 99,
@@ -1882,7 +2224,10 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "100_Voltorb": {
       "dex_number": 100,
@@ -1901,7 +2246,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Electric"
+      ]
     },
     "101_Electrode": {
       "dex_number": 101,
@@ -1920,7 +2268,10 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Electric"
+      ]
     },
     "102_Exeggcute": {
       "dex_number": 102,
@@ -1939,7 +2290,11 @@
       },
       "catch_rate": {
         "value": 90
-      }
+      },
+      "types": [
+        "Grass",
+        "Psychic"
+      ]
     },
     "103_Exeggutor": {
       "dex_number": 103,
@@ -1958,7 +2313,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Grass",
+        "Psychic"
+      ]
     },
     "104_Cubone": {
       "dex_number": 104,
@@ -1977,7 +2336,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Ground"
+      ]
     },
     "105_Marowak": {
       "dex_number": 105,
@@ -1996,7 +2358,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Ground"
+      ]
     },
     "106_Hitmonlee": {
       "dex_number": 106,
@@ -2015,7 +2380,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fighting"
+      ]
     },
     "107_Hitmonchan": {
       "dex_number": 107,
@@ -2034,7 +2402,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fighting"
+      ]
     },
     "108_Lickitung": {
       "dex_number": 108,
@@ -2053,7 +2424,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "109_Koffing": {
       "dex_number": 109,
@@ -2072,7 +2446,10 @@
       },
       "catch_rate": {
         "value": 190
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "110_Weezing": {
       "dex_number": 110,
@@ -2091,7 +2468,10 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Poison"
+      ]
     },
     "111_Rhyhorn": {
       "dex_number": 111,
@@ -2110,7 +2490,11 @@
       },
       "catch_rate": {
         "value": 120
-      }
+      },
+      "types": [
+        "Ground",
+        "Rock"
+      ]
     },
     "112_Rhydon": {
       "dex_number": 112,
@@ -2129,7 +2513,11 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Ground",
+        "Rock"
+      ]
     },
     "113_Chansey": {
       "dex_number": 113,
@@ -2148,7 +2536,10 @@
       },
       "catch_rate": {
         "value": 30
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "114_Tangela": {
       "dex_number": 114,
@@ -2167,7 +2558,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Grass"
+      ]
     },
     "115_Kangaskhan": {
       "dex_number": 115,
@@ -2186,7 +2580,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "116_Horsea": {
       "dex_number": 116,
@@ -2205,7 +2602,10 @@
       },
       "catch_rate": {
         "value": 225
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "117_Seadra": {
       "dex_number": 117,
@@ -2224,7 +2624,10 @@
       },
       "catch_rate": {
         "value": 75
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "118_Goldeen": {
       "dex_number": 118,
@@ -2243,7 +2646,10 @@
       },
       "catch_rate": {
         "value": 225
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "119_Seaking": {
       "dex_number": 119,
@@ -2262,7 +2668,10 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "120_Staryu": {
       "dex_number": 120,
@@ -2281,7 +2690,10 @@
       },
       "catch_rate": {
         "value": 225
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "121_Starmie": {
       "dex_number": 121,
@@ -2300,7 +2712,11 @@
       },
       "catch_rate": {
         "value": 60
-      }
+      },
+      "types": [
+        "Water",
+        "Psychic"
+      ]
     },
     "122_Mr._Mime": {
       "dex_number": 122,
@@ -2319,7 +2735,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Psychic",
+        "Fairy"
+      ]
     },
     "123_Scyther": {
       "dex_number": 123,
@@ -2338,7 +2758,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Bug",
+        "Flying"
+      ]
     },
     "124_Jynx": {
       "dex_number": 124,
@@ -2357,7 +2781,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Ice",
+        "Psychic"
+      ]
     },
     "125_Electabuzz": {
       "dex_number": 125,
@@ -2376,7 +2804,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Electric"
+      ]
     },
     "126_Magmar": {
       "dex_number": 126,
@@ -2395,7 +2826,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "127_Pinsir": {
       "dex_number": 127,
@@ -2414,7 +2848,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Bug"
+      ]
     },
     "128_Tauros": {
       "dex_number": 128,
@@ -2433,7 +2870,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "129_Magikarp": {
       "dex_number": 129,
@@ -2452,7 +2892,10 @@
       },
       "catch_rate": {
         "value": 255
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "130_Gyarados": {
       "dex_number": 130,
@@ -2471,7 +2914,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Water",
+        "Flying"
+      ]
     },
     "131_Lapras": {
       "dex_number": 131,
@@ -2490,7 +2937,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Water",
+        "Ice"
+      ]
     },
     "132_Ditto": {
       "dex_number": 132,
@@ -2509,7 +2960,10 @@
       },
       "catch_rate": {
         "value": 35
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "133_Eevee": {
       "dex_number": 133,
@@ -2528,7 +2982,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "134_Vaporeon": {
       "dex_number": 134,
@@ -2547,7 +3004,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Water"
+      ]
     },
     "135_Jolteon": {
       "dex_number": 135,
@@ -2566,7 +3026,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Electric"
+      ]
     },
     "136_Flareon": {
       "dex_number": 136,
@@ -2585,7 +3048,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Fire"
+      ]
     },
     "137_Porygon": {
       "dex_number": 137,
@@ -2604,7 +3070,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "138_Omanyte": {
       "dex_number": 138,
@@ -2623,7 +3092,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Rock",
+        "Water"
+      ]
     },
     "139_Omastar": {
       "dex_number": 139,
@@ -2642,7 +3115,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Rock",
+        "Water"
+      ]
     },
     "140_Kabuto": {
       "dex_number": 140,
@@ -2661,7 +3138,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Rock",
+        "Water"
+      ]
     },
     "141_Kabutops": {
       "dex_number": 141,
@@ -2680,7 +3161,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Rock",
+        "Water"
+      ]
     },
     "142_Aerodactyl": {
       "dex_number": 142,
@@ -2699,7 +3184,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Rock",
+        "Flying"
+      ]
     },
     "143_Snorlax": {
       "dex_number": 143,
@@ -2718,7 +3207,10 @@
       },
       "catch_rate": {
         "value": 25
-      }
+      },
+      "types": [
+        "Normal"
+      ]
     },
     "144_Articuno": {
       "dex_number": 144,
@@ -2737,7 +3229,11 @@
       },
       "catch_rate": {
         "value": 3
-      }
+      },
+      "types": [
+        "Ice",
+        "Flying"
+      ]
     },
     "145_Zapdos": {
       "dex_number": 145,
@@ -2756,7 +3252,11 @@
       },
       "catch_rate": {
         "value": 3
-      }
+      },
+      "types": [
+        "Electric",
+        "Flying"
+      ]
     },
     "146_Moltres": {
       "dex_number": 146,
@@ -2775,7 +3275,11 @@
       },
       "catch_rate": {
         "value": 3
-      }
+      },
+      "types": [
+        "Fire",
+        "Flying"
+      ]
     },
     "147_Dratini": {
       "dex_number": 147,
@@ -2794,7 +3298,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Dragon"
+      ]
     },
     "148_Dragonair": {
       "dex_number": 148,
@@ -2813,7 +3320,10 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Dragon"
+      ]
     },
     "149_Dragonite": {
       "dex_number": 149,
@@ -2832,7 +3342,11 @@
       },
       "catch_rate": {
         "value": 45
-      }
+      },
+      "types": [
+        "Dragon",
+        "Flying"
+      ]
     },
     "150_Mewtwo": {
       "dex_number": 150,
@@ -2851,7 +3365,10 @@
       },
       "catch_rate": {
         "value": 3
-      }
+      },
+      "types": [
+        "Psychic"
+      ]
     },
     "151_Mew": {
       "dex_number": 151,
@@ -2869,8 +3386,11 @@
         "total": 600
       },
       "catch_rate": {
-        "value": 3
-      }
+        "value": 45
+      },
+      "types": [
+        "Psychic"
+      ]
     }
   }
 }

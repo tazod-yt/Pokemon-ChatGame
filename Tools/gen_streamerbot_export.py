@@ -1,5 +1,8 @@
 ﻿import json
+import os
 import uuid
+
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 meta = {
     "name": "Pokemon Chat Game Actions",
@@ -11,6 +14,14 @@ meta = {
 }
 
 queue = "00000000-0000-0000-0000-000000000000"
+
+STREAMERBOT_SETTING_ENV_VARS = {
+    "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+    "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+    "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+    "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+    "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}",
+}
 
 
 def action(name, args):
@@ -32,7 +43,7 @@ def action(name, args):
                 "arguments": args,
                 "parseVariables": True,
                 "workingDir": r"..",
-                "envVars": {},
+                "envVars": STREAMERBOT_SETTING_ENV_VARS,
                 "waitForExit": 0,
                 "id": str(uuid.uuid4()),
                 "weight": 0.0,
@@ -68,7 +79,9 @@ export = {
     "minimumVersion": "1.0.0-alpha.1",
 }
 
-with open(r"Pokemon ChatGame\Streamerbot\import_actions.json", "w", encoding="utf-8") as handle:
+out_json = os.path.join(root, "Streamerbot", "import_actions.json")
+os.makedirs(os.path.dirname(out_json), exist_ok=True)
+with open(out_json, "w", encoding="utf-8") as handle:
     json.dump(export, handle, indent=2)
 
-print("Wrote Pokemon ChatGame\\Streamerbot\\import_actions.json")
+print(f"Wrote {out_json}")

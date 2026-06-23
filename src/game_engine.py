@@ -15,35 +15,64 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from type_chart import get_type_multiplier
 
 DEFAULT_SETTINGS = {
+    # How often a new wild spawn can appear, in seconds.
     "spawn_interval_seconds": 3,
+    # How long a spawn stays catchable before timing out, in seconds.
     "catch_timeout_seconds": 60,
+    # Base probability modifier used when attempting to catch a creature.
     "base_catch_rate": 0.35,
+    # Maximum time allowed for an active battle, in seconds.
     "battle_timeout_seconds": 120,
-    "battle_cooldown_seconds": 60,
-    "rematch_cooldown_seconds": 300,
+    # Cooldown after a battle ends before the same user can start another battle, in seconds.
+    "battle_cooldown_seconds": 6,
+    # Cooldown before the same pair of users can rematch, in seconds.
+    "rematch_cooldown_seconds": 3,
+    # General cooldown between repeated user actions, in seconds.
     "cooldown_seconds": 1,
-    "max_inventory_size": 50,
-    "max_level": 100,
+    # Maximum number of creatures a user can hold in inventory.
+    "max_inventory_size": 151,
+    # Maximum creature level allowed.
+    "max_level": 500,
+    # Chance for an attack to land as a critical hit.
     "crit_chance": 0.10,
+    # Chance for an attack to miss completely.
     "miss_chance": 0.05,
+    # Damage multiplier applied when a critical hit occurs.
     "crit_multiplier": 1.5,
+    # Additional crit damage bonus when the attacker has the Berserk trait.
     "berserk_crit_bonus": 0.15,
+    # Experience multiplier for winning battles when the Lucky trait is active.
     "lucky_xp_multiplier": 1.15,
+    # Attack multiplier for creatures with the Brave trait.
     "trait_attack_multiplier": 1.10,
+    # Defense multiplier for creatures with the Tank trait.
     "trait_defense_multiplier": 1.10,
+    # Speed multiplier for creatures with the Swift trait.
     "trait_speed_multiplier": 1.10,
+    # Minimum individual value (IV) that can be assigned to creature stats.
     "iv_min": 0,
+    # Maximum individual value (IV) that can be assigned to creature stats.
     "iv_max": 15,
+    # Default Elo rating assigned to new creatures.
     "default_elo": 1000,
+    # Elo points gained by a creature when it wins a battle.
     "elo_win": 25,
+    # Elo points lost by a creature when it loses a battle.
     "elo_loss": 20,
+    # Minimum amount of damage any attack can deal.
     "min_battle_damage": 5,
+    # Number of entries shown on the leaderboard.
     "leaderboard_size": 10,
+    # Base experience awarded to the winner of a battle.
     "xp_winner_base": 50,
+    # Additional winner XP per level.
     "xp_winner_level_mult": 5,
+    # Base experience awarded to the loser of a battle.
     "xp_loser_base": 15,
+    # Additional loser XP per level.
     "xp_loser_level_mult": 2,
 }
 
@@ -118,6 +147,9 @@ def load_default_creatures() -> list[dict]:
                 "base_attack": int(base_stats.get("attack", 0)),
                 "base_defense": int(base_stats.get("defense", 0)),
                 "base_speed": int(base_stats.get("speed", 0)),
+                "base_sp_atk": int(base_stats.get("sp_atk", 0)),
+                "base_sp_def": int(base_stats.get("sp_def", 0)),
+                "types": entry.get("types", []),
                 "catch_rate_mod": float(catch_rate.get("value", 100)),
             }
         )
@@ -145,6 +177,7 @@ class Paths:
     overlay_state_json: Path
     settings_json: Path
     log_file: Path
+    cmd_log_file: Path
     chat_message_txt: Path
 
 
@@ -168,6 +201,9 @@ class BattlePokemon:
     base_attack: int
     base_defense: int
     base_speed: int
+    base_sp_atk: int
+    base_sp_def: int
+    types: List[str]
     creature_id: int
 
     @property
@@ -233,6 +269,7 @@ def build_paths(root: Path) -> Paths:
         overlay_state_json=data_dir / "overlay_state.json",
         settings_json=config_dir / "settings.json",
         log_file=logs_dir / "game.log",
+        cmd_log_file=logs_dir / "cmd.log",
         chat_message_txt=data_dir / "last_chat_message.txt",
     )
 
@@ -254,20 +291,65 @@ def ensure_dirs(paths: Paths) -> None:
         directory.mkdir(parents=True, exist_ok=True)
 
 
+STREAMERBOT_SETTING_OVERRIDES = {
+    "spawn_interval_seconds": int,
+    "catch_timeout_seconds": int,
+    "battle_cooldown_seconds": int,
+    "rematch_cooldown_seconds": int,
+    "cooldown_seconds": int,
+}
+
+
+def _try_parse_streamerbot_setting(key: str, value: Any) -> Optional[Any]:
+    """Parse a Streamerbot override value for a setting."""
+    caster = STREAMERBOT_SETTING_OVERRIDES.get(key)
+    if caster is None:
+        return None
+
+    try:
+        if isinstance(value, str):
+            value = value.strip()
+        return caster(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _get_streamerbot_overrides() -> Dict[str, Any]:
+    """Load selected Streamerbot globals from environment variables."""
+    overrides: Dict[str, Any] = {}
+    for key in STREAMERBOT_SETTING_OVERRIDES:
+        env_keys = [
+            f"STREAMERBOT_{key.upper()}",
+            f"CHATGAME_{key.upper()}",
+            key.upper(),
+        ]
+        for env_key in env_keys:
+            raw_value = os.environ.get(env_key)
+            if raw_value is None:
+                continue
+            parsed_value = _try_parse_streamerbot_setting(key, raw_value)
+            if parsed_value is not None:
+                overrides[key] = parsed_value
+            break
+    return overrides
+
+
 def load_settings(paths: Paths) -> Dict[str, Any]:
     """Load settings."""
+    settings = dict(DEFAULT_SETTINGS)
+
     if not paths.settings_json.exists():
-        write_json(paths.settings_json, DEFAULT_SETTINGS)
-        return dict(DEFAULT_SETTINGS)
+        write_json(paths.settings_json, settings)
+        return dict(settings, **_get_streamerbot_overrides())
 
     try:
         data = read_json(paths.settings_json)
     except Exception:
         data = {}
 
-    settings = dict(DEFAULT_SETTINGS)
     settings.update({k: v for k, v in data.items() if k in DEFAULT_SETTINGS})
     write_json(paths.settings_json, settings)
+    settings.update(_get_streamerbot_overrides())
     return settings
 
 
@@ -281,6 +363,12 @@ def setup_logging(paths: Paths) -> None:
             logging.FileHandler(paths.log_file, encoding="utf-8"),
         ],
     )
+    cmd_logger = logging.getLogger("cmd")
+    cmd_logger.setLevel(logging.INFO)
+    cmd_logger.propagate = False
+    cmd_handler = logging.FileHandler(paths.cmd_log_file, encoding="utf-8")
+    cmd_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+    cmd_logger.addHandler(cmd_handler)
 
 
 def read_json(path: Path) -> Any:
@@ -338,8 +426,49 @@ def migrate_db(conn: sqlite3.Connection) -> None:
     creature_cols = _table_columns(conn, "creatures")
     if "base_speed" not in creature_cols:
         conn.execute("ALTER TABLE creatures ADD COLUMN base_speed INTEGER NOT NULL DEFAULT 0")
+    if "base_sp_atk" not in creature_cols:
+        conn.execute("ALTER TABLE creatures ADD COLUMN base_sp_atk INTEGER NOT NULL DEFAULT 0")
+    if "base_sp_def" not in creature_cols:
+        conn.execute("ALTER TABLE creatures ADD COLUMN base_sp_def INTEGER NOT NULL DEFAULT 0")
+    if "types" not in creature_cols:
+        conn.execute("ALTER TABLE creatures ADD COLUMN types TEXT DEFAULT ''")
 
     inventory_cols = _table_columns(conn, "inventory")
+    # If an old `current_hp` column exists (legacy), remove it by recreating the table
+    if "current_hp" in inventory_cols:
+        # Recreate inventory table without current_hp while preserving data
+        conn.execute("PRAGMA foreign_keys=OFF;")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS inventory_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            username TEXT NOT NULL DEFAULT '',
+            creature_id INTEGER NOT NULL,
+            level INTEGER NOT NULL DEFAULT 1,
+            xp INTEGER NOT NULL DEFAULT 0,
+            obtained_at INTEGER NOT NULL,
+            wins INTEGER NOT NULL DEFAULT 0,
+            losses INTEGER NOT NULL DEFAULT 0,
+            hp_iv INTEGER NOT NULL DEFAULT 0,
+            atk_iv INTEGER NOT NULL DEFAULT 0,
+            def_iv INTEGER NOT NULL DEFAULT 0,
+            spd_iv INTEGER NOT NULL DEFAULT 0,
+            trait TEXT NOT NULL DEFAULT 'Brave',
+            elo INTEGER NOT NULL DEFAULT 1000,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(creature_id) REFERENCES creatures(id) ON DELETE CASCADE
+            )
+            """
+        )
+        # copy all columns except current_hp
+        copy_cols = [c for c in inventory_cols if c != "current_hp"]
+        copy_cols_sorted = ", ".join(copy_cols)
+        conn.execute(f"INSERT INTO inventory_new ({copy_cols_sorted}) SELECT {copy_cols_sorted} FROM inventory")
+        conn.execute("DROP TABLE inventory")
+        conn.execute("ALTER TABLE inventory_new RENAME TO inventory")
+        conn.execute("PRAGMA foreign_keys=ON;")
+        inventory_cols = _table_columns(conn, "inventory")
     if "exp" in inventory_cols and "xp" not in inventory_cols:
         conn.execute("ALTER TABLE inventory RENAME COLUMN exp TO xp")
         inventory_cols = _table_columns(conn, "inventory")
@@ -404,10 +533,18 @@ def migrate_db(conn: sqlite3.Connection) -> None:
     )
 
     speed_by_name = {c["name"]: c["base_speed"] for c in DEFAULT_CREATURES}
+    sp_atk_by_name = {c["name"]: c.get("base_sp_atk", 0) for c in DEFAULT_CREATURES}
+    sp_def_by_name = {c["name"]: c.get("base_sp_def", 0) for c in DEFAULT_CREATURES}
+    types_by_name = {c["name"]: c.get("types", []) for c in DEFAULT_CREATURES}
     creature_rows = conn.execute("SELECT id, name FROM creatures").fetchall()
     for creature_id, name in creature_rows:
         speed = speed_by_name.get(name, 0)
         conn.execute("UPDATE creatures SET base_speed = ? WHERE id = ?", (speed, creature_id))
+        conn.execute("UPDATE creatures SET base_sp_atk = ? WHERE id = ?", (sp_atk_by_name.get(name, 0), creature_id))
+        conn.execute("UPDATE creatures SET base_sp_def = ? WHERE id = ?", (sp_def_by_name.get(name, 0), creature_id))
+        # store types as JSON text
+        types_val = json.dumps(types_by_name.get(name, []), ensure_ascii=False)
+        conn.execute("UPDATE creatures SET types = ? WHERE id = ?", (types_val, creature_id))
 
 
 def init_db(paths: Paths) -> None:
@@ -502,8 +639,8 @@ def seed_creatures(paths: Paths) -> None:
             for creature in DEFAULT_CREATURES:
                 conn.execute(
                     """
-                    INSERT INTO creatures (name, base_hp, base_attack, base_defense, base_speed, catch_rate_mod, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO creatures (name, base_hp, base_attack, base_defense, base_speed, base_sp_atk, base_sp_def, types, catch_rate_mod, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         creature["name"],
@@ -511,6 +648,9 @@ def seed_creatures(paths: Paths) -> None:
                         creature["base_attack"],
                         creature["base_defense"],
                         creature["base_speed"],
+                        creature.get("base_sp_atk", 0),
+                        creature.get("base_sp_def", 0),
+                        json.dumps(creature.get("types", []), ensure_ascii=False),
                         creature["catch_rate_mod"],
                         now_ts(),
                     ),
@@ -586,6 +726,20 @@ def compute_derived_stats(
         speed = int(speed * settings["trait_speed_multiplier"])
 
     return attack, defense, speed
+
+
+def compute_derived_special_atk(base_sp_atk: int, level: int, atk_iv: int, trait: str, settings: Dict[str, Any]) -> int:
+    val = base_sp_atk + level * 2 + atk_iv
+    if trait == "Brave":
+        val = int(val * settings["trait_attack_multiplier"])
+    return val
+
+
+def compute_derived_special_def(base_sp_def: int, level: int, def_iv: int, trait: str, settings: Dict[str, Any]) -> int:
+    val = base_sp_def + level * 2 + def_iv
+    if trait == "Tank":
+        val = int(val * settings["trait_defense_multiplier"])
+    return val
 
 
 def creature_emoji(name: str) -> str:
@@ -695,7 +849,7 @@ class GameEngine:
     def _select_random_creature(self, conn: sqlite3.Connection) -> Tuple[int, Dict[str, Any]]:
         """Internal helper to select random creature."""
         rows = conn.execute(
-            "SELECT id, name, base_hp, base_attack, base_defense, base_speed, catch_rate_mod FROM creatures"
+            "SELECT id, name, base_hp, base_attack, base_defense, base_speed, base_sp_atk, base_sp_def, types, catch_rate_mod FROM creatures"
         ).fetchall()
         if not rows:
             raise RuntimeError("No creatures available")
@@ -706,7 +860,10 @@ class GameEngine:
             "base_attack": int(row[3]),
             "base_defense": int(row[4]),
             "base_speed": int(row[5]),
-            "catch_rate_mod": float(row[6]),
+            "base_sp_atk": int(row[6]),
+            "base_sp_def": int(row[7]),
+            "types": json.loads(row[8]) if row[8] else [],
+            "catch_rate_mod": float(row[9]),
         }
 
     def _random_trait(self) -> str:
@@ -727,7 +884,8 @@ class GameEngine:
         rows = conn.execute(
             """
             SELECT inventory.id, inventory.creature_id, creatures.name,
-                   creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                     creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                     creatures.base_sp_atk, creatures.base_sp_def, creatures.types,
                    inventory.level, inventory.xp, inventory.wins, inventory.losses,
                    inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
                    inventory.trait, inventory.elo
@@ -743,10 +901,26 @@ class GameEngine:
             return None
 
         selector = selector.strip()
+        # If numeric selector, treat it as a global creature id (creatures.id)
         if selector.isdigit():
-            index = int(selector) - 1
-            if 0 <= index < len(rows):
-                return rows[index]
+            creature_id = int(selector)
+            row = conn.execute(
+                """
+                SELECT inventory.id, inventory.creature_id, creatures.name,
+                       creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                       creatures.base_sp_atk, creatures.base_sp_def, creatures.types,
+                       inventory.level, inventory.xp, inventory.wins, inventory.losses,
+                       inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
+                       inventory.trait, inventory.elo
+                FROM inventory
+                JOIN creatures ON creatures.id = inventory.creature_id
+                WHERE inventory.user_id = ? AND inventory.creature_id = ?
+                ORDER BY inventory.obtained_at DESC LIMIT 1
+                """,
+                (user_id, creature_id),
+            ).fetchone()
+            if row:
+                return row
             return None
 
         selector_lower = selector.lower()
@@ -768,16 +942,19 @@ class GameEngine:
             base_attack=int(row[4]),
             base_defense=int(row[5]),
             base_speed=int(row[6]),
-            level=int(row[7]),
-            xp=int(row[8]),
-            wins=int(row[9]),
-            losses=int(row[10]),
-            hp_iv=int(row[11]),
-            atk_iv=int(row[12]),
-            def_iv=int(row[13]),
-            spd_iv=int(row[14]),
-            trait=row[15],
-            elo=int(row[16]),
+            base_sp_atk=int(row[7]),
+            base_sp_def=int(row[8]),
+            types=json.loads(row[9]) if row[9] else [],
+            level=int(row[10]),
+            xp=int(row[11]),
+            wins=int(row[12]),
+            losses=int(row[13]),
+            hp_iv=int(row[14]),
+            atk_iv=int(row[15]),
+            def_iv=int(row[16]),
+            spd_iv=int(row[17]),
+            trait=row[18],
+            elo=int(row[19]),
             owner=owner,
         )
 
@@ -893,7 +1070,7 @@ class GameEngine:
             if not creature_row:
                 return self._respond("Spawn creature missing.")
 
-            catch_rate = float(creature_row[3]) / 1000.0
+            catch_rate = float(creature_row[3]) / 765.0
             catch_rate = min(1.0, max(0.0, catch_rate))
             roll = self.rng.random()
             success = roll <= catch_rate
@@ -1020,6 +1197,12 @@ class GameEngine:
         logging.info("Command: battle %s vs %s with %s", challenger, opponent, pokemon)
         with db_session(self.paths) as conn:
             self._expire_pending_battles(conn)
+            # Enforce only one active pending battle at a time
+            active_pending = conn.execute(
+                "SELECT COUNT(*) FROM pending_battles WHERE status = 'pending'"
+            ).fetchone()[0]
+            if active_pending and int(active_pending) > 0:
+                return self._respond("A battle is already active. Please wait until it completes.")
             challenger_id = self._ensure_user(conn, challenger)
             opponent_id = self._ensure_user(conn, opponent)
 
@@ -1139,6 +1322,7 @@ class GameEngine:
                 """
                 SELECT inventory.id, inventory.creature_id, creatures.name,
                        creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                       creatures.base_sp_atk, creatures.base_sp_def, creatures.types,
                        inventory.level, inventory.xp, inventory.wins, inventory.losses,
                        inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
                        inventory.trait, inventory.elo
@@ -1201,8 +1385,8 @@ class GameEngine:
             }
         )
         logging.info("Battle result: %s vs %s => %s", challenger, accepter, winner_owner)
-        summary = "\n".join(transcript)
-        return self._respond(summary)
+        chat_message = transcript[-1] if transcript else f"{winner_owner} wins!"
+        return self._respond(chat_message)
 
     def leaderboard(self) -> str:
         """Leaderboard."""
@@ -1390,6 +1574,11 @@ class GameEngine:
             damage = 0
             is_crit = False
             is_miss = self.rng.random() < float(self.settings["miss_chance"])
+            # Swift trait reduces miss chance
+            miss_chance = float(self.settings["miss_chance"])
+            if atk_pokemon.trait == "Swift":
+                miss_chance = 0.03
+            is_miss = self.rng.random() < miss_chance
 
             if is_miss:
                 transcript.append(f"{emoji} {atk_pokemon.name} missed!")
@@ -1403,20 +1592,69 @@ class GameEngine:
                     }
                 )
             else:
-                raw_damage = (atk * self.rng.uniform(0.9, 1.1)) - (defense * 0.5)
+                # Determine whether attack is physical or special
+                is_special = atk_pokemon.base_sp_atk > atk_pokemon.base_attack
+                if atk_pokemon.base_attack >= atk_pokemon.base_sp_atk:
+                    is_special = False
+
+                # choose attack and defense values
+                if is_special:
+                    atk_value = compute_derived_special_atk(
+                        atk_pokemon.base_sp_atk, atk_pokemon.level, atk_pokemon.atk_iv, atk_pokemon.trait, self.settings
+                    )
+                    def_value = compute_derived_special_def(
+                        def_pokemon.base_sp_def, def_pokemon.level, def_pokemon.def_iv, def_pokemon.trait, self.settings
+                    )
+                else:
+                    atk_value = atk
+                    def_value = defense
+
+                # choose attack type: physical -> primary; special -> secondary if exists else primary
+                attack_type = None
+                if atk_pokemon.types:
+                    if is_special and len(atk_pokemon.types) > 1:
+                        attack_type = atk_pokemon.types[-1]
+                    else:
+                        attack_type = atk_pokemon.types[0]
+
+                # base raw damage
+                raw_damage = (atk_value * self.rng.uniform(0.9, 1.1)) - (def_value * 0.5)
+
+                # critical check
                 if self.rng.random() < crit_chance:
                     is_crit = True
                     raw_damage *= float(self.settings["crit_multiplier"])
+
+                # STAB
+                stab = 1.0
+                if attack_type and attack_type in (atk_pokemon.types or []):
+                    stab = 1.5
+
+                # type effectiveness
+                eff = get_type_multiplier(attack_type or "", def_pokemon.types if def_pokemon.types else [])
+
+                raw_damage = raw_damage * stab * eff
+
                 damage = max(int(self.settings["min_battle_damage"]), int(raw_damage))
                 hp_map[def_hp_key] -= damage
                 transcript.append(f"{emoji} {atk_pokemon.name} attacks for {damage} damage")
                 if is_crit:
                     transcript.append(f"{emoji} Critical hit!")
+                # effectiveness messages
+                if eff == 0:
+                    transcript.append(f"{emoji} It has no effect...")
+                elif eff < 1:
+                    transcript.append(f"{emoji} It's not very effective...")
+                elif eff > 1:
+                    transcript.append(f"{emoji} It's super effective!")
                 log.append(
                     {
                         "attacker": atk_owner,
                         "creature": atk_pokemon.name,
                         "damage": damage,
+                        "attack_type": attack_type,
+                        "stab": stab,
+                        "effectiveness": eff,
                         "target": def_owner,
                         "crit": is_crit,
                     }
@@ -1503,25 +1741,33 @@ def main() -> int:
         parser.print_help()
         return 1
 
+    cmd_logger = logging.getLogger("cmd")
     if args.command == "spawn":
+        cmd_logger.info("Command: spawn")
         print(engine.spawn(), flush=True)
         return 0
     if args.command == "catch":
+        cmd_logger.info("Command: catch %s", args.username)
         print(engine.catch(args.username), flush=True)
         return 0
     if args.command == "inventory":
+        cmd_logger.info("Command: inventory %s", args.username)
         print(engine.inventory(args.username), flush=True)
         return 0
     if args.command == "battle":
+        cmd_logger.info("Command: battle %s %s %s", args.challenger, args.opponent, args.pokemon)
         print(engine.battle(args.challenger, args.opponent, args.pokemon), flush=True)
         return 0
     if args.command == "accept":
+        cmd_logger.info("Command: accept %s %s %s", args.accepter, args.challenger, args.pokemon)
         print(engine.accept(args.accepter, args.challenger, args.pokemon), flush=True)
         return 0
     if args.command == "leaderboard":
+        cmd_logger.info("Command: leaderboard")
         print(engine.leaderboard(), flush=True)
         return 0
     if args.command == "reset_spawn":
+        cmd_logger.info("Command: reset_spawn")
         print(engine.reset_spawn(), flush=True)
         return 0
 

@@ -1,4 +1,5 @@
 ﻿import json
+import os
 import uuid
 import gzip
 import base64
@@ -7,6 +8,14 @@ root = r"D:\Code\pokemon\Pokemon ChatGame"
 exe = root + r"\GameEngine\GameEngine.exe"
 
 queue = "00000000-0000-0000-0000-000000000000"
+
+STREAMERBOT_SETTING_ENV_VARS = {
+    "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+    "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+    "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+    "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+    "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}",
+}
 
 meta = {
     "name": "Pokemon Chat Game Full Import",
@@ -70,39 +79,15 @@ def make_action(name, args, command_id):
                 "arguments": args,
                 "parseVariables": True,
                 "workingDir": root,
-                "envVars": {},
-                "waitForExit": 0,
+                "envVars": STREAMERBOT_SETTING_ENV_VARS,
+                "waitForExit": 1,
                 "id": str(uuid.uuid4()),
                 "weight": 0.0,
                 "type": 6,
                 "parentId": None,
                 "enabled": True,
                 "index": 0,
-            },
-            {
-                "file": root + r"\Data\last_chat_message.txt",
-                "parseVariables": False,
-                "autoType": False,
-                "variableName": "chat_message",
-                "id": str(uuid.uuid4()),
-                "weight": 0.0,
-                "type": 1006,
-                "parentId": None,
-                "enabled": True,
-                "index": 1,
-            },
-            {
-                "text": "%chat_message%",
-                "useBot": True,
-                "fallback": True,
-                "broadcast": 0,
-                "id": str(uuid.uuid4()),
-                "weight": 0.0,
-                "type": 4001,
-                "parentId": None,
-                "enabled": True,
-                "index": 2,
-            },
+            }
         ],
         "collapsedGroups": [],
     }
@@ -141,13 +126,14 @@ export = {
     "minimumVersion": "1.0.0-alpha.1",
 }
 
-out_json = r"Pokemon ChatGame\Streamerbot\import_actions_full.json"
+out_json = os.path.join(root, "Streamerbot", "import_actions_full.json")
+os.makedirs(os.path.dirname(out_json), exist_ok=True)
 with open(out_json, "w", encoding="utf-8") as handle:
     json.dump(export, handle, indent=2)
 
 raw = json.dumps(export, indent=2).encode("utf-8")
 blob = b"SBAE" + gzip.compress(raw)
-out_txt = r"Pokemon ChatGame\Streamerbot\import_actions_full.txt"
+out_txt = os.path.join(root, "Streamerbot", "import_actions_full.txt")
 with open(out_txt, "w", encoding="utf-8") as handle:
     handle.write(base64.b64encode(blob).decode("ascii"))
 
