@@ -1371,8 +1371,8 @@ class GameEngine:
             }
         )
         logging.info("Battle result: %s vs %s => %s", challenger, accepter, winner_owner)
-        summary = "\n".join(transcript)
-        return self._respond(summary)
+        chat_message = transcript[-1] if transcript else f"{winner_owner} wins!"
+        return self._respond(chat_message)
 
     def leaderboard(self) -> str:
         """Leaderboard."""

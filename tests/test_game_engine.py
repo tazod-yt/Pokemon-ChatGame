@@ -103,10 +103,20 @@ def test_battle_challenge_and_accept():
         catch_for_user(engine, "user1", 1)
         catch_for_user(engine, "user2", 2)
 
-        challenge = engine.battle("user1", "user2", "1")
+        with db_session(engine.paths) as conn:
+            challenger_pokemon = conn.execute(
+                "SELECT creatures.name FROM inventory JOIN creatures ON creatures.id = inventory.creature_id JOIN users ON users.id = inventory.user_id WHERE users.username = ? ORDER BY inventory.obtained_at LIMIT 1",
+                ("user1",),
+            ).fetchone()[0]
+            accepter_pokemon = conn.execute(
+                "SELECT creatures.name FROM inventory JOIN creatures ON creatures.id = inventory.creature_id JOIN users ON users.id = inventory.user_id WHERE users.username = ? ORDER BY inventory.obtained_at LIMIT 1",
+                ("user2",),
+            ).fetchone()[0]
+
+        challenge = engine.battle("user1", "user2", challenger_pokemon)
         assert "challenged" in challenge
 
-        result = engine.accept("user2", "user1", "1")
+        result = engine.accept("user2", "user1", accepter_pokemon)
         assert "wins" in result.lower()
 
 
