@@ -6,6 +6,14 @@ exe = root + r"\GameEngine\GameEngine.exe"
 
 queue = "00000000-0000-0000-0000-000000000000"
 
+STREAMERBOT_SETTING_ENV_VARS = {
+    "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+    "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+    "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+    "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+    "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}",
+}
+
 meta = {
     "name": "Pokemon Chat Game Full Import",
     "author": "auto-generated",
@@ -68,8 +76,8 @@ def make_action(name, args, command_id):
                 "arguments": args,
                 "parseVariables": True,
                 "workingDir": root,
-                "envVars": {},
-                "waitForExit": 0,
+                "envVars": STREAMERBOT_SETTING_ENV_VARS,
+                "waitForExit": 1,
                 "id": str(uuid.uuid4()),
                 "weight": 0.0,
                 "type": 6,

@@ -1,4 +1,5 @@
-﻿import os
+﻿import json
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -138,3 +139,20 @@ def test_data_persistence():
         engine2 = make_engine(root)
         result = engine2.inventory("ankit")
         assert "ankit" in result
+
+
+def test_load_settings_streamerbot_globals_override(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("STREAMERBOT_SPAWN_INTERVAL_SECONDS", "10")
+    monkeypatch.setenv("STREAMERBOT_COOLDOWN_SECONDS", "7")
+
+    paths = build_paths(tmp_path)
+    ensure_dirs(paths)
+    paths.settings_json.write_text(
+        json.dumps({"spawn_interval_seconds": 5, "cooldown_seconds": 2}),
+        encoding="utf-8",
+    )
+
+    settings = load_settings(paths)
+
+    assert settings["spawn_interval_seconds"] == 10
+    assert settings["cooldown_seconds"] == 7

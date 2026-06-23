@@ -1,4 +1,5 @@
 ﻿import json
+import os
 import uuid
 import gzip
 import base64
@@ -9,6 +10,14 @@ chat_path = root + r"\Data\last_chat_message.txt"
 
 queue = "00000000-0000-0000-0000-000000000000"
 
+STREAMERBOT_SETTING_ENV_VARS = {
+    "STREAMERBOT_SPAWN_INTERVAL_SECONDS": "${STREAMERBOT_SPAWN_INTERVAL_SECONDS}",
+    "STREAMERBOT_CATCH_TIMEOUT_SECONDS": "${STREAMERBOT_CATCH_TIMEOUT_SECONDS}",
+    "STREAMERBOT_BATTLE_COOLDOWN_SECONDS": "${STREAMERBOT_BATTLE_COOLDOWN_SECONDS}",
+    "STREAMERBOT_REMATCH_COOLDOWN_SECONDS": "${STREAMERBOT_REMATCH_COOLDOWN_SECONDS}",
+    "STREAMERBOT_COOLDOWN_SECONDS": "${STREAMERBOT_COOLDOWN_SECONDS}",
+}
+
 meta = {
     "name": "Pokemon Chat Game Full Import",
     "author": "auto-generated",
@@ -18,25 +27,103 @@ meta = {
     "minimumVersion": None,
 }
 
-csharp_source = f"""using System.IO;
-
-public class CPHInline
-{{
-    public bool Execute()
-    {{
-        string path = @\"{chat_path}\";
-        if (!File.Exists(path)) return true;
-
-        string msg = File.ReadAllText(path).Trim();
-        if (string.IsNullOrEmpty(msg)) return true;
-
-        CPH.SendYouTubeMessage(msg);
-        return true;
-    }}
-}}
-"""
-
-byte_code = base64.b64encode(csharp_source.encode("utf-8")).decode("ascii")
+def make_csharp_source(arguments: str) -> str:
+    lines = [
+        "using System;",
+        "using System.Diagnostics;",
+        "using System.IO;",
+        "using System.Linq;",
+        "",
+        "public class CPHInline",
+        "{",
+        "    private string GetArgValue(string[] names)",
+        "    {",
+        "        foreach (var name in names)",
+        "        {",
+        "            if (CPH.TryGetArg<string>(name, out string value) && !string.IsNullOrWhiteSpace(value))",
+        "            {",
+        "                return value.Trim();",
+        "            }",
+        "        }",
+        "        return string.Empty;",
+        "    }",
+        "",
+        "    public bool Execute()",
+        "    {",
+        f"        string exe = @\"{exe}\";",
+        f"        string command = @\"{arguments}\";",
+        "        command = command.Trim();",
+        "        string userName = GetArgValue(new[] { \"input0\", \"userName\", \"user\", \"displayName\", \"username\", \"rawInput\", \"input\" });",
+        "        string userArg = GetArgValue(new[] { \"input0\", \"arg1\", \"user2\", \"target\", \"opponent\" });",
+        "        string arg2 = GetArgValue(new[] { \"input1\", \"arg2\", \"target\", \"opponent\" });",
+        "        string processArgs = command;",
+        "",
+        "        if (command == \"catch\")",
+        "        {",
+        "            // prefer explicit argument (input0) as target, otherwise use invoking user",
+        "            if (!string.IsNullOrWhiteSpace(userArg))",
+        "            {",
+        "                processArgs += \" \" + userArg;",
+        "            }",
+        "            else if (!string.IsNullOrWhiteSpace(userName))",
+        "            {",
+        "                processArgs += \" \" + userName;",
+        "            }",
+        "            else",
+        "            {",
+        "                return true;",
+        "            }",
+        "        }",
+        "        else if (command == \"inventory\")",
+        "        {",
+        "            if (string.IsNullOrWhiteSpace(userName)) return true;",
+        "            processArgs += \" \" + userName;",
+        "        }",
+        "        else if (command == \"battle\")",
+        "        {",
+        "            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(userArg) || string.IsNullOrWhiteSpace(arg2)) return true;",
+        "            processArgs += \" \" + userName + \" \" + userArg + \" \" + arg2;",
+        "        }",
+        "        else if (command == \"accept\")",
+        "        {",
+        "            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(userArg) || string.IsNullOrWhiteSpace(arg2)) return true;",
+        "            processArgs += \" \" + userName + \" \" + userArg + \" \" + arg2;",
+        "        }",
+        "",
+        "        var psi = new ProcessStartInfo",
+        "        {",
+        "            FileName = exe,",
+        "            Arguments = processArgs,",
+        "            UseShellExecute = false,",
+        "            RedirectStandardOutput = true,",
+        "            RedirectStandardError = true,",
+        "            CreateNoWindow = true,",
+        f"            WorkingDirectory = @\"{root}\"",
+        "        };",
+        "",
+        "        var process = Process.Start(psi);",
+        "        string output = string.Empty;",
+        "        string error = string.Empty;",
+        "        if (process != null)",
+        "        {",
+        "            output = process.StandardOutput.ReadToEnd();",
+        "            error = process.StandardError.ReadToEnd();",
+        "            process.WaitForExit();",
+        "        }",
+        "",
+        "        string msg = string.IsNullOrWhiteSpace(output) ? \"GameEngine launched.\" : output.Trim();",
+        "        if (!string.IsNullOrWhiteSpace(error))",
+        "        {",
+        "            msg += \" Error: \" + error.Trim();",
+        "        }",
+        "",
+        "        CPH.SendYouTubeMessage(msg);",
+        "        return true;",
+        "    }",
+        "}",
+        "",
+    ]
+    return "\n".join(lines)
 
 
 def make_command(name, command_text):
@@ -65,6 +152,7 @@ def make_command(name, command_text):
 
 
 def make_action(name, args, command_id):
+    byte_code = base64.b64encode(make_csharp_source(args).encode("utf-8")).decode("ascii")
     return {
         "id": str(uuid.uuid4()),
         "queue": queue,
@@ -87,20 +175,6 @@ def make_action(name, args, command_id):
         ],
         "subActions": [
             {
-                "command": exe,
-                "arguments": args,
-                "parseVariables": True,
-                "workingDir": root,
-                "envVars": {},
-                "waitForExit": 0,
-                "id": str(uuid.uuid4()),
-                "weight": 0.0,
-                "type": 6,
-                "parentId": None,
-                "enabled": True,
-                "index": 0,
-            },
-            {
                 "name": None,
                 "description": None,
                 "references": [
@@ -116,8 +190,8 @@ def make_action(name, args, command_id):
                 "type": 99999,
                 "parentId": None,
                 "enabled": True,
-                "index": 1,
-            },
+                "index": 0,
+            }
         ],
         "collapsedGroups": [],
     }
@@ -134,10 +208,10 @@ commands = [
 
 actions = [
     make_action("Pokemon Chat Game Spawn", "spawn", commands[0]["id"]),
-    make_action("Pokemon Chat Game Catch", "catch ${user}", commands[1]["id"]),
-    make_action("Pokemon Chat Game Inventory", "inventory ${user}", commands[2]["id"]),
-    make_action("Pokemon Chat Game Battle", "battle ${user} ${arg1} ${arg2}", commands[3]["id"]),
-    make_action("Pokemon Chat Game Accept", "accept ${user} ${arg1} ${arg2}", commands[4]["id"]),
+    make_action("Pokemon Chat Game Catch", "catch", commands[1]["id"]),
+    make_action("Pokemon Chat Game Inventory", "inventory", commands[2]["id"]),
+    make_action("Pokemon Chat Game Battle", "battle", commands[3]["id"]),
+    make_action("Pokemon Chat Game Accept", "accept", commands[4]["id"]),
     make_action("Pokemon Chat Game Leaderboard", "leaderboard", commands[5]["id"]),
 ]
 
@@ -156,13 +230,14 @@ export = {
     "minimumVersion": "1.0.0-alpha.1",
 }
 
-out_json = r"Pokemon ChatGame\\Streamerbot\\import_actions_full.json"
+out_json = os.path.join(root, "Streamerbot", "import_actions_full.json")
+os.makedirs(os.path.dirname(out_json), exist_ok=True)
 with open(out_json, "w", encoding="utf-8") as handle:
     json.dump(export, handle, indent=2)
 
 raw = json.dumps(export, indent=2).encode("utf-8")
 blob = b"SBAE" + gzip.compress(raw)
-out_txt = r"Pokemon ChatGame\\Streamerbot\\import_actions_full.txt"
+out_txt = os.path.join(root, "Streamerbot", "import_actions_full.txt")
 with open(out_txt, "w", encoding="utf-8") as handle:
     handle.write(base64.b64encode(blob).decode("ascii"))
 

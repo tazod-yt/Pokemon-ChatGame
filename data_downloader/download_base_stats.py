@@ -142,6 +142,43 @@ def extract_catch_rate(html_text: str) -> Dict[str, object]:
     return {"value": catch_rate}
 
 
+def extract_types(html_text: str) -> List[str]:
+    """Extract Pokémon type(s) from the Pokédex page as a list of canonical type names.
+
+    Prefer parsing the original HTML to capture anchor text inside the vitals table.
+    """
+    # 1) Look for the vitals table row: <th>Type</th><td>...<a>Type</a>...</td>
+    m = re.search(r"<th[^>]*>\s*Type\s*</th>\s*<td[^>]*>(.*?)</td>", html_text, re.IGNORECASE | re.DOTALL)
+    types: List[str] = []
+    if m:
+        td = m.group(1)
+        anchors = re.findall(r'<a[^>]*href="[^"]*/type/[^"]*"[^>]*>([^<]+)</a>', td, re.IGNORECASE)
+        for a in anchors:
+            name = html.unescape(a.strip())
+            if name and name not in types:
+                types.append(name)
+        if types:
+            return types
+
+    # 2) Fallback: find any /type/ anchors anywhere on the page and use their text
+    anchors_all = re.findall(r'<a[^>]*href="[^"]*/type/[^"]*"[^>]*>([^<]+)</a>', html_text, re.IGNORECASE)
+    for a in anchors_all:
+        name = html.unescape(a.strip())
+        if name and name not in types:
+            types.append(name)
+    if types:
+        return types
+
+    # 3) Last-resort: use plain-text heuristic
+    text = text_from_html(html_text)
+    m2 = re.search(r"Type[s]?:\s*([A-Za-z]+(?:[\s/,]+[A-Za-z]+)*)", text)
+    if m2:
+        parts = re.split(r"[\/,]", m2.group(1))
+        return [p.strip().capitalize() for p in parts if p.strip()]
+
+    return []
+
+
 def main(argv: Optional[Iterable[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Download Gen 1 base stats from PokemonDB as JSON.")
     parser.add_argument(
@@ -185,6 +222,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             pokemon_name = pokemon_name_from_slug(slug)
             base_stats = extract_base_stats(page_html)
             catch_rate = extract_catch_rate(page_html)
+            types = extract_types(page_html)
             entry_key = f"{i:03d}_{filename_safe_name(pokemon_name)}"
             results[entry_key] = {
                 "dex_number": i,
@@ -194,6 +232,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
                 "image_file": f"{entry_key}.png",
                 "base_stats": base_stats,
                 "catch_rate": catch_rate,
+                "types": types,
             }
             print(f"[{i:03d}/{len(species_urls):03d}] {pokemon_name}")
         except Exception as exc:
