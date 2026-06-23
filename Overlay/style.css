@@ -1,86 +1,13 @@
-﻿:root {
-  --bg1: #0f1b2e;
-  --bg2: #1b3a4b;
-  --accent: #f6c453;
-  --accent-dark: #c9982b;
-  --text: #f5f2e9;
-  --panel: rgba(15, 27, 46, 0.85);
-}
-
-* {
+﻿* {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: "Trebuchet MS", "Candara", "Segoe Print", sans-serif;
-  color: var(--text);
   background: transparent;
   height: 100vh;
   overflow: hidden;
-}
-
-.overlay {
-  width: min(600px, 90vw);
-  animation: fadeIn 0.8s ease;
-}
-
-.panel {
-  background: var(--panel);
-  border: 2px solid var(--accent-dark);
-  border-radius: 18px;
-  padding: 24px 28px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
-}
-
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-
-.status {
-  font-size: 18px;
-  margin-bottom: 12px;
-}
-
-.spawn {
-  padding: 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.label {
-  font-size: 12px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
-.spawn-name {
-  font-size: 24px;
-  font-weight: 700;
-  margin-top: 6px;
-}
-
-.timer {
-  margin-top: 8px;
-  font-size: 16px;
-}
-
-.result {
-  margin-top: 16px;
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(246, 196, 83, 0.15);
-  border: 1px solid rgba(246, 196, 83, 0.4);
-  font-size: 16px;
 }
 
 .hidden {
@@ -88,7 +15,8 @@ body {
   visibility: hidden !important;
 }
 
-/* Floating spawn smoke + GIF (bottom-right) */
+/* ── Spawn smoke + GIF ─────────────────────────────────── */
+/* Both are fixed at bottom-right corner */
 .spawn-smoke,
 .spawn-gif {
   position: fixed;
@@ -99,7 +27,6 @@ body {
 }
 
 .spawn-smoke {
-  /* increased size by 50% */
   width: 180px;
   height: 180px;
   border-radius: 50%;
@@ -113,7 +40,6 @@ body {
 }
 
 .spawn-gif {
-  /* gif size reverted to original to keep GIF compact; smoke remains larger */
   display: none;
   width: 83px;
   height: auto;
@@ -121,6 +47,7 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   background: rgba(0, 0, 0, 0.15);
   padding: 4px;
+  transform-origin: center bottom;
 }
 
 .spawn-gif.visible {
@@ -128,146 +55,56 @@ body {
 }
 
 .spawn-smoke.show {
-  /* increased duration by 50% (0.55s -> 0.825s) */
   animation: smokeIn 0.825s ease forwards;
 }
 
 @keyframes smokeIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.2) translateY(12px);
-  }
-  40% {
-    opacity: 0.65;
-    transform: scale(1.05) translateY(-8px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5) translateY(-22px);
-  }
+  0%   { opacity: 0;    transform: scale(0.2) translateY(12px); }
+  40%  { opacity: 0.65; transform: scale(1.05) translateY(-8px); }
+  100% { opacity: 0;    transform: scale(1.5) translateY(-22px); }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.catch-area {
+/* ── Pokeball ──────────────────────────────────────────── */
+/* position:fixed so left/top are viewport coordinates */
+.pokeball {
   position: fixed;
-  left: 50%;
-  top: 35%;
-  transform: translate(-50%, -50%);
-  width: 240px;
-  height: 240px;
-  pointer-events: none;
-  z-index: 10010;
-}
-
-.catch-pokemon-wrapper {
-  position: absolute;
-  left: 50%;
-  top: 38%;
-  width: 140px;
-  height: 140px;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.catch-pokemon-gif {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   transform-origin: center;
-}
-
-.catch-pokemon-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  box-shadow: 0 0 30px 14px rgba(255, 255, 255, 0.8);
   opacity: 0;
-  transition: opacity 0.1s ease;
-}
-
-.pokeball {
-  position: absolute;
-  width: 48px;
-  height: 48px;
-  transform-origin: center;
-  opacity: 0;
+  z-index: 10010;
+  pointer-events: none;
 }
 
 .pokeball.visible {
   opacity: 1;
 }
 
-.pokeball-top,
-.pokeball-bottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border: 2px solid #333;
+/* Golden glow on successful catch */
+.pokeball.locked {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95))
+          drop-shadow(0 0 6px rgba(255, 220, 80, 0.9));
 }
 
-.pokeball-top {
-  top: 0;
-  height: 50%;
-  border-bottom: none;
-  border-radius: 24px 24px 0 0;
-  background: radial-gradient(circle at 30% 20%, #ffefef, #f52222);
+/* Burst-open animation on fail — must include translate to stay in place */
+.pokeball.open {
+  animation: pokeball-open 0.35s ease-out forwards;
 }
 
-.pokeball-bottom {
-  bottom: 0;
-  height: 50%;
-  border-top: none;
-  border-radius: 0 0 24px 24px;
-  background: white;
+@keyframes pokeball-open {
+  0%   { transform: translate(-50%, -50%) rotate(0deg)   scale(1); }
+  30%  { transform: translate(-50%, -50%) rotate(-25deg) scale(1.3); }
+  65%  { transform: translate(-50%, -50%) rotate(18deg)  scale(1.1); }
+  100% { transform: translate(-50%, -50%) rotate(0deg)   scale(1); }
 }
 
-.pokeball-center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 20px;
-  height: 20px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: white;
-  border: 2px solid #333;
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
-}
-
-.pokeball.locked .pokeball-center {
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15), 0 0 8px 3px rgba(255, 255, 255, 0.8);
-}
-
-.pokeball.open .pokeball-top {
-  transform-origin: bottom center;
-  transform: translateY(-10px) rotate(-20deg);
-}
-
-.pokeball.open .pokeball-bottom {
-  transform-origin: top center;
-  transform: translateY(10px) rotate(15deg);
-}
-
+/* Shake animation — must include translate so ball stays at pokemon position */
 .pokeball.shake {
-  animation: pokeball-shake 0.2s ease-in-out infinite alternate;
+  animation: pokeball-shake 0.25s ease-in-out infinite alternate;
 }
 
 @keyframes pokeball-shake {
-  from {
-    transform: rotate(-12deg);
-  }
-  to {
-    transform: rotate(12deg);
-  }
+  from { transform: translate(-50%, -50%) rotate(-14deg); }
+  to   { transform: translate(-50%, -50%) rotate(14deg); }
 }
