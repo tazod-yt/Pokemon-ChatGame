@@ -21,7 +21,7 @@ DEFAULT_SETTINGS = {
     # How often a new wild spawn can appear, in seconds.
     "spawn_interval_seconds": 3,
     # How long a spawn stays catchable before timing out, in seconds.
-    "catch_timeout_seconds": 60,
+    "catch_timeout_seconds": 120,
     # Base probability modifier used when attempting to catch a creature.
     "base_catch_rate": 0.35,
     # Maximum time allowed for an active battle, in seconds.
@@ -74,6 +74,8 @@ DEFAULT_SETTINGS = {
     "xp_loser_base": 15,
     # Additional loser XP per level.
     "xp_loser_level_mult": 2,
+    # Auto-spawn interval in seconds (0 = disabled). Set via STREAMERBOT_AUTO_SPAWN_INTERVAL_SECONDS
+    "auto_spawn_interval_seconds": 0,
 }
 
 TRAITS = ["Brave", "Tank", "Swift", "Lucky", "Berserk"]
@@ -297,6 +299,7 @@ STREAMERBOT_SETTING_OVERRIDES = {
     "battle_cooldown_seconds": int,
     "rematch_cooldown_seconds": int,
     "cooldown_seconds": int,
+    "auto_spawn_interval_seconds": int,
 }
 
 
@@ -1024,6 +1027,70 @@ class GameEngine:
         logging.info("Spawned creature: %s", creature["name"])
         return self._respond(f"Spawned {creature['name']}")
 
+    def auto_spawn(self) -> str:
+        """Auto spawn on interval."""
+        logging.info("Command: auto_spawn")
+
+        # Check if auto-spawn is enabled
+        auto_spawn_interval = self.settings.get("auto_spawn_interval_seconds")
+        if not auto_spawn_interval:
+            logging.info("Auto-spawn disabled")
+            return ""
+
+        auto_spawn_interval = int(auto_spawn_interval)
+
+        spawn = self._load_active_spawn()
+        # If spawn active and not expired, don't spawn again
+        if spawn and not self._spawn_is_expired(spawn):
+            logging.info("Spawn already active, skipping auto-spawn")
+            return ""
+
+        # Clear expired spawn
+        if spawn and self._spawn_is_expired(spawn):
+            self._write_active_spawn({})
+            self._write_overlay(
+                {
+                    "state": "idle",
+                    "message": "",
+                    "spawn": None,
+                    "timer": 0,
+                    "result": None,
+                }
+            )
+
+        with db_session(self.paths) as conn:
+            last_auto_spawn_at = get_setting(conn, "last_auto_spawn_at")
+            if last_auto_spawn_at:
+                remaining = auto_spawn_interval - (now_ts() - int(last_auto_spawn_at))
+                if remaining > 0:
+                    logging.info("Auto-spawn on cooldown, %ds remaining", remaining)
+                    return ""
+
+            # Time to spawn
+            creature_id, creature = self._select_random_creature(conn)
+            spawned_at = now_ts()
+            expires_at = spawned_at + int(self.settings["catch_timeout_seconds"])
+            spawn_payload = {
+                "creature_id": creature_id,
+                "name": creature["name"],
+                "spawned_at": spawned_at,
+                "expires_at": expires_at,
+            }
+            self._write_active_spawn(spawn_payload)
+            set_setting(conn, "last_auto_spawn_at", str(spawned_at))
+
+        self._write_overlay(
+            {
+                "state": "spawn",
+                "message": f"A wild {creature['name']} appeared!",
+                "spawn": spawn_payload,
+                "timer": int(self.settings["catch_timeout_seconds"]),
+                "result": None,
+            }
+        )
+        logging.info("Auto-spawned creature: %s", creature["name"])
+        return self._respond(f"Spawned {creature['name']}")
+
     def catch(self, username: str) -> str:
         """Catch."""
         username = normalize_username(username)
@@ -1054,7 +1121,7 @@ class GameEngine:
             ).fetchone()[0]
             remaining = self._get_cooldown_remaining(last_catch_at, "cooldown_seconds")
             if remaining > 0:
-                return self._respond(f"Catch cooldown active. Try again in {remaining}s.")
+                return self._respond(f"@{username} Catch cooldown active. Try again in {remaining}s.")
 
             inv_count = conn.execute(
                 "SELECT COUNT(*) FROM inventory WHERE user_id = ?",
@@ -1070,7 +1137,7 @@ class GameEngine:
             if not creature_row:
                 return self._respond("Spawn creature missing.")
 
-            catch_rate = float(creature_row[3]) / 765.0
+            catch_rate = float(creature_row[3]) / 500
             catch_rate = min(1.0, max(0.0, catch_rate))
             roll = self.rng.random()
             success = roll <= catch_rate
@@ -1366,7 +1433,14 @@ class GameEngine:
                     "type": "battle",
                     "winner": winner_owner,
                     "loser": loser_owner,
+                    "challenger": challenger,
+                    "challenger_pokemon": p1.name,
+                    "accepter": accepter,
+                    "accepter_pokemon": p2.name,
+                    "winner_pokemon": winner_pokemon.name,
+                    "loser_pokemon": loser_pokemon.name,
                     "transcript": transcript,
+                    "expires_at": now + 14,
                 },
             }
         )
@@ -1722,6 +1796,8 @@ def main() -> int:
 
     subparsers.add_parser("reset_spawn")
 
+    subparsers.add_parser("auto_spawn")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -1755,6 +1831,10 @@ def main() -> int:
     if args.command == "reset_spawn":
         cmd_logger.info("Command: reset_spawn")
         print(engine.reset_spawn(), flush=True)
+        return 0
+    if args.command == "auto_spawn":
+        cmd_logger.info("Command: auto_spawn")
+        print(engine.auto_spawn(), flush=True)
         return 0
 
     return 1

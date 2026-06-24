@@ -26,5 +26,6 @@
   "xp_winner_base": 50,
   "xp_winner_level_mult": 5,
   "xp_loser_base": 15,
-  "xp_loser_level_mult": 2
+  "xp_loser_level_mult": 2,
+  "auto_spawn_interval_seconds": 0
 }
