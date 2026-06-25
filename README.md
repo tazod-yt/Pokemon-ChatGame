@@ -141,6 +141,12 @@ These commands are the contract between Streamer.bot and the engine.
 - `default_elo`, `elo_win`, `elo_loss`
 - `leaderboard_size`
 - `xp_winner_base`, `xp_winner_level_mult`, `xp_loser_base`, `xp_loser_level_mult`
+- `discord_inventory_webhook_url` — optional webhook URL to send `!inventory` results to a Discord channel
+
+### Environment variables
+
+- `STREAMERBOT_<SETTING_NAME>` or `CHATGAME_<SETTING_NAME>` — override any `Config/settings.json` numeric setting at runtime
+- `DISCORD_INVENTORY_WEBHOOK_URL` or `CHATGAME_DISCORD_INVENTORY_WEBHOOK_URL` — override `discord_inventory_webhook_url` from environment
 
 You can edit these values at any time. The engine will merge missing keys with defaults.
 

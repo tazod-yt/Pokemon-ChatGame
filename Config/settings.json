@@ -27,5 +27,6 @@
   "xp_winner_level_mult": 5,
   "xp_loser_base": 15,
   "xp_loser_level_mult": 2,
+  "discord_inventory_webhook_url": "https://discord.com/api/webhooks/1519674426436616375/q1X3B0C7TpWq73PXipSiE9XyMZiJC9oz6iTi--Jhx6H0k231ESAr4eX7-ElPnA5BkAlZ",
   "auto_spawn_interval_seconds": 0
 }

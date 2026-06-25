@@ -15,6 +15,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from type_chart import get_type_multiplier
 
 DEFAULT_SETTINGS = {
@@ -74,6 +76,8 @@ DEFAULT_SETTINGS = {
     "xp_loser_base": 15,
     # Additional loser XP per level.
     "xp_loser_level_mult": 2,
+    # Discord webhook URL for inventory command notifications.
+    "discord_inventory_webhook_url": "",
     # Auto-spawn interval in seconds (0 = disabled). Set via STREAMERBOT_AUTO_SPAWN_INTERVAL_SECONDS
     "auto_spawn_interval_seconds": 0,
 }
@@ -339,13 +343,28 @@ def _get_streamerbot_overrides() -> Dict[str, Any]:
     return overrides
 
 
+def _get_discord_webhook_override() -> Dict[str, Any]:
+    """Load Discord webhook override from environment variables."""
+    env_keys = [
+        "DISCORD_INVENTORY_WEBHOOK_URL",
+        "CHATGAME_DISCORD_INVENTORY_WEBHOOK_URL",
+    ]
+    for env_key in env_keys:
+        raw_value = os.environ.get(env_key)
+        if raw_value is not None:
+            return {"discord_inventory_webhook_url": raw_value.strip()}
+    return {}
+
+
 def load_settings(paths: Paths) -> Dict[str, Any]:
     """Load settings."""
     settings = dict(DEFAULT_SETTINGS)
 
     if not paths.settings_json.exists():
         write_json(paths.settings_json, settings)
-        return dict(settings, **_get_streamerbot_overrides())
+        settings.update(_get_streamerbot_overrides())
+        settings.update(_get_discord_webhook_override())
+        return settings
 
     try:
         data = read_json(paths.settings_json)
@@ -355,6 +374,7 @@ def load_settings(paths: Paths) -> Dict[str, Any]:
     settings.update({k: v for k, v in data.items() if k in DEFAULT_SETTINGS})
     write_json(paths.settings_json, settings)
     settings.update(_get_streamerbot_overrides())
+    settings.update(_get_discord_webhook_override())
     return settings
 
 
@@ -812,6 +832,46 @@ class GameEngine:
         except Exception:
             logging.exception("Failed to write chat message")
 
+    def _send_discord_inventory_webhook(self, message: str) -> Optional[str]:
+        """Send inventory text to Discord via configured webhook and return the message URL."""
+        webhook_url = str(self.settings.get("discord_inventory_webhook_url", "") or "").strip()
+        if not webhook_url:
+            return None
+
+        if "?" in webhook_url:
+            if "wait=" not in webhook_url:
+                webhook_url += "&wait=true"
+        else:
+            webhook_url += "?wait=true"
+
+        payload = json.dumps({"content": message}).encode("utf-8")
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        }
+        request = Request(webhook_url, data=payload, headers=headers)
+        try:
+            with urlopen(request, timeout=10) as response:
+                raw = response.read()
+                if not raw:
+                    return None
+                data = json.loads(raw.decode("utf-8"))
+                message_id = data.get("id")
+                channel_id = data.get("channel_id")
+                guild_id = data.get("guild_id")
+                if guild_id and channel_id and message_id:
+                    return f"https://discord.com/channels/{guild_id}/{channel_id}/{message_id}"
+                if channel_id and message_id:
+                    return f"https://discord.com/channels/@me/{channel_id}/{message_id}"
+                return None
+        except HTTPError as e:
+            body = e.read().decode("utf-8", errors="replace") if e.fp is not None else ""
+            logging.error("Failed to send Discord inventory webhook: %s %s", e.code, body)
+        except (URLError, OSError) as e:
+            logging.error("Failed to send Discord inventory webhook: %s", e)
+        return None
+
     def _write_stdout_log(self, message: str) -> None:
         """Internal helper to write stdout log."""
         try:
@@ -1250,7 +1310,11 @@ class GameEngine:
             lines.append(
                 f"{idx}. {inventory_username}: {name} (Lv {level}, XP {xp}, {trait}, ELO {elo}, W/L {wins}/{losses})"
             )
-        return self._respond("\n".join(lines))
+        result = "\n".join(lines)
+        webhook_link = self._send_discord_inventory_webhook(result)
+        if webhook_link:
+            return self._respond(f"@{username} here is your inventory - {webhook_link}")
+        return self._respond(result)
 
     def battle(self, challenger: str, opponent: str, pokemon: str) -> str:
         """Battle."""
