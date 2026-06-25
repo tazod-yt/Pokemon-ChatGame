@@ -1,6 +1,6 @@
 {
   "spawn_interval_seconds": 3,
-  "catch_timeout_seconds": 60,
+  "catch_timeout_seconds": 120,
   "base_catch_rate": 0.35,
   "battle_timeout_seconds": 120,
   "battle_cooldown_seconds": 6,
