@@ -180,6 +180,7 @@ class Paths:
     settings_json: Path
     log_file: Path
     cmd_log_file: Path
+    stdout_log: Path
     chat_message_txt: Path
 
 
@@ -272,6 +273,7 @@ def build_paths(root: Path) -> Paths:
         settings_json=config_dir / "settings.json",
         log_file=logs_dir / "game.log",
         cmd_log_file=logs_dir / "cmd.log",
+        stdout_log=logs_dir / "stdout.log",
         chat_message_txt=data_dir / "last_chat_message.txt",
     )
 
@@ -680,6 +682,8 @@ def ensure_data_files(paths: Paths) -> None:
                 "updated_at": None,
             },
         )
+    if not paths.stdout_log.exists():
+        paths.stdout_log.write_text("", encoding="utf-8")
     if not paths.chat_message_txt.exists():
         paths.chat_message_txt.write_text("", encoding="utf-8")
 
@@ -808,9 +812,19 @@ class GameEngine:
         except Exception:
             logging.exception("Failed to write chat message")
 
+    def _write_stdout_log(self, message: str) -> None:
+        """Internal helper to write stdout log."""
+        try:
+            self.paths.stdout_log.parent.mkdir(parents=True, exist_ok=True)
+            with self.paths.stdout_log.open("a", encoding="utf-8") as handle:
+                handle.write(f"{message}\n")
+        except Exception:
+            logging.exception("Failed to write stdout log")
+
     def _respond(self, message: str) -> str:
         """Internal helper to respond."""
         self._write_chat_message(message)
+        self._write_stdout_log(message)
         return message
 
     def _spawn_is_expired(self, spawn: Dict[str, Any]) -> bool:
