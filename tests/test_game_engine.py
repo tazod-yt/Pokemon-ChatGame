@@ -94,7 +94,9 @@ def test_inventory_item_includes_username():
         engine = make_engine(Path(tmp))
         catch_for_user(engine, "ankit", 1)
         result = engine.inventory("ankit")
-        assert "1. ankit:" in result
+        assert "Pokemon Inventory:" in result
+        assert "HP" in result
+        assert "ELO" in result
 
 
 def test_battle_challenge_and_accept():

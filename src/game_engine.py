@@ -33,7 +33,7 @@ DEFAULT_SETTINGS = {
     # Cooldown before the same pair of users can rematch, in seconds.
     "rematch_cooldown_seconds": 3,
     # General cooldown between repeated user actions, in seconds.
-    "cooldown_seconds": 1,
+    "cooldown_seconds": 5,
     # Maximum number of creatures a user can hold in inventory.
     "max_inventory_size": 151,
     # Maximum creature level allowed.
@@ -77,7 +77,7 @@ DEFAULT_SETTINGS = {
     # Additional loser XP per level.
     "xp_loser_level_mult": 2,
     # Discord webhook URL for inventory command notifications.
-    "discord_inventory_webhook_url": "",
+    "discord_inventory_webhook_url": "https://discord.com/api/webhooks/1519674426436616375/q1X3B0C7TpWq73PXipSiE9XyMZiJC9oz6iTi--Jhx6H0k231ESAr4eX7-ElPnA5BkAlZ",
     # Auto-spawn interval in seconds (0 = disabled). Set via STREAMERBOT_AUTO_SPAWN_INTERVAL_SECONDS
     "auto_spawn_interval_seconds": 0,
 }
@@ -143,12 +143,18 @@ def load_default_creatures() -> list[dict]:
     pokemon = payload.get("pokemon", {})
 
     creatures: list[dict] = []
-    for entry in pokemon.values():
+    for key, entry in pokemon.items():
         base_stats = entry.get("base_stats", {})
         catch_rate = entry.get("catch_rate", {})
+        species_id = 0
+        if isinstance(key, str) and "_" in key:
+            prefix = key.split("_", 1)[0]
+            if prefix.isdigit():
+                species_id = int(prefix)
         creatures.append(
             {
                 "name": entry.get("name", ""),
+                "species_id": species_id,
                 "base_hp": int(base_stats.get("hp", 0)),
                 "base_attack": int(base_stats.get("attack", 0)),
                 "base_defense": int(base_stats.get("defense", 0)),
@@ -163,6 +169,8 @@ def load_default_creatures() -> list[dict]:
 
 
 DEFAULT_CREATURES = load_default_creatures()
+
+SPECIES_ID_BY_NAME = {c["name"].strip().lower(): c.get("species_id", 0) for c in DEFAULT_CREATURES}
 
 USERNAME_RE = re.compile(r"[^a-zA-Z0-9_]")
 
@@ -457,6 +465,8 @@ def migrate_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE creatures ADD COLUMN base_sp_def INTEGER NOT NULL DEFAULT 0")
     if "types" not in creature_cols:
         conn.execute("ALTER TABLE creatures ADD COLUMN types TEXT DEFAULT ''")
+    if "species_id" not in creature_cols:
+        conn.execute("ALTER TABLE creatures ADD COLUMN species_id INTEGER NOT NULL DEFAULT 0")
 
     inventory_cols = _table_columns(conn, "inventory")
     # If an old `current_hp` column exists (legacy), remove it by recreating the table
@@ -561,12 +571,14 @@ def migrate_db(conn: sqlite3.Connection) -> None:
     sp_atk_by_name = {c["name"]: c.get("base_sp_atk", 0) for c in DEFAULT_CREATURES}
     sp_def_by_name = {c["name"]: c.get("base_sp_def", 0) for c in DEFAULT_CREATURES}
     types_by_name = {c["name"]: c.get("types", []) for c in DEFAULT_CREATURES}
+    species_by_name = {c["name"]: c.get("species_id", 0) for c in DEFAULT_CREATURES}
     creature_rows = conn.execute("SELECT id, name FROM creatures").fetchall()
     for creature_id, name in creature_rows:
         speed = speed_by_name.get(name, 0)
         conn.execute("UPDATE creatures SET base_speed = ? WHERE id = ?", (speed, creature_id))
         conn.execute("UPDATE creatures SET base_sp_atk = ? WHERE id = ?", (sp_atk_by_name.get(name, 0), creature_id))
         conn.execute("UPDATE creatures SET base_sp_def = ? WHERE id = ?", (sp_def_by_name.get(name, 0), creature_id))
+        conn.execute("UPDATE creatures SET species_id = ? WHERE id = ?", (species_by_name.get(name, 0), creature_id))
         # store types as JSON text
         types_val = json.dumps(types_by_name.get(name, []), ensure_ascii=False)
         conn.execute("UPDATE creatures SET types = ? WHERE id = ?", (types_val, creature_id))
@@ -592,6 +604,7 @@ def init_db(paths: Paths) -> None:
                 """
                 CREATE TABLE IF NOT EXISTS creatures (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                species_id INTEGER NOT NULL DEFAULT 0,
                 name TEXT UNIQUE NOT NULL,
                 base_hp INTEGER NOT NULL,
                 base_attack INTEGER NOT NULL,
@@ -664,10 +677,11 @@ def seed_creatures(paths: Paths) -> None:
             for creature in DEFAULT_CREATURES:
                 conn.execute(
                     """
-                    INSERT INTO creatures (name, base_hp, base_attack, base_defense, base_speed, base_sp_atk, base_sp_def, types, catch_rate_mod, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO creatures (species_id, name, base_hp, base_attack, base_defense, base_speed, base_sp_atk, base_sp_def, types, catch_rate_mod, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
+                        creature.get("species_id", 0),
                         creature["name"],
                         creature["base_hp"],
                         creature["base_attack"],
@@ -825,12 +839,29 @@ class GameEngine:
         payload["updated_at"] = now_ts()
         write_json(self.paths.overlay_state_json, payload)
 
-    def _write_chat_message(self, message: str) -> None:
-        """Internal helper to write chat message."""
-        try:
-            self.paths.chat_message_txt.write_text(message, encoding="utf-8")
-        except Exception:
-            logging.exception("Failed to write chat message")
+    def _mention(self, username: str) -> str:
+        """Format a username with an @ prefix for chat output."""
+        if not username:
+            return username
+        return f"@{username}"
+
+    def _split_discord_messages(self, message: str, max_length: int = 2000) -> List[str]:
+        """Split a long Discord message into chunks by whole lines without breaking a line."""
+        lines = message.splitlines(keepends=True)
+        if not lines:
+            return [""]
+
+        chunks: List[str] = [""]
+        for line in lines:
+            if len(chunks[-1]) + len(line) <= max_length:
+                chunks[-1] += line
+            else:
+                if len(line) > max_length:
+                    # A single line exceeds Discord's length limit; send it separately.
+                    chunks.append(line)
+                else:
+                    chunks.append(line)
+        return [chunk for chunk in chunks if chunk]
 
     def _send_discord_inventory_webhook(self, message: str) -> Optional[str]:
         """Send inventory text to Discord via configured webhook and return the message URL."""
@@ -844,33 +875,44 @@ class GameEngine:
         else:
             webhook_url += "?wait=true"
 
-        payload = json.dumps({"content": message}).encode("utf-8")
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         }
-        request = Request(webhook_url, data=payload, headers=headers)
+
+        first_message_url: Optional[str] = None
+        for segment in self._split_discord_messages(message):
+            payload = json.dumps({"content": segment}).encode("utf-8")
+            request = Request(webhook_url, data=payload, headers=headers)
+            try:
+                with urlopen(request, timeout=10) as response:
+                    raw = response.read()
+                    if not raw:
+                        continue
+                    data = json.loads(raw.decode("utf-8"))
+                    message_id = data.get("id")
+                    channel_id = data.get("channel_id")
+                    guild_id = data.get("guild_id")
+                    if not first_message_url:
+                        if guild_id and channel_id and message_id:
+                            first_message_url = f"https://discord.com/channels/{guild_id}/{channel_id}/{message_id}"
+                        elif channel_id and message_id:
+                            first_message_url = f"https://discord.com/channels/@me/{channel_id}/{message_id}"
+            except HTTPError as e:
+                body = e.read().decode("utf-8", errors="replace") if e.fp is not None else ""
+                logging.error("Failed to send Discord inventory webhook: %s %s", e.code, body)
+            except (URLError, OSError) as e:
+                logging.error("Failed to send Discord inventory webhook: %s", e)
+
+        return first_message_url
+
+    def _write_chat_message(self, message: str) -> None:
+        """Internal helper to write the chat message to the chat output file."""
         try:
-            with urlopen(request, timeout=10) as response:
-                raw = response.read()
-                if not raw:
-                    return None
-                data = json.loads(raw.decode("utf-8"))
-                message_id = data.get("id")
-                channel_id = data.get("channel_id")
-                guild_id = data.get("guild_id")
-                if guild_id and channel_id and message_id:
-                    return f"https://discord.com/channels/{guild_id}/{channel_id}/{message_id}"
-                if channel_id and message_id:
-                    return f"https://discord.com/channels/@me/{channel_id}/{message_id}"
-                return None
-        except HTTPError as e:
-            body = e.read().decode("utf-8", errors="replace") if e.fp is not None else ""
-            logging.error("Failed to send Discord inventory webhook: %s %s", e.code, body)
-        except (URLError, OSError) as e:
-            logging.error("Failed to send Discord inventory webhook: %s", e)
-        return None
+            self.paths.chat_message_txt.write_text(message, encoding="utf-8")
+        except Exception:
+            logging.exception("Failed to write chat message")
 
     def _write_stdout_log(self, message: str) -> None:
         """Internal helper to write stdout log."""
@@ -991,7 +1033,7 @@ class GameEngine:
                        inventory.trait, inventory.elo
                 FROM inventory
                 JOIN creatures ON creatures.id = inventory.creature_id
-                WHERE inventory.user_id = ? AND inventory.creature_id = ?
+                WHERE inventory.user_id = ? AND creatures.species_id = ?
                 ORDER BY inventory.obtained_at DESC LIMIT 1
                 """,
                 (user_id, creature_id),
@@ -1195,7 +1237,7 @@ class GameEngine:
             ).fetchone()[0]
             remaining = self._get_cooldown_remaining(last_catch_at, "cooldown_seconds")
             if remaining > 0:
-                return self._respond(f"@{username} Catch cooldown active. Try again in {remaining}s.")
+                return self._respond(f"{self._mention(username)} Catch cooldown active. Try again in {remaining}s.")
 
             inv_count = conn.execute(
                 "SELECT COUNT(*) FROM inventory WHERE user_id = ?",
@@ -1211,7 +1253,7 @@ class GameEngine:
             if not creature_row:
                 return self._respond("Spawn creature missing.")
 
-            catch_rate = float(creature_row[3]) / 500
+            catch_rate = float(creature_row[3]) / 600
             catch_rate = min(1.0, max(0.0, catch_rate))
             roll = self.rng.random()
             success = roll <= catch_rate
@@ -1264,7 +1306,7 @@ class GameEngine:
                     }
                 )
                 logging.info("Catch success: %s caught %s", username, spawn.get("name"))
-                return self._respond(f"{username} caught {spawn.get('name')}! ({trait})")
+                return self._respond(f"{self._mention(username)} caught {spawn.get('name')}! ({trait})")
 
             self._write_overlay(
                 {
@@ -1276,7 +1318,7 @@ class GameEngine:
                 }
             )
             logging.info("Catch failed: %s vs %s", username, spawn.get("name"))
-            return self._respond(f"{username} failed to catch {spawn.get('name')}.")
+            return self._respond(f"{self._mention(username)} failed to catch {spawn.get('name')}.")
 
     def inventory(self, username: str) -> str:
         """Inventory."""
@@ -1288,12 +1330,14 @@ class GameEngine:
         with db_session(self.paths) as conn:
             row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
             if not row:
-                return self._respond(f"{username} has no creatures yet.")
+                return self._respond(f"{self._mention(username)} has no creatures yet.")
             user_id = int(row[0])
             rows = conn.execute(
                 """
-                SELECT inventory.username, creatures.name, inventory.level, inventory.xp, inventory.trait,
-                       inventory.elo, inventory.wins, inventory.losses
+                SELECT inventory.username, creatures.id AS creature_row_id, creatures.name, inventory.level, inventory.xp, inventory.trait,
+                       inventory.elo, inventory.wins, inventory.losses,
+                       creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                       inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv
                 FROM inventory
                 JOIN creatures ON creatures.id = inventory.creature_id
                 WHERE inventory.user_id = ?
@@ -1303,17 +1347,24 @@ class GameEngine:
             ).fetchall()
 
         if not rows:
-            return self._respond(f"{username} has no creatures yet.")
+            return self._respond(f"{self._mention(username)} has no creatures yet.")
 
-        lines = [f"{username}'s creatures:"]
-        for idx, (inventory_username, name, level, xp, trait, elo, wins, losses) in enumerate(rows, start=1):
+        lines = [f"{username}'s Pokemon Inventory:"]
+        for (_inventory_username, creature_row_id, name, level, xp, trait, elo, wins, losses, base_hp, base_attack, base_defense, base_speed, hp_iv, atk_iv, def_iv, spd_iv) in rows:
+            total_hp = int(base_hp) + int(hp_iv)
+            total_atk = int(base_attack) + int(atk_iv)
+            total_def = int(base_defense) + int(def_iv)
+            total_spd = int(base_speed) + int(spd_iv)
+            display_id = SPECIES_ID_BY_NAME.get((name or "").strip().lower(), creature_row_id)
             lines.append(
-                f"{idx}. {inventory_username}: {name} (Lv {level}, XP {xp}, {trait}, ELO {elo}, W/L {wins}/{losses})"
+                f"{display_id}. {name} (Lv {level}, XP {xp}, {trait}, ELO {elo}, W/L {wins}/{losses}) "
+                f"HP {total_hp} ({base_hp}+{hp_iv}), ATK {total_atk} ({base_attack}+{atk_iv}), "
+                f"DEF {total_def} ({base_defense}+{def_iv}), SPD {total_spd} ({base_speed}+{spd_iv})"
             )
         result = "\n".join(lines)
         webhook_link = self._send_discord_inventory_webhook(result)
         if webhook_link:
-            return self._respond(f"@{username} here is your inventory - {webhook_link}")
+            return self._respond(f"{self._mention(username)} here is your inventory - {webhook_link}")
         return self._respond(result)
 
     def battle(self, challenger: str, opponent: str, pokemon: str) -> str:
@@ -1359,18 +1410,18 @@ class GameEngine:
                 (challenger_id, opponent_id),
             ).fetchone()
             if existing:
-                return self._respond(f"You already challenged {opponent}. Waiting for accept.")
+                return self._respond(f"You already challenged {self._mention(opponent)}. Waiting for accept.")
 
             inv_row = self._resolve_inventory_pokemon(conn, challenger_id, pokemon)
             if not inv_row:
-                return self._respond(f"{challenger} does not have that Pokémon.")
+                return self._respond(f"{self._mention(challenger)} does not have that Pokémon.")
 
             opponent_has = conn.execute(
                 "SELECT COUNT(*) FROM inventory WHERE user_id = ?",
                 (opponent_id,),
             ).fetchone()[0]
             if opponent_has == 0:
-                return self._respond(f"{opponent} has no creatures to battle.")
+                return self._respond(f"{self._mention(opponent)} has no creatures to battle.")
 
             now = now_ts()
             expires_at = now + int(self.settings["battle_timeout_seconds"])
@@ -1387,8 +1438,8 @@ class GameEngine:
 
         pokemon_name = inv_row[2]
         msg = (
-            f"{challenger} challenged {opponent} with {pokemon_name}! "
-            f"{opponent}, use !accept @{challenger} <pokemon> within "
+            f"{self._mention(challenger)} challenged {self._mention(opponent)} with {pokemon_name}! "
+            f"{self._mention(opponent)}, use !accept {self._mention(challenger)} <pokemon> within "
             f"{int(self.settings['battle_timeout_seconds'])}s."
         )
         logging.info("Battle challenge: %s -> %s", challenger, opponent)
@@ -1419,7 +1470,7 @@ class GameEngine:
                 (challenger_id, accepter_id),
             ).fetchone()
             if not pending:
-                return self._respond(f"No pending challenge from {challenger}.")
+                return self._respond(f"No pending challenge from {self._mention(challenger)}.")
 
             pending_id, challenger_inv_id, expires_at = pending
             if now_ts() >= int(expires_at):
@@ -1427,7 +1478,7 @@ class GameEngine:
                     "UPDATE pending_battles SET status = 'expired' WHERE id = ?",
                     (pending_id,),
                 )
-                return self._respond(f"Challenge from {challenger} has expired.")
+                return self._respond(f"Challenge from {self._mention(challenger)} has expired.")
 
             last_battle_at = conn.execute(
                 "SELECT last_battle_at FROM users WHERE id = ?",
@@ -1447,7 +1498,7 @@ class GameEngine:
 
             accepter_row = self._resolve_inventory_pokemon(conn, accepter_id, pokemon)
             if not accepter_row:
-                return self._respond(f"{accepter} does not have that Pokémon.")
+                return self._respond(f"{self._mention(accepter)} does not have that Pokémon.")
 
             challenger_row = conn.execute(
                 """
@@ -1548,7 +1599,7 @@ class GameEngine:
 
         lines = ["Top Pokémon by ELO:"]
         for idx, (name, owner, elo) in enumerate(rows, start=1):
-            lines.append(f"{idx}. {name} ({owner}) {elo}")
+            lines.append(f"{idx}. {name} ({self._mention(owner)}) {elo}")
         return self._respond("\n".join(lines))
 
     def _apply_battle_rewards(
