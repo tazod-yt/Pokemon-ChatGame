@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg1: #0f1b2e;
   --bg2: #1b3a4b;
   --accent: #f6c453;
@@ -156,4 +156,298 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Pokéball styles & capture animation */
+.pokeball-container {
+  position: fixed;
+  bottom: 38px;
+  right: 48px;
+  width: 83px; /* Match width of spawn-gif */
+  height: 83px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.pokeball {
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pokeball::before {
+  content: "";
+  position: absolute;
+  background: #e74c3c;
+  width: 100%;
+  height: 50%;
+  border-bottom: 2px solid #222;
+  top: 0;
+  left: 0;
+}
+
+.pokeball-button {
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 50%;
+  position: absolute;
+  top: calc(50% - 5px);
+  left: calc(50% - 5px);
+  z-index: 10;
+  box-shadow: 0 0 0 1px #fff;
+  transition: background-color 0.2s;
+}
+
+/* 1. Throwing state */
+.pokeball-container.throwing {
+  animation: ball-throw 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.pokeball-container.throwing .pokeball {
+  animation: ball-spin 0.8s linear infinite;
+}
+
+@keyframes ball-throw {
+  0% {
+    transform: translate(250px, -200px) scale(1.5);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes ball-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-720deg); }
+}
+
+/* 2. Capturing state for Pokemon GIF */
+.spawn-gif.capturing {
+  animation: pokemon-suck-in 0.6s ease-in-out forwards;
+  transform-origin: center bottom;
+}
+
+@keyframes pokemon-suck-in {
+  0% {
+    transform: scale(1);
+    filter: saturate(2) brightness(1.2) sepia(1) hue-rotate(-50deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) translate(0, -20px);
+    filter: saturate(3) brightness(1.5) sepia(1) hue-rotate(-50deg);
+    opacity: 0;
+  }
+}
+
+/* 3. Dropping state */
+.pokeball-container.dropping {
+  animation: ball-drop 0.4s ease-out forwards;
+}
+
+@keyframes ball-drop {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0, 25px); /* drop down to ground level */
+  }
+  75% {
+    transform: translate(0, 12px); /* bounce */
+  }
+  100% {
+    transform: translate(0, 25px);
+  }
+}
+
+/* 4. Wobbling/shaking state */
+.pokeball-container.wobbling {
+  animation: ball-wobble 0.5s ease-in-out;
+}
+
+@keyframes ball-wobble {
+  0%, 100% { transform: translate(0, 25px) rotate(0deg); }
+  25% { transform: translate(-6px, 25px) rotate(-18deg); }
+  75% { transform: translate(6px, 25px) rotate(18deg); }
+}
+
+/* 5. Captured state */
+.pokeball-container.captured {
+  transform: translate(0, 25px);
+}
+.pokeball-container.captured .pokeball-button {
+  animation: button-flash 1s ease infinite;
+}
+
+@keyframes button-flash {
+  0%, 100% { background: #fff; box-shadow: 0 0 0 1px #fff; }
+  50% { background: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+}
+
+/* Sparkle/Star effects */
+.stars-container {
+  position: fixed;
+  bottom: 13px; /* 38px + 25px drop offset - 50% alignment */
+  right: 48px;
+  width: 83px;
+  height: 83px;
+  z-index: 10001;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #f1c40f;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  top: calc(50% - 4px);
+  left: calc(50% - 4px);
+  animation: star-fly 0.8s ease-out forwards;
+}
+
+@keyframes star-fly {
+  0% {
+    transform: translate(0, 0) scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Battle overlay layout & animations */
+.battle-container {
+  position: fixed;
+  bottom: 38px;
+  right: 48px;
+  width: 374px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  z-index: 10002;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.4s ease;
+}
+
+.battle-arena {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+  height: 137px;
+}
+
+.fighter-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 122px;
+}
+
+.trainer-name {
+  font-size: 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0.95;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 115px;
+  margin-top: 4px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.9);
+}
+
+.fighter-gif {
+  width: 101px;
+  height: auto;
+}
+
+/* Challenger pokemon (left) faces right, so we flip it */
+.fighter-wrapper.left .fighter-gif {
+  transform: scaleX(-1);
+}
+
+.battle-message-box {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 16px;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: bold;
+  color: var(--text);
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Animations for attacks */
+@keyframes attack-left {
+  0% { transform: scaleX(-1) translateX(0); }
+  50% { transform: scaleX(-1) translateX(-29px); }
+  100% { transform: scaleX(-1) translateX(0); }
+}
+
+@keyframes attack-right {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-29px); }
+  100% { transform: translateX(0); }
+}
+
+.fighter-wrapper.left.attacking .fighter-gif {
+  animation: attack-left 0.4s ease-in-out;
+}
+
+.fighter-wrapper.right.attacking .fighter-gif {
+  animation: attack-right 0.4s ease-in-out;
+}
+
+/* Hurt flash animation */
+@keyframes hurt-flash {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: 0.3; filter: brightness(2) sepia(1) hue-rotate(-50deg); }
+}
+
+.fighter-wrapper.hurt .fighter-gif {
+  animation: hurt-flash 0.4s ease-in-out 2;
+}
+
+/* Faint animation */
+@keyframes faint {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(20px) scale(0); opacity: 0; }
+}
+.fighter-wrapper.left.fainted .fighter-gif {
+  animation: faint 0.8s ease-in forwards;
+  transform: scaleX(-1);
+}
+.fighter-wrapper.right.fainted .fighter-gif {
+  animation: faint 0.8s ease-in forwards;
 }

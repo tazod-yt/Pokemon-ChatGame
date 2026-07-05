@@ -845,6 +845,20 @@ class GameEngine:
         payload["updated_at"] = now_ts()
         write_json(self.paths.overlay_state_json, payload)
 
+    def _is_battle_active(self) -> bool:
+        """Check if a battle is currently active on the overlay."""
+        if not self.paths.overlay_state_json.exists():
+            return False
+        try:
+            state = read_json(self.paths.overlay_state_json)
+            if state and state.get("state") == "battle":
+                expires_at = state.get("result", {}).get("expires_at", 0)
+                if now_ts() < int(expires_at):
+                    return True
+        except Exception:
+            pass
+        return False
+
     def _mention(self, username: str) -> str:
         """Format a username with an @ prefix for chat output."""
         if not username:
@@ -1236,6 +1250,8 @@ class GameEngine:
     def spawn(self) -> str:
         """Spawn."""
         logging.info("Command: spawn")
+        if self._is_battle_active():
+            return self._respond("A battle is in progress. Please wait until it completes.")
         spawn = self._load_active_spawn()
         if spawn and not self._spawn_is_expired(spawn):
             return self._respond(f"Spawn already active: {spawn.get('name', 'Unknown')}")
@@ -1290,6 +1306,9 @@ class GameEngine:
     def auto_spawn(self) -> str:
         """Auto spawn on interval."""
         logging.info("Command: auto_spawn")
+        if self._is_battle_active():
+            logging.info("Skipping auto-spawn because a battle is active")
+            return ""
 
         # Check if auto-spawn is enabled
         auto_spawn_interval = self.settings.get("auto_spawn_interval_seconds")
@@ -1362,6 +1381,8 @@ class GameEngine:
             return self._respond("Invalid username.")
 
         logging.info("Command: catch %s", username)
+        if self._is_battle_active():
+            return self._respond("A battle is in progress. Please wait until it completes.")
         spawn = self._load_active_spawn()
         if spawn and self._spawn_is_expired(spawn):
             spawn_name = spawn.get("name", "Unknown")
@@ -1448,11 +1469,11 @@ class GameEngine:
                 self._write_active_spawn({})
                 self._write_overlay(
                     {
-                        "state": "idle",
-                        "message": "",
-                        "spawn": None,
+                        "state": "catch_success",
+                        "message": f"{username} caught {spawn.get('name')}!",
+                        "spawn": spawn,
                         "timer": 0,
-                        "result": None,
+                        "result": "success",
                     }
                 )
                 logging.info("Catch success: %s caught %s", username, spawn.get("name"))
@@ -1637,14 +1658,11 @@ class GameEngine:
             return self._respond("Specify a Pokémon name or number.")
 
         logging.info("Command: battle %s vs %s with %s", challenger, opponent, pokemon)
+        if self._is_battle_active():
+            return self._respond("A battle is in progress. Please wait until it completes.")
+
         with db_session(self.paths) as conn:
             self._expire_pending_battles(conn)
-            # Enforce only one active pending battle at a time
-            active_pending = conn.execute(
-                "SELECT COUNT(*) FROM pending_battles WHERE status = 'pending'"
-            ).fetchone()[0]
-            if active_pending and int(active_pending) > 0:
-                return self._respond("A battle is already active. Please wait until it completes.")
             challenger_id = self._ensure_user(conn, challenger)
             opponent_id = self._ensure_user(conn, opponent)
 
@@ -1715,6 +1733,10 @@ class GameEngine:
             return self._respond("Specify a Pokémon name or number.")
 
         logging.info("Command: accept %s from %s with %s", accepter, challenger, pokemon)
+        if self._is_battle_active():
+            return self._respond("A battle is in progress. Please wait until it completes.")
+
+        # --- Phase 1: Database Validations ---
         with db_session(self.paths) as conn:
             self._expire_pending_battles(conn)
             accepter_id = self._ensure_user(conn, accepter)
@@ -1777,6 +1799,43 @@ class GameEngine:
             if not challenger_row:
                 return self._respond("Challenger's Pokémon is no longer available.")
 
+        # --- Phase 2: Active Spawn Queue & Wait (Closed DB connection) ---
+        spawn = self._load_active_spawn()
+        active_spawn_blocked = False
+        if spawn and not self._spawn_is_expired(spawn):
+            active_spawn_blocked = True
+
+        if active_spawn_blocked:
+            print("Battle accepted! It will start after the active spawned pokemon is caught or has fled.", flush=True)
+            import time
+            while True:
+                cur_spawn = self._load_active_spawn()
+                if not cur_spawn or self._spawn_is_expired(cur_spawn):
+                    break
+                time.sleep(1)
+            print("Battle will start now!", flush=True)
+        else:
+            print("Battle will start now!", flush=True)
+
+        # --- Phase 3: Execute Battle & Apply Rewards ---
+        with db_session(self.paths) as conn:
+            # Re-fetch rows in case anything shifted during queue wait time
+            accepter_row = self._resolve_inventory_pokemon(conn, accepter_id, pokemon)
+            challenger_row = conn.execute(
+                """
+                SELECT inventory.id, inventory.creature_id, creatures.name,
+                       creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                       creatures.base_sp_atk, creatures.base_sp_def, creatures.types,
+                       inventory.level, inventory.xp, inventory.wins, inventory.losses,
+                       inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
+                       inventory.trait, inventory.elo
+                FROM inventory
+                JOIN creatures ON creatures.id = inventory.creature_id
+                WHERE inventory.id = ? AND inventory.user_id = ?
+                """,
+                (challenger_inv_id, challenger_id),
+            ).fetchone()
+
             p1 = self._load_battle_pokemon(challenger_row, challenger)
             p2 = self._load_battle_pokemon(accepter_row, accepter)
 
@@ -1833,6 +1892,8 @@ class GameEngine:
                 },
             }
         )
+        import time
+        time.sleep(14)
         logging.info("Battle result: %s vs %s => %s", challenger, accepter, winner_owner)
         chat_message = transcript[-1] if transcript else f"{winner_owner} wins!"
         return self._respond(chat_message)
@@ -2067,7 +2128,7 @@ class GameEngine:
             is_miss = self.rng.random() < miss_chance
 
             if is_miss:
-                transcript.append(f"{emoji} {atk_pokemon.name} missed!")
+                transcript.append(f"{emoji} {atk_pokemon.name} ({atk_owner}) missed!")
                 log.append(
                     {
                         "attacker": atk_owner,
@@ -2123,7 +2184,7 @@ class GameEngine:
 
                 damage = max(int(self.settings["min_battle_damage"]), int(raw_damage))
                 hp_map[def_hp_key] -= damage
-                transcript.append(f"{emoji} {atk_pokemon.name} attacks for {damage} damage")
+                transcript.append(f"{emoji} {atk_pokemon.name} ({atk_owner}) attacks for {damage} damage")
                 if is_crit:
                     transcript.append(f"{emoji} Critical hit!")
                 # effectiveness messages
@@ -2148,7 +2209,7 @@ class GameEngine:
 
             if hp_map[def_hp_key] <= 0:
                 faint_emoji = creature_emoji(def_pokemon.name)
-                transcript.append(f"{faint_emoji} {def_pokemon.name} fainted")
+                transcript.append(f"{faint_emoji} {def_pokemon.name} ({def_owner}) fainted")
                 log.append({"fainted": def_pokemon.name, "owner": def_owner})
                 break
 
@@ -2178,6 +2239,39 @@ class GameEngine:
             }
         )
         return self._respond("Spawn reset.")
+
+    def test_battle(self) -> str:
+        """Play a mock test battle animation on the overlay."""
+        logging.info("Command: test_battle")
+        now = now_ts()
+        mock_result = {
+            "state": "battle",
+            "message": "Charizard ( @Tazod ) wins",
+            "spawn": None,
+            "timer": 0,
+            "result": {
+                "type": "battle",
+                "winner": "Tazod",
+                "loser": "AnkitKotharkar",
+                "challenger": "Tazod",
+                "challenger_pokemon": "Charizard",
+                "accepter": "AnkitKotharkar",
+                "accepter_pokemon": "Blastoise",
+                "winner_pokemon": "Charizard",
+                "loser_pokemon": "Blastoise",
+                "transcript": [
+                    "🔥 Charizard (Tazod) attacks for 25 damage",
+                    "🌊 Blastoise (AnkitKotharkar) attacks for 30 damage",
+                    "🔥 Charizard (Tazod) attacks for 15 damage",
+                    "🔥 Critical hit!",
+                    "🌊 Blastoise (AnkitKotharkar) fainted",
+                    "🏆 Charizard ( @Tazod ) wins"
+                ],
+                "expires_at": now + 14,
+            },
+        }
+        self._write_overlay(mock_result)
+        return "Test battle triggered on overlay."
 
 
 def build_engine() -> GameEngine:
@@ -2224,6 +2318,8 @@ def main() -> int:
 
     subparsers.add_parser("auto_spawn")
 
+    subparsers.add_parser("test_battle")
+
     stats_parser = subparsers.add_parser("stats")
     stats_parser.add_argument("username")
     stats_parser.add_argument("pokemon")
@@ -2265,6 +2361,10 @@ def main() -> int:
     if args.command == "auto_spawn":
         cmd_logger.info("Command: auto_spawn")
         print(engine.auto_spawn(), flush=True)
+        return 0
+    if args.command == "test_battle":
+        cmd_logger.info("Command: test_battle")
+        print(engine.test_battle(), flush=True)
         return 0
     if args.command == "stats":
         cmd_logger.info("Command: stats %s %s", args.username, args.pokemon)

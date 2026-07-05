@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -22,6 +22,31 @@
     <!-- Floating spawn smoke + spawn GIF shown bottom-right in OBS -->
     <div id="spawn-smoke" class="spawn-smoke hidden"></div>
     <img id="spawn-gif" class="spawn-gif hidden" src="" alt="spawned pokemon" />
+    
+    <!-- Pokéball container for capture animation -->
+    <div id="pokeball-container" class="pokeball-container hidden">
+      <div class="pokeball">
+        <div class="pokeball-button"></div>
+      </div>
+    </div>
+    <div id="stars-container" class="stars-container"></div>
+    
+    <!-- Battle animation container -->
+    <div id="battle-container" class="battle-container hidden">
+      <div class="battle-arena">
+        <div class="fighter-wrapper left" id="p1-wrapper">
+          <img id="p1-gif" class="fighter-gif" src="" alt="challenger pokemon" />
+          <div class="trainer-name" id="p1-trainer">Challenger</div>
+        </div>
+        <div class="fighter-wrapper right" id="p2-wrapper">
+          <img id="p2-gif" class="fighter-gif" src="" alt="accepter pokemon" />
+          <div class="trainer-name" id="p2-trainer">Accepter</div>
+        </div>
+      </div>
+      <div id="battle-message-box" class="battle-message-box">
+        Battle starting...
+      </div>
+    </div>
     <script src="script.js"></script>
   </body>
 </html>
