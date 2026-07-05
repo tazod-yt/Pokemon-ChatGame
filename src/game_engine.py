@@ -11,6 +11,11 @@ import re
 import sqlite3
 import sys
 import time
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -193,7 +198,6 @@ class Paths:
     log_file: Path
     cmd_log_file: Path
     stdout_log: Path
-    chat_message_txt: Path
 
 
 @dataclass
@@ -286,7 +290,6 @@ def build_paths(root: Path) -> Paths:
         log_file=logs_dir / "game.log",
         cmd_log_file=logs_dir / "cmd.log",
         stdout_log=logs_dir / "stdout.log",
-        chat_message_txt=data_dir / "last_chat_message.txt",
     )
 
 
@@ -718,8 +721,6 @@ def ensure_data_files(paths: Paths) -> None:
         )
     if not paths.stdout_log.exists():
         paths.stdout_log.write_text("", encoding="utf-8")
-    if not paths.chat_message_txt.exists():
-        paths.chat_message_txt.write_text("", encoding="utf-8")
 
 
 def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
@@ -907,13 +908,6 @@ class GameEngine:
 
         return first_message_url
 
-    def _write_chat_message(self, message: str) -> None:
-        """Internal helper to write the chat message to the chat output file."""
-        try:
-            self.paths.chat_message_txt.write_text(message, encoding="utf-8")
-        except Exception:
-            logging.exception("Failed to write chat message")
-
     def _write_stdout_log(self, message: str) -> None:
         """Internal helper to write stdout log."""
         try:
@@ -925,7 +919,6 @@ class GameEngine:
 
     def _respond(self, message: str) -> str:
         """Internal helper to respond."""
-        self._write_chat_message(message)
         self._write_stdout_log(message)
         return message
 
@@ -1862,7 +1855,7 @@ class GameEngine:
         winner_owner = p1.owner if hp_map["p1_hp"] > 0 else p2.owner
         winner_pokemon = p1 if winner_owner == p1.owner else p2
         win_emoji = creature_emoji(winner_pokemon.name)
-        transcript.append(f"🏆 {winner_pokemon.name} wins")
+        transcript.append(f"🏆 {winner_pokemon.name} ( {self._mention(winner_owner)} ) wins")
         log.append({"result": "win", "winner": winner_owner})
 
         return transcript, log, winner_owner
