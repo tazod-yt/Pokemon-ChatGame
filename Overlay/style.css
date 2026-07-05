@@ -422,11 +422,11 @@ body {
 }
 
 .fighter-wrapper.left.attacking .fighter-gif {
-  animation: attack-left 0.4s ease-in-out;
+  animation: attack-left 0.5s ease-in-out;
 }
 
 .fighter-wrapper.right.attacking .fighter-gif {
-  animation: attack-right 0.4s ease-in-out;
+  animation: attack-right 0.5s ease-in-out;
 }
 
 /* Hurt flash animation */
@@ -436,7 +436,7 @@ body {
 }
 
 .fighter-wrapper.hurt .fighter-gif {
-  animation: hurt-flash 0.4s ease-in-out 2;
+  animation: hurt-flash 0.5s ease-in-out 2;
 }
 
 /* Faint animation */

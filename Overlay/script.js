@@ -265,7 +265,7 @@ function playBattleSequence(result) {
     }
     
     tIndex++;
-    setTimeout(playNextLine, 1800);
+    setTimeout(playNextLine, 2500);
   }
   
   playNextLine();

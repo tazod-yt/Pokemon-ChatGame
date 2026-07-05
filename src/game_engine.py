@@ -846,14 +846,14 @@ class GameEngine:
         write_json(self.paths.overlay_state_json, payload)
 
     def _is_battle_active(self) -> bool:
-        """Check if a battle is currently active on the overlay."""
+        """Check if a battle is currently active on the overlay, including 10s post-battle buffer."""
         if not self.paths.overlay_state_json.exists():
             return False
         try:
             state = read_json(self.paths.overlay_state_json)
             if state and state.get("state") == "battle":
                 expires_at = state.get("result", {}).get("expires_at", 0)
-                if now_ts() < int(expires_at):
+                if now_ts() < int(expires_at) + 10:
                     return True
         except Exception:
             pass
