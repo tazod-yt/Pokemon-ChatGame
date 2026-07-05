@@ -885,23 +885,32 @@ class GameEngine:
 
     def _generate_inventory_grid_image(self, username: str, owned_species: set) -> Path:
         """Generate a grid image showing the user's inventory collection."""
-        from PIL import Image
+        from PIL import Image, ImageDraw, ImageFont
         import glob
 
         cols = 13
         rows_count = 12  # 13 * 12 = 156 slots (covers 1 to 151)
-        cell_w, cell_h = 120, 120
+        cell_w, cell_h = 120, 160
         margin = 10
-        item_w, item_h = cell_w - 2 * margin, cell_h - 2 * margin  # 100x100
+        item_w, item_h = cell_w - 2 * margin, 100  # 100x100 sprite area
 
         # Create a blank image with a dark background
         grid_img = Image.new("RGBA", (cols * cell_w, rows_count * cell_h), (0, 0, 0, 255))
+
+        # Try to load a clean sans-serif system font with size 16
+        try:
+            font = ImageFont.truetype("arial.ttf", 16)
+        except Exception:
+            font = ImageFont.load_default()
+
+        # Build species ID to name lookup from default creatures database
+        creature_name_by_id = {c.get("species_id", 0): c["name"] for c in DEFAULT_CREATURES if "species_id" in c}
 
         # Load and resize the pokeball image
         pokeball_path = DATA_DOWNLOADER_DIR / "pokeball.png"
         if pokeball_path.exists():
             pokeball_base = Image.open(pokeball_path).convert("RGBA")
-            pokeball_sprite = pokeball_base.resize((item_w, item_h), Image.Resampling.LANCZOS)
+            pokeball_sprite = pokeball_base.resize((item_w, 100), Image.Resampling.LANCZOS)
         else:
             pokeball_sprite = None
 
@@ -918,11 +927,12 @@ class GameEngine:
             if row == rows_count - 1:
                 last_row_count = total_items - (rows_count - 1) * cols
                 row_offset_x = (cols * cell_w - last_row_count * cell_w) // 2
-                x = row_offset_x + col * cell_w + margin
+                cell_left = row_offset_x + col * cell_w
             else:
-                x = col * cell_w + margin
+                cell_left = col * cell_w
 
-            y = row * cell_h + margin
+            x = cell_left + margin
+            y = row * cell_h + 26  # Offset sprite down to leave room for the name above
 
             if species_id in owned_species:
                 # Load the sprite of the owned pokemon
@@ -931,7 +941,7 @@ class GameEngine:
                 if matches:
                     sprite_path = Path(matches[0])
                     sprite_base = Image.open(sprite_path).convert("RGBA")
-                    sprite = sprite_base.resize((item_w, item_h), Image.Resampling.LANCZOS)
+                    sprite = sprite_base.resize((item_w, 100), Image.Resampling.LANCZOS)
                     grid_img.paste(sprite, (x, y), sprite)
                 elif pokeball_sprite:
                     grid_img.paste(pokeball_sprite, (x, y), pokeball_sprite)
@@ -942,10 +952,54 @@ class GameEngine:
                 if matches:
                     sprite_path = Path(matches[0])
                     sprite_base = Image.open(sprite_path).convert("RGBA")
-                    sprite = sprite_base.resize((item_w, item_h), Image.Resampling.LANCZOS)
+                    sprite = sprite_base.resize((item_w, 100), Image.Resampling.LANCZOS)
                     grid_img.paste(sprite, (x, y), sprite)
                 elif pokeball_sprite:
                     grid_img.paste(pokeball_sprite, (x, y), pokeball_sprite)
+
+            draw = ImageDraw.Draw(grid_img)
+            pokemon_name = creature_name_by_id.get(species_id, "Unknown")
+
+            # 1. Draw the species name above the sprite
+            try:
+                left, top, right, bottom = draw.textbbox((0, 0), pokemon_name, font=font)
+                name_w = right - left
+            except AttributeError:
+                try:
+                    name_w = draw.textlength(pokemon_name, font=font)
+                except AttributeError:
+                    name_w = font.getsize(pokemon_name)[0]
+
+            name_x = cell_left + cell_w // 2 - name_w // 2
+            name_y = row * cell_h + 6
+
+            if species_id in owned_species:
+                name_color = (255, 255, 255, 255)  # White for owned names
+            else:
+                name_color = (120, 120, 120, 255)  # Gray for unowned names
+
+            draw.text((name_x, name_y), pokemon_name, fill=name_color, font=font)
+
+            # 2. Draw the species number below the sprite
+            text = f"#{species_id:03d}"
+            try:
+                left, top, right, bottom = draw.textbbox((0, 0), text, font=font)
+                text_w = right - left
+            except AttributeError:
+                try:
+                    text_w = draw.textlength(text, font=font)
+                except AttributeError:
+                    text_w = font.getsize(text)[0]
+
+            text_x = cell_left + cell_w // 2 - text_w // 2
+            text_y = row * cell_h + 134
+
+            if species_id in owned_species:
+                text_color = (255, 223, 0, 255)  # Gold for owned numbers
+            else:
+                text_color = (120, 120, 120, 255)  # Gray for unowned numbers
+
+            draw.text((text_x, text_y), text, fill=text_color, font=font)
 
         # Save output image
         output_dir = self.paths.data_dir / "temp"

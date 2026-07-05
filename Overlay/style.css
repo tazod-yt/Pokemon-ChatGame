@@ -113,9 +113,9 @@ body {
 }
 
 .spawn-gif {
-  /* gif size reverted to original to keep GIF compact; smoke remains larger */
+  /* Increased size by 50% (83px -> 125px) */
   display: none;
-  width: 83px;
+  width: 125px;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -163,8 +163,8 @@ body {
   position: fixed;
   bottom: 38px;
   right: 48px;
-  width: 83px; /* Match width of spawn-gif */
-  height: 83px;
+  width: 125px; /* Match width of spawn-gif */
+  height: 125px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -338,7 +338,7 @@ body {
   position: fixed;
   bottom: 38px;
   right: 48px;
-  width: 374px;
+  width: 486px;
   background: transparent;
   border: none;
   padding: 0;
@@ -357,18 +357,18 @@ body {
   justify-content: space-between;
   align-items: flex-end;
   position: relative;
-  height: 137px;
+  height: 178px;
 }
 
 .fighter-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 122px;
+  width: 159px;
 }
 
 .trainer-name {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: bold;
   text-transform: uppercase;
   color: #fff;
@@ -376,13 +376,13 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 115px;
+  max-width: 150px;
   margin-top: 4px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.9);
 }
 
 .fighter-gif {
-  width: 101px;
+  width: 131px;
   height: auto;
 }
 
@@ -396,8 +396,8 @@ body {
   background: transparent;
   border: none;
   padding: 0;
-  font-size: 16px;
-  min-height: 70px;
+  font-size: 21px;
+  min-height: 91px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -411,13 +411,13 @@ body {
 /* Animations for attacks */
 @keyframes attack-left {
   0% { transform: scaleX(-1) translateX(0); }
-  50% { transform: scaleX(-1) translateX(-29px); }
+  50% { transform: scaleX(-1) translateX(-38px); }
   100% { transform: scaleX(-1) translateX(0); }
 }
 
 @keyframes attack-right {
   0% { transform: translateX(0); }
-  50% { transform: translateX(-29px); }
+  50% { transform: translateX(-38px); }
   100% { transform: translateX(0); }
 }
 
