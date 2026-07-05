@@ -459,6 +459,10 @@ def _table_columns(conn: sqlite3.Connection, table: str) -> set[str]:
 
 def migrate_db(conn: sqlite3.Connection) -> None:
     """Migrate db."""
+    user_cols = _table_columns(conn, "users")
+    if "elo" not in user_cols:
+        conn.execute("ALTER TABLE users ADD COLUMN elo INTEGER NOT NULL DEFAULT 1000")
+
     creature_cols = _table_columns(conn, "creatures")
     if "base_speed" not in creature_cols:
         conn.execute("ALTER TABLE creatures ADD COLUMN base_speed INTEGER NOT NULL DEFAULT 0")
@@ -599,7 +603,8 @@ def init_db(paths: Paths) -> None:
                 username TEXT UNIQUE NOT NULL,
                 created_at INTEGER NOT NULL,
                 last_catch_at INTEGER,
-                last_battle_at INTEGER
+                last_battle_at INTEGER,
+                elo INTEGER NOT NULL DEFAULT 1000
                 )
                 """
             )
@@ -864,8 +869,150 @@ class GameEngine:
                     chunks.append(line)
         return [chunk for chunk in chunks if chunk]
 
-    def _send_discord_inventory_webhook(self, message: str) -> Optional[str]:
-        """Send inventory text to Discord via configured webhook and return the message URL."""
+    def _generate_inventory_grid_image(self, username: str, owned_species: set) -> Path:
+        """Generate a grid image showing the user's inventory collection."""
+        from PIL import Image
+        import glob
+
+        cols = 13
+        rows_count = 12  # 13 * 12 = 156 slots (covers 1 to 151)
+        cell_w, cell_h = 120, 120
+        margin = 10
+        item_w, item_h = cell_w - 2 * margin, cell_h - 2 * margin  # 100x100
+
+        # Create a blank image with a dark background
+        grid_img = Image.new("RGBA", (cols * cell_w, rows_count * cell_h), (0, 0, 0, 255))
+
+        # Load and resize the pokeball image
+        pokeball_path = DATA_DOWNLOADER_DIR / "pokeball.png"
+        if pokeball_path.exists():
+            pokeball_base = Image.open(pokeball_path).convert("RGBA")
+            pokeball_sprite = pokeball_base.resize((item_w, item_h), Image.Resampling.LANCZOS)
+        else:
+            pokeball_sprite = None
+
+        pokemon_images_dir = DATA_DOWNLOADER_DIR / "images" / "pokemon"
+        grey_images_dir = DATA_DOWNLOADER_DIR / "grey_images"
+
+        total_items = 151
+        for idx in range(total_items):
+            species_id = idx + 1
+            col = idx % cols
+            row = idx // cols
+
+            # Centering offset for the last row if it's partially filled
+            if row == rows_count - 1:
+                last_row_count = total_items - (rows_count - 1) * cols
+                row_offset_x = (cols * cell_w - last_row_count * cell_w) // 2
+                x = row_offset_x + col * cell_w + margin
+            else:
+                x = col * cell_w + margin
+
+            y = row * cell_h + margin
+
+            if species_id in owned_species:
+                # Load the sprite of the owned pokemon
+                pattern = str(pokemon_images_dir / f"{species_id:03d}_*.png")
+                matches = glob.glob(pattern)
+                if matches:
+                    sprite_path = Path(matches[0])
+                    sprite_base = Image.open(sprite_path).convert("RGBA")
+                    sprite = sprite_base.resize((item_w, item_h), Image.Resampling.LANCZOS)
+                    grid_img.paste(sprite, (x, y), sprite)
+                elif pokeball_sprite:
+                    grid_img.paste(pokeball_sprite, (x, y), pokeball_sprite)
+            else:
+                # Load the grey silhouette of the unowned pokemon
+                pattern = str(grey_images_dir / f"{species_id:03d}_*.png")
+                matches = glob.glob(pattern)
+                if matches:
+                    sprite_path = Path(matches[0])
+                    sprite_base = Image.open(sprite_path).convert("RGBA")
+                    sprite = sprite_base.resize((item_w, item_h), Image.Resampling.LANCZOS)
+                    grid_img.paste(sprite, (x, y), sprite)
+                elif pokeball_sprite:
+                    grid_img.paste(pokeball_sprite, (x, y), pokeball_sprite)
+
+        # Save output image
+        output_dir = self.paths.data_dir / "temp"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / f"inventory_{username}.png"
+        grid_img.save(output_path, "PNG")
+        return output_path
+
+    def _send_discord_inventory_image_webhook(self, username: str, file_path: Path, stats_text: str = "") -> Optional[str]:
+        """Send inventory grid image to Discord via configured webhook and return the message URL."""
+        webhook_url = str(self.settings.get("discord_inventory_webhook_url", "") or "").strip()
+        if not webhook_url:
+            return None
+
+        if "?" in webhook_url:
+            if "wait=" not in webhook_url:
+                webhook_url += "&wait=true"
+        else:
+            webhook_url += "?wait=true"
+
+        import uuid
+        boundary = f"----WebKitFormBoundary{uuid.uuid4().hex}"
+
+        file_bytes = file_path.read_bytes()
+        filename = file_path.name
+
+        body = []
+
+        # Add payload_json part
+        body.append(f"--{boundary}".encode('utf-8'))
+        body.append(b'Content-Disposition: form-data; name="payload_json"')
+        body.append(b'Content-Type: application/json')
+        body.append(b'')
+        payload_content = f"**{username}'s Pokedex Collection**"
+        if stats_text:
+            payload_content += f"\n{stats_text}"
+        payload_json = {
+            "content": payload_content
+        }
+        body.append(json.dumps(payload_json).encode('utf-8'))
+
+        # Add file part
+        body.append(f"--{boundary}".encode('utf-8'))
+        body.append(f'Content-Disposition: form-data; name="file"; filename="{filename}"'.encode('utf-8'))
+        body.append(b'Content-Type: image/png')
+        body.append(b'')
+        body.append(file_bytes)
+
+        body.append(f"--{boundary}--".encode('utf-8'))
+
+        payload = b'\r\n'.join(body)
+
+        headers = {
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        }
+
+        request = Request(webhook_url, data=payload, headers=headers)
+        try:
+            with urlopen(request, timeout=20) as response:
+                raw = response.read()
+                if raw:
+                    data = json.loads(raw.decode("utf-8"))
+                    message_id = data.get("id")
+                    channel_id = data.get("channel_id")
+                    guild_id = data.get("guild_id")
+                    if guild_id and channel_id and message_id:
+                        return f"https://discord.com/channels/{guild_id}/{channel_id}/{message_id}"
+                    elif channel_id and message_id:
+                        return f"https://discord.com/channels/@me/{channel_id}/{message_id}"
+        except HTTPError as e:
+            body_err = e.read().decode("utf-8", errors="replace") if e.fp is not None else ""
+            logging.error("Failed to send Discord inventory image webhook: %s %s", e.code, body_err)
+        except (URLError, OSError) as e:
+            logging.error("Failed to send Discord inventory image webhook: %s", e)
+
+        return None
+
+    def _send_discord_stats_webhook(self, message: str) -> Optional[str]:
+        """Send stats text to Discord via configured webhook and return the message URL."""
         webhook_url = str(self.settings.get("discord_inventory_webhook_url", "") or "").strip()
         if not webhook_url:
             return None
@@ -902,9 +1049,9 @@ class GameEngine:
                             first_message_url = f"https://discord.com/channels/@me/{channel_id}/{message_id}"
             except HTTPError as e:
                 body = e.read().decode("utf-8", errors="replace") if e.fp is not None else ""
-                logging.error("Failed to send Discord inventory webhook: %s %s", e.code, body)
+                logging.error("Failed to send Discord stats webhook: %s %s", e.code, body)
             except (URLError, OSError) as e:
-                logging.error("Failed to send Discord inventory webhook: %s", e)
+                logging.error("Failed to send Discord stats webhook: %s", e)
 
         return first_message_url
 
@@ -1313,13 +1460,13 @@ class GameEngine:
             logging.info("Catch failed: %s vs %s", username, spawn.get("name"))
             return self._respond(f"{self._mention(username)} failed to catch {spawn.get('name')}.")
 
-    def inventory(self, username: str) -> str:
-        """Inventory."""
+    def pokedex(self, username: str) -> str:
+        """Pokedex."""
         username = normalize_username(username)
         if not username:
             return self._respond("Invalid username.")
 
-        logging.info("Command: inventory %s", username)
+        logging.info("Command: pokedex %s", username)
         with db_session(self.paths) as conn:
             row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
             if not row:
@@ -1327,7 +1474,7 @@ class GameEngine:
             user_id = int(row[0])
             rows = conn.execute(
                 """
-                SELECT inventory.username, creatures.id AS creature_row_id, creatures.name, inventory.level, inventory.xp, inventory.trait,
+                SELECT inventory.username, creatures.species_id, creatures.name, inventory.level, inventory.xp, inventory.trait,
                        inventory.elo, inventory.wins, inventory.losses,
                        creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
                        inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv
@@ -1342,22 +1489,132 @@ class GameEngine:
         if not rows:
             return self._respond(f"{self._mention(username)} has no creatures yet.")
 
-        lines = [f"{username}'s Pokemon Inventory:"]
-        for (_inventory_username, creature_row_id, name, level, xp, trait, elo, wins, losses, base_hp, base_attack, base_defense, base_speed, hp_iv, atk_iv, def_iv, spd_iv) in rows:
+        # Create image payload first
+        owned_species = {row[1] for row in rows if row[1]}
+        
+        # Calculate stats for Discord message
+        total_owned = len(rows)
+        unique_caught = len(owned_species)
+        total_wins = sum(int(row[7]) for row in rows)
+        total_losses = sum(int(row[8]) for row in rows)
+        total_battles = total_wins + total_losses
+        win_rate_str = f"{(total_wins / total_battles) * 100:.1f}%" if total_battles > 0 else "0.0%"
+        
+        stats_text = (
+            f"📈 **Collection Progress:** {unique_caught}/151 Unique Species\n"
+            f"🎒 **Total Owned:** {total_owned} Pokémon\n"
+            f"⚔️ **Battle Record:** {total_wins} W - {total_losses} L ({win_rate_str} Win Rate)"
+        )
+
+        img_path = self._generate_inventory_grid_image(username, owned_species)
+        webhook_link = self._send_discord_inventory_image_webhook(username, img_path, stats_text)
+
+        # Cleanup temp file
+        try:
+            if img_path.exists():
+                img_path.unlink()
+        except Exception:
+            logging.warning("Failed to remove temp inventory image: %s", img_path)
+
+        if webhook_link:
+            return self._respond(f"{self._mention(username)} here is your pokedex - {webhook_link}")
+
+        # Fallback to text format if webhook fails or is unconfigured
+        lines = [f"{username}'s Pokedex:"]
+        for (_inventory_username, species_id, name, level, xp, trait, elo, wins, losses, base_hp, base_attack, base_defense, base_speed, hp_iv, atk_iv, def_iv, spd_iv) in rows:
             total_hp = int(base_hp) + int(hp_iv)
             total_atk = int(base_attack) + int(atk_iv)
             total_def = int(base_defense) + int(def_iv)
             total_spd = int(base_speed) + int(spd_iv)
-            display_id = SPECIES_ID_BY_NAME.get((name or "").strip().lower(), creature_row_id)
+            display_id = SPECIES_ID_BY_NAME.get((name or "").strip().lower(), species_id)
             lines.append(
                 f"{display_id}. {name} (Lv {level}, XP {xp}, {trait}, ELO {elo}, W/L {wins}/{losses}) "
                 f"HP {total_hp} ({base_hp}+{hp_iv}), ATK {total_atk} ({base_attack}+{atk_iv}), "
                 f"DEF {total_def} ({base_defense}+{def_iv}), SPD {total_spd} ({base_speed}+{spd_iv})"
             )
         result = "\n".join(lines)
-        webhook_link = self._send_discord_inventory_webhook(result)
+        return self._respond(result)
+
+    def stats(self, username: str, selector: str) -> str:
+        """Get stats for all matching Pokémon of a user and send to Discord webhook."""
+        username = normalize_username(username)
+        if not username:
+            return self._respond("Invalid username.")
+
+        selector = selector.strip()
+        if not selector:
+            return self._respond("Specify a Pokémon name or number.")
+
+        logging.info("Command: stats %s %s", username, selector)
+        with db_session(self.paths) as conn:
+            row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+            if not row:
+                return self._respond(f"{self._mention(username)} has no creatures yet.")
+            user_id = int(row[0])
+
+            # Fetch all creatures of the user first to do local filtering matching _resolve_inventory_pokemon style
+            rows = conn.execute(
+                """
+                SELECT inventory.username, creatures.species_id, creatures.name, inventory.level, inventory.xp, inventory.trait,
+                       inventory.elo, inventory.wins, inventory.losses,
+                       creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                       inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
+                       inventory.id
+                FROM inventory
+                JOIN creatures ON creatures.id = inventory.creature_id
+                WHERE inventory.user_id = ?
+                ORDER BY inventory.obtained_at DESC
+                """,
+                (user_id,),
+            ).fetchall()
+
+        if not rows:
+            return self._respond(f"{self._mention(username)} has no creatures yet.")
+
+        # Filter the rows based on the selector
+        matched_rows = []
+        if selector.isdigit():
+            target_species_id = int(selector)
+            matched_rows = [r for r in rows if r[1] == target_species_id]
+        else:
+            selector_lower = selector.lower()
+            # Exact match first
+            matched_rows = [r for r in rows if r[2].lower() == selector_lower]
+            # Substring match next if no exact matches found
+            if not matched_rows:
+                matched_rows = [r for r in rows if selector_lower in r[2].lower()]
+
+        if not matched_rows:
+            return self._respond(f"{self._mention(username)} has no {selector} in their inventory.")
+
+        # Format stats details
+        pokemon_name = matched_rows[0][2]
+        lines = [f"📋 **{username}'s {pokemon_name} Collection**\n"]
+        for (_inventory_username, species_id, name, level, xp, trait, elo, wins, losses, base_hp, base_attack, base_defense, base_speed, hp_iv, atk_iv, def_iv, spd_iv, inv_id) in matched_rows:
+            total_hp = int(base_hp) + int(hp_iv)
+            total_atk = int(base_attack) + int(atk_iv)
+            total_def = int(base_defense) + int(def_iv)
+            total_spd = int(base_speed) + int(spd_iv)
+
+            total_battles = int(wins) + int(losses)
+            win_rate_str = f"{(int(wins) / total_battles) * 100:.1f}% WR" if total_battles > 0 else "No battles"
+
+            lines.append(f"🔹 **Lv. {level} {name}** (PID: `{inv_id}`)")
+            lines.append(f"🧬 **Trait:** `{trait}`  |  🏆 **ELO:** `{elo}`  |  ⚔️ **Record:** `{wins}W - {losses}L` ({win_rate_str})")
+            lines.append("📊 **Stats (Base + IV):**")
+            lines.append("```")
+            lines.append(f"HP  : {total_hp:<3} ({base_hp} + {hp_iv})")
+            lines.append(f"ATK : {total_atk:<3} ({base_attack} + {atk_iv})")
+            lines.append(f"DEF : {total_def:<3} ({base_defense} + {def_iv})")
+            lines.append(f"SPD : {total_spd:<3} ({base_speed} + {spd_iv})")
+            lines.append("```\n")
+
+        result = "\n".join(lines)
+
+        # Send to Discord webhook as text
+        webhook_link = self._send_discord_stats_webhook(result)
         if webhook_link:
-            return self._respond(f"{self._mention(username)} here is your inventory - {webhook_link}")
+            return self._respond(f"{self._mention(username)} here are your {matched_rows[0][2]} stats - {webhook_link}")
         return self._respond(result)
 
     def battle(self, challenger: str, opponent: str, pokemon: str) -> str:
@@ -1575,25 +1832,49 @@ class GameEngine:
         logging.info("Command: leaderboard")
         limit = int(self.settings["leaderboard_size"])
         with db_session(self.paths) as conn:
-            rows = conn.execute(
+            pokemon_rows = conn.execute(
                 """
                 SELECT creatures.name, users.username, inventory.elo
                 FROM inventory
                 JOIN creatures ON creatures.id = inventory.creature_id
                 JOIN users ON users.id = inventory.user_id
+                WHERE lower(users.username) != 'user'
                 ORDER BY inventory.elo DESC, inventory.level DESC
                 LIMIT ?
                 """,
                 (limit,),
             ).fetchall()
 
-        if not rows:
-            return self._respond("No Pokémon on the leaderboard yet.")
+            player_rows = conn.execute(
+                """
+                SELECT username, elo
+                FROM users
+                WHERE lower(username) != 'user'
+                ORDER BY elo DESC, created_at ASC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
 
-        lines = ["Top Pokémon by ELO:"]
-        for idx, (name, owner, elo) in enumerate(rows, start=1):
-            lines.append(f"{idx}. {name} ({self._mention(owner)}) {elo}")
-        return self._respond("\n".join(lines))
+        lines = ["🏆 **Top Pokémon by ELO:**"]
+        if pokemon_rows:
+            for idx, (name, owner, elo) in enumerate(pokemon_rows, start=1):
+                lines.append(f"{idx}. {name} ({self._mention(owner)}) {elo}")
+        else:
+            lines.append("No Pokémon on the leaderboard yet.")
+
+        lines.append("\n👑 **Top Players by ELO:**")
+        if player_rows:
+            for idx, (username, elo) in enumerate(player_rows, start=1):
+                lines.append(f"{idx}. {self._mention(username)} {elo}")
+        else:
+            lines.append("No players on the leaderboard yet.")
+
+        result = "\n".join(lines)
+        webhook_link = self._send_discord_stats_webhook(result)
+        if webhook_link:
+            return self._respond(f"Game Leaderboard - {webhook_link}")
+        return self._respond(result)
 
     def _apply_battle_rewards(
         self,
@@ -1656,6 +1937,19 @@ class GameEngine:
         loser_elo = max(0, loser.elo - int(self.settings["elo_loss"]))
         conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (winner_elo, winner.inv_id))
         conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (loser_elo, loser.inv_id))
+
+        # Also apply ELO changes to players
+        winner_user_row = conn.execute("SELECT elo FROM users WHERE username = ?", (winner.owner,)).fetchone()
+        loser_user_row = conn.execute("SELECT elo FROM users WHERE username = ?", (loser.owner,)).fetchone()
+
+        winner_user_elo = int(winner_user_row[0]) if winner_user_row else 1000
+        loser_user_elo = int(loser_user_row[0]) if loser_user_row else 1000
+
+        new_winner_user_elo = winner_user_elo + int(self.settings["elo_win"])
+        new_loser_user_elo = max(0, loser_user_elo - int(self.settings["elo_loss"]))
+
+        conn.execute("UPDATE users SET elo = ? WHERE username = ?", (new_winner_user_elo, winner.owner))
+        conn.execute("UPDATE users SET elo = ? WHERE username = ?", (new_loser_user_elo, loser.owner))
 
     def _check_evolution(self, conn: sqlite3.Connection, pokemon: BattlePokemon) -> None:
         """Internal helper to check evolution."""
@@ -1901,8 +2195,8 @@ def main() -> int:
     catch_parser = subparsers.add_parser("catch")
     catch_parser.add_argument("username")
 
-    inv_parser = subparsers.add_parser("inventory")
-    inv_parser.add_argument("username")
+    pokedex_parser = subparsers.add_parser("pokedex")
+    pokedex_parser.add_argument("username")
 
     battle_parser = subparsers.add_parser("battle")
     battle_parser.add_argument("challenger")
@@ -1920,6 +2214,10 @@ def main() -> int:
 
     subparsers.add_parser("auto_spawn")
 
+    stats_parser = subparsers.add_parser("stats")
+    stats_parser.add_argument("username")
+    stats_parser.add_argument("pokemon")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -1934,9 +2232,9 @@ def main() -> int:
         cmd_logger.info("Command: catch %s", args.username)
         print(engine.catch(args.username), flush=True)
         return 0
-    if args.command == "inventory":
-        cmd_logger.info("Command: inventory %s", args.username)
-        print(engine.inventory(args.username), flush=True)
+    if args.command == "pokedex":
+        cmd_logger.info("Command: pokedex %s", args.username)
+        print(engine.pokedex(args.username), flush=True)
         return 0
     if args.command == "battle":
         cmd_logger.info("Command: battle %s %s %s", args.challenger, args.opponent, args.pokemon)
@@ -1957,6 +2255,10 @@ def main() -> int:
     if args.command == "auto_spawn":
         cmd_logger.info("Command: auto_spawn")
         print(engine.auto_spawn(), flush=True)
+        return 0
+    if args.command == "stats":
+        cmd_logger.info("Command: stats %s %s", args.username, args.pokemon)
+        print(engine.stats(args.username, args.pokemon), flush=True)
         return 0
 
     return 1
