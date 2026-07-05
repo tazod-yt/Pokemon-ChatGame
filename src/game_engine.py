@@ -1239,7 +1239,9 @@ class GameEngine:
         spawn = self._load_active_spawn()
         if spawn and not self._spawn_is_expired(spawn):
             return self._respond(f"Spawn already active: {spawn.get('name', 'Unknown')}")
+        expired_name = None
         if spawn and self._spawn_is_expired(spawn):
+            expired_name = spawn.get('name', 'Unknown')
             self._write_active_spawn({})
             self._write_overlay(
                 {
@@ -1257,6 +1259,8 @@ class GameEngine:
                 interval = int(self.settings["spawn_interval_seconds"])
                 remaining = interval - (now_ts() - int(last_spawn_at))
                 if remaining > 0:
+                    if expired_name:
+                        return self._respond(f"{expired_name} fled")
                     return self._respond(f"Spawn on cooldown. Try again in {remaining}s.")
 
             creature_id, creature = self._select_random_creature(conn)
@@ -1281,7 +1285,7 @@ class GameEngine:
             }
         )
         logging.info("Spawned creature: %s", creature["name"])
-        return self._respond(f"Spawned {creature['name']}")
+        return self._respond(f"wild {creature['name']} appeared")
 
     def auto_spawn(self) -> str:
         """Auto spawn on interval."""
@@ -1302,7 +1306,9 @@ class GameEngine:
             return ""
 
         # Clear expired spawn
+        expired_name = None
         if spawn and self._spawn_is_expired(spawn):
+            expired_name = spawn.get("name", "Unknown")
             self._write_active_spawn({})
             self._write_overlay(
                 {
@@ -1320,6 +1326,8 @@ class GameEngine:
                 remaining = auto_spawn_interval - (now_ts() - int(last_auto_spawn_at))
                 if remaining > 0:
                     logging.info("Auto-spawn on cooldown, %ds remaining", remaining)
+                    if expired_name:
+                        return self._respond(f"{expired_name} fled")
                     return ""
 
             # Time to spawn
@@ -1345,7 +1353,7 @@ class GameEngine:
             }
         )
         logging.info("Auto-spawned creature: %s", creature["name"])
-        return self._respond(f"Spawned {creature['name']}")
+        return self._respond(f"wild {creature['name']} appeared")
 
     def catch(self, username: str) -> str:
         """Catch."""
@@ -1356,6 +1364,7 @@ class GameEngine:
         logging.info("Command: catch %s", username)
         spawn = self._load_active_spawn()
         if spawn and self._spawn_is_expired(spawn):
+            spawn_name = spawn.get("name", "Unknown")
             self._write_active_spawn({})
             self._write_overlay(
                 {
@@ -1366,7 +1375,8 @@ class GameEngine:
                     "result": None,
                 }
             )
-        if not spawn or self._spawn_is_expired(spawn):
+            return self._respond(f"{spawn_name} fled")
+        if not spawn:
             return self._respond("No active spawn to catch.")
 
         with db_session(self.paths) as conn:
