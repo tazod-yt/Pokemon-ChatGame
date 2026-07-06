@@ -120,6 +120,9 @@ These commands are the contract between Streamer.bot and the engine.
 - `GameEngine.exe test_battle`
   - Triggers a mock battle animation on the OBS overlay for testing animations
 
+- `GameEngine.exe test_evolution <username> <old_name> <new_name>`
+  - Triggers a mock evolution animation on the OBS overlay for testing animations
+
 - `GameEngine.exe reset_spawn`
   - Clears the active spawn and resets overlay state
 

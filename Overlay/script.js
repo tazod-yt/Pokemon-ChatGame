@@ -17,6 +17,11 @@ const p1Wrapper = document.getElementById("p1-wrapper");
 const p2Wrapper = document.getElementById("p2-wrapper");
 const battleMessageBoxEl = document.getElementById("battle-message-box");
 
+// Evolution overlay elements
+const evolutionContainerEl = document.getElementById("evolution-container");
+const evolutionGifEl = document.getElementById("evolution-gif");
+const evolutionMessageBoxEl = document.getElementById("evolution-message-box");
+
 let nameToImage = new Map();
 let currentSpawnName = "";
 const POKEMON_INDEX_URL = (() => {
@@ -271,6 +276,53 @@ function playBattleSequence(result) {
   playNextLine();
 }
 
+let lastProcessedEvolutionTime = -1;
+
+function playEvolutionSequence(ev) {
+  isAnimatingCatch = true;
+  setHidden(spawnGifEl, true); // Hide active spawn during animation
+  setHidden(evolutionContainerEl, false);
+  
+  // Get sprites
+  const oldImage = nameToImage.get(ev.from) || "";
+  const newImage = nameToImage.get(ev.to) || "";
+  
+  const oldBase = oldImage.replace(/\.[^.]+$/, '');
+  const newBase = newImage.replace(/\.[^.]+$/, '');
+  
+  const oldGifUrl = `../image_data/gif/${encodeURIComponent(oldBase)}.gif`;
+  const newGifUrl = `../image_data/gif/${encodeURIComponent(newBase)}.gif`;
+  
+  // Set starting sprite
+  evolutionGifEl.src = oldGifUrl;
+  evolutionGifEl.className = "evolution-gif";
+  evolutionMessageBoxEl.textContent = "Something is happening!";
+  
+  // Stage 1: Slow flash (0.8s intervals)
+  evolutionGifEl.classList.add("flashing-slow");
+  
+  // Stage 2: Fast flash at 3s
+  setTimeout(() => {
+    evolutionGifEl.classList.remove("flashing-slow");
+    evolutionGifEl.classList.add("flashing-fast");
+  }, 3000);
+  
+  // Stage 3: Evolve at 5s
+  setTimeout(() => {
+    evolutionGifEl.classList.remove("flashing-fast");
+    evolutionGifEl.src = newGifUrl;
+    evolutionGifEl.classList.add("evolved");
+    evolutionMessageBoxEl.textContent = `@${ev.username}'s ${ev.from} evolved into ${ev.to}!`;
+  }, 5000);
+  
+  // Stage 4: Reset overlay at 8s
+  setTimeout(() => {
+    evolutionGifEl.classList.remove("evolved");
+    setHidden(evolutionContainerEl, true);
+    isAnimatingCatch = false;
+  }, 8000);
+}
+
 function playDespawnSequence() {
   setHidden(spawnGifEl, true);
   showSmoke();
@@ -304,6 +356,22 @@ function updateOverlay(state) {
       } else {
         if (state.updated_at > lastProcessedBattleTime) {
           lastProcessedBattleTime = state.updated_at;
+        }
+      }
+    } else if (state.state === "evolution" && state.evolution) {
+      const now = Math.floor(Date.now() / 1000);
+      const isEvolutionActive = now < (state.evolution.expires_at || 0);
+      
+      if (isEvolutionActive) {
+        if (state.updated_at > lastProcessedEvolutionTime) {
+          lastProcessedEvolutionTime = state.updated_at;
+          currentSpawnName = "";
+          playEvolutionSequence(state.evolution);
+          return;
+        }
+      } else {
+        if (state.updated_at > lastProcessedEvolutionTime) {
+          lastProcessedEvolutionTime = state.updated_at;
         }
       }
     }

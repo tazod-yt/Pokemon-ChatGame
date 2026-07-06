@@ -1880,7 +1880,6 @@ class GameEngine:
 
         if active_spawn_blocked:
             print("Battle accepted! It will start after the active spawned pokemon is caught or has fled.", flush=True)
-            import time
             while True:
                 cur_spawn = self._load_active_spawn()
                 if not cur_spawn or self._spawn_is_expired(cur_spawn):
@@ -1936,8 +1935,8 @@ class GameEngine:
 
             self._apply_battle_rewards(conn, winner_pokemon, loser_pokemon)
             self._apply_elo_changes(conn, winner_pokemon, loser_pokemon)
-            self._check_evolution(conn, winner_pokemon)
-            self._check_evolution(conn, loser_pokemon)
+            winner_ev = self._check_evolution(conn, winner_pokemon)
+            loser_ev = self._check_evolution(conn, loser_pokemon)
 
             conn.execute(
                 "INSERT INTO battles (user1_id, user2_id, winner_id, log_json, created_at) VALUES (?, ?, ?, ?, ?)",
@@ -1965,11 +1964,53 @@ class GameEngine:
                 },
             }
         )
-        import time
         time.sleep(14)
         logging.info("Battle result: %s vs %s => %s", challenger, accepter, winner_owner)
-        chat_message = transcript[-1] if transcript else f"{winner_owner} wins!"
-        return self._respond(chat_message)
+
+        chat_responses = []
+        chat_responses.append(transcript[-1] if transcript else f"{winner_owner} wins!")
+
+        if winner_ev:
+            self._write_overlay({
+                "state": "evolution",
+                "message": f"{winner_pokemon.owner}'s {winner_pokemon.name} is evolving!",
+                "spawn": None,
+                "timer": 0,
+                "evolution": {
+                    "username": winner_pokemon.owner,
+                    "from": winner_pokemon.name,
+                    "to": winner_ev,
+                    "expires_at": int(time.time()) + 8,
+                }
+            })
+            time.sleep(8)
+            chat_responses.append(f"@{winner_pokemon.owner} {winner_pokemon.name} evolved into {winner_ev}!")
+
+        if loser_ev:
+            self._write_overlay({
+                "state": "evolution",
+                "message": f"{loser_pokemon.owner}'s {loser_pokemon.name} is evolving!",
+                "spawn": None,
+                "timer": 0,
+                "evolution": {
+                    "username": loser_pokemon.owner,
+                    "from": loser_pokemon.name,
+                    "to": loser_ev,
+                    "expires_at": int(time.time()) + 8,
+                }
+            })
+            time.sleep(8)
+            chat_responses.append(f"@{loser_pokemon.owner} {loser_pokemon.name} evolved into {loser_ev}!")
+
+        if winner_ev or loser_ev:
+            self._write_overlay({
+                "state": "none",
+                "message": "",
+                "spawn": None,
+                "timer": 0,
+            })
+
+        return self._respond("\n".join(chat_responses))
 
     def leaderboard(self) -> str:
         """Leaderboard."""
@@ -2095,19 +2136,19 @@ class GameEngine:
         conn.execute("UPDATE users SET elo = ? WHERE username = ?", (new_winner_user_elo, winner.owner))
         conn.execute("UPDATE users SET elo = ? WHERE username = ?", (new_loser_user_elo, loser.owner))
 
-    def _check_evolution(self, conn: sqlite3.Connection, pokemon: BattlePokemon) -> None:
+    def _check_evolution(self, conn: sqlite3.Connection, pokemon: BattlePokemon) -> Optional[str]:
         """Internal helper to check evolution."""
         rules = self._load_evolution_rules()
         species_rules = rules.get(pokemon.name, [])
         if not species_rules:
-            return
+            return None
 
         row = conn.execute(
             "SELECT level FROM inventory WHERE id = ?",
             (pokemon.inv_id,),
         ).fetchone()
         if not row:
-            return
+            return None
         level = int(row[0])
 
         for rule in species_rules:
@@ -2131,7 +2172,8 @@ class GameEngine:
                 (int(new_creature[0]), pokemon.inv_id),
             )
             logging.info("Evolution: %s evolved into %s", pokemon.name, evolves_to)
-            break
+            return evolves_to
+        return None
 
     def _simulate_battle(
         self,
@@ -2346,6 +2388,33 @@ class GameEngine:
         self._write_overlay(mock_result)
         return "Test battle triggered on overlay."
 
+    def test_evolution(self, username: str, old_name: str, new_name: str) -> str:
+        """Play a mock evolution animation on the overlay."""
+        logging.info("Command: test_evolution %s %s %s", username, old_name, new_name)
+        now = int(time.time())
+        mock_result = {
+            "state": "evolution",
+            "message": f"{username}'s {old_name} is evolving!",
+            "spawn": None,
+            "timer": 0,
+            "evolution": {
+                "username": username,
+                "from": old_name,
+                "to": new_name,
+                "expires_at": now + 8,
+            },
+        }
+        self._write_overlay(mock_result)
+        time.sleep(8)
+        self._write_overlay({
+            "state": "none",
+            "message": "",
+            "spawn": None,
+            "timer": 0,
+        })
+        return self._respond(f"@{username} {old_name} evolved into {new_name}!")
+
+
 
 def build_engine() -> GameEngine:
     """Build engine."""
@@ -2393,6 +2462,11 @@ def main() -> int:
 
     subparsers.add_parser("test_battle")
 
+    test_evolution_parser = subparsers.add_parser("test_evolution")
+    test_evolution_parser.add_argument("username")
+    test_evolution_parser.add_argument("old_name")
+    test_evolution_parser.add_argument("new_name")
+
     stats_parser = subparsers.add_parser("stats")
     stats_parser.add_argument("username")
     stats_parser.add_argument("pokemon")
@@ -2438,6 +2512,10 @@ def main() -> int:
     if args.command == "test_battle":
         cmd_logger.info("Command: test_battle")
         print(engine.test_battle(), flush=True)
+        return 0
+    if args.command == "test_evolution":
+        cmd_logger.info("Command: test_evolution %s %s %s", args.username, args.old_name, args.new_name)
+        print(engine.test_evolution(args.username, args.old_name, args.new_name), flush=True)
         return 0
     if args.command == "stats":
         cmd_logger.info("Command: stats %s %s", args.username, args.pokemon)

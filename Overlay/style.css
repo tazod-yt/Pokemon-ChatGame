@@ -451,3 +451,78 @@ body {
 .fighter-wrapper.right.fainted .fighter-gif {
   animation: faint 0.8s ease-in forwards;
 }
+
+/* Evolution overlay layout & animations */
+.evolution-container {
+  position: fixed;
+  bottom: 38px;
+  right: 48px;
+  width: 486px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  z-index: 10003;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeIn 0.4s ease;
+}
+
+.evolution-arena {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.evolution-gif {
+  width: 150px;
+  height: auto;
+  image-rendering: pixelated;
+  transition: filter 0.1s ease;
+}
+
+.evolution-message-box {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 21px;
+  min-height: 91px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: bold;
+  color: var(--text);
+  line-height: 1.3;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Flashing white silhouette keyframes */
+@keyframes flash-white {
+  0%, 100% { filter: brightness(1) contrast(1); }
+  50% { filter: brightness(0) invert(1) contrast(100); } /* solid white */
+}
+
+.evolution-gif.flashing-slow {
+  animation: flash-white 0.8s infinite;
+}
+
+.evolution-gif.flashing-fast {
+  animation: flash-white 0.25s infinite;
+}
+
+/* Glow transition after evolving */
+.evolution-gif.evolved {
+  animation: evolve-glow 1s ease-out forwards;
+}
+
+@keyframes evolve-glow {
+  0% { filter: brightness(0) invert(1) contrast(100); transform: scale(0.5); }
+  50% { filter: brightness(2) contrast(1.5); transform: scale(1.2); }
+  100% { filter: brightness(1) contrast(1); transform: scale(1); }
+}
