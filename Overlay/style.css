@@ -456,8 +456,8 @@ body {
 .evolution-container {
   position: fixed;
   bottom: 38px;
-  right: 48px;
-  width: 486px;
+  right: 10px;
+  width: 200px;
   background: transparent;
   border: none;
   padding: 0;
@@ -473,10 +473,9 @@ body {
 .evolution-arena {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   height: 200px;
-  padding-right: 36px;
 }
 
 .evolution-gif {
