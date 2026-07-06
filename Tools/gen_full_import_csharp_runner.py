@@ -303,6 +303,44 @@ def make_action(name, args, command_id):
     }
 
 
+def make_init_action(name, args):
+    return {
+        "id": str(uuid.uuid4()),
+        "queue": queue,
+        "enabled": True,
+        "excludeFromHistory": False,
+        "excludeFromPending": False,
+        "name": name,
+        "group": "",
+        "alwaysRun": False,
+        "randomAction": False,
+        "concurrent": False,
+        "triggers": [],
+        "subActions": [
+            {
+                "name": None,
+                "description": None,
+                "references": [
+                    r"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\mscorlib.dll"
+                ],
+                "byteCode": csharp_bytecode(args),
+                "precompile": False,
+                "delayStart": False,
+                "parseVariables": True,
+                "saveResultToVariable": False,
+                "saveToVariable": None,
+                "id": str(uuid.uuid4()),
+                "weight": 0.0,
+                "type": 99999,
+                "parentId": None,
+                "enabled": True,
+                "index": 0,
+            }
+        ],
+        "collapsedGroups": [],
+    }
+
+
 commands = [
     make_command("spawn", "!spawn"),
     make_command("catch", "!catch"),
@@ -321,6 +359,7 @@ actions = [
     make_action("Pokemon Chat Game Accept", "accept", commands[4]["id"]),
     make_action("Pokemon Chat Game Leaderboard", "leaderboard", commands[5]["id"]),
     make_action("Pokemon Chat Game Stats", "stats", commands[6]["id"]),
+    make_init_action("Pokemon Chat Game Init", "init"),
 ]
 
 export = {

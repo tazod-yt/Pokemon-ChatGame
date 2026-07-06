@@ -2480,6 +2480,21 @@ class GameEngine:
         })
         return self._respond(f"@{username} {old_name} evolved into {new_name}!")
 
+    def init_game(self) -> str:
+        """Initialize game session, reset overlay/spawn, and check updates."""
+        logging.info("Command: init")
+        self._write_active_spawn({})
+        self._write_overlay(
+            {
+                "state": "none",
+                "message": "",
+                "spawn": None,
+                "timer": 0,
+                "result": None,
+            }
+        )
+        return self._respond("Pokemon Chat Game engine initialized successfully.")
+
 
 
 def build_engine() -> GameEngine:
@@ -2525,6 +2540,8 @@ def main() -> int:
     subparsers.add_parser("reset_spawn")
 
     subparsers.add_parser("auto_spawn")
+
+    subparsers.add_parser("init")
 
     subparsers.add_parser("test_battle")
 
@@ -2574,6 +2591,10 @@ def main() -> int:
     if args.command == "auto_spawn":
         cmd_logger.info("Command: auto_spawn")
         print(engine.auto_spawn(), flush=True)
+        return 0
+    if args.command == "init":
+        cmd_logger.info("Command: init")
+        print(engine.init_game(), flush=True)
         return 0
     if args.command == "test_battle":
         cmd_logger.info("Command: test_battle")
