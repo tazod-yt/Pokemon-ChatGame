@@ -136,7 +136,24 @@ def get_data_downloader_dir() -> Path:
 
 DATA_DOWNLOADER_DIR = get_data_downloader_dir()
 POKEMON_STATS_FILE = DATA_DOWNLOADER_DIR / "pokemon_base_stats.json"
-EVOLUTION_RULES_FILE = Path(__file__).resolve().parent.parent / "evolution_rules.json"
+
+def _find_evolution_rules() -> Path:
+    """Find the path of the evolution rules file, handling frozen binary scenarios."""
+    candidates = []
+    candidates.append(DATA_DOWNLOADER_DIR / "evolution_rules.json")
+    repo_base = Path(__file__).resolve().parent.parent
+    candidates.append(repo_base / "evolution_rules.json")
+    if getattr(sys, "frozen", False):
+        exe_dir = Path(sys.executable).resolve().parent
+        candidates.append(exe_dir / "evolution_rules.json")
+        candidates.append(exe_dir.parent / "evolution_rules.json")
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return candidates[0]
+
+EVOLUTION_RULES_FILE = _find_evolution_rules()
+
 
 
 def load_default_creatures() -> list[dict]:

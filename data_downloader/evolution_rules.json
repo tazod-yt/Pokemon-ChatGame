@@ -1,0 +1,737 @@
+{
+  "Bulbasaur": [
+    {
+      "to": "Ivysaur",
+      "type": "level-up",
+      "level": 16
+    }
+  ],
+  "Ivysaur": [
+    {
+      "to": "Venusaur",
+      "type": "level-up",
+      "level": 32
+    }
+  ],
+  "Charmander": [
+    {
+      "to": "Charmeleon",
+      "type": "level-up",
+      "level": 16
+    }
+  ],
+  "Charmeleon": [
+    {
+      "to": "Charizard",
+      "type": "level-up",
+      "level": 36
+    }
+  ],
+  "Squirtle": [
+    {
+      "to": "Wartortle",
+      "type": "level-up",
+      "level": 16
+    }
+  ],
+  "Wartortle": [
+    {
+      "to": "Blastoise",
+      "type": "level-up",
+      "level": 36
+    }
+  ],
+  "Caterpie": [
+    {
+      "to": "Metapod",
+      "type": "level-up",
+      "level": 7
+    }
+  ],
+  "Metapod": [
+    {
+      "to": "Butterfree",
+      "type": "level-up",
+      "level": 10
+    }
+  ],
+  "Weedle": [
+    {
+      "to": "Kakuna",
+      "type": "level-up",
+      "level": 7
+    }
+  ],
+  "Kakuna": [
+    {
+      "to": "Beedrill",
+      "type": "level-up",
+      "level": 10
+    }
+  ],
+  "Pidgey": [
+    {
+      "to": "Pidgeotto",
+      "type": "level-up",
+      "level": 18
+    }
+  ],
+  "Pidgeotto": [
+    {
+      "to": "Pidgeot",
+      "type": "level-up",
+      "level": 36
+    }
+  ],
+  "Rattata": [
+    {
+      "to": "Raticate",
+      "type": "level-up",
+      "level": 20
+    }
+  ],
+  "Spearow": [
+    {
+      "to": "Fearow",
+      "type": "level-up",
+      "level": 20
+    }
+  ],
+  "Ekans": [
+    {
+      "to": "Arbok",
+      "type": "level-up",
+      "level": 22
+    }
+  ],
+  "Pichu": [
+    {
+      "to": "Pikachu",
+      "type": "level-up",
+      "friendship": 220
+    }
+  ],
+  "Pikachu": [
+    {
+      "to": "Raichu",
+      "type": "use-item",
+      "item": "thunder-stone"
+    }
+  ],
+  "Sandshrew": [
+    {
+      "to": "Sandslash",
+      "type": "level-up",
+      "level": 22
+    }
+  ],
+  "Nidoran-F": [
+    {
+      "to": "Nidorina",
+      "type": "level-up",
+      "level": 16
+    }
+  ],
+  "Nidorina": [
+    {
+      "to": "Nidoqueen",
+      "type": "use-item",
+      "item": "moon-stone"
+    }
+  ],
+  "Nidoran-M": [
+    {
+      "to": "Nidorino",
+      "type": "level-up",
+      "level": 16
+    }
+  ],
+  "Nidorino": [
+    {
+      "to": "Nidoking",
+      "type": "use-item",
+      "item": "moon-stone"
+    }
+  ],
+  "Cleffa": [
+    {
+      "to": "Clefairy",
+      "type": "level-up",
+      "friendship": 160
+    }
+  ],
+  "Clefairy": [
+    {
+      "to": "Clefable",
+      "type": "use-item",
+      "item": "moon-stone"
+    }
+  ],
+  "Vulpix": [
+    {
+      "to": "Ninetales",
+      "type": "use-item",
+      "item": "fire-stone"
+    }
+  ],
+  "Igglybuff": [
+    {
+      "to": "Jigglypuff",
+      "type": "level-up",
+      "friendship": 160
+    }
+  ],
+  "Jigglypuff": [
+    {
+      "to": "Wigglytuff",
+      "type": "use-item",
+      "item": "moon-stone"
+    }
+  ],
+  "Zubat": [
+    {
+      "to": "Golbat",
+      "type": "level-up",
+      "level": 22
+    }
+  ],
+  "Golbat": [
+    {
+      "to": "Crobat",
+      "type": "level-up",
+      "friendship": 160
+    }
+  ],
+  "Oddish": [
+    {
+      "to": "Gloom",
+      "type": "level-up",
+      "level": 21
+    }
+  ],
+  "Gloom": [
+    {
+      "to": "Vileplume",
+      "type": "use-item",
+      "item": "leaf-stone"
+    },
+    {
+      "to": "Bellossom",
+      "type": "use-item",
+      "item": "sun-stone"
+    }
+  ],
+  "Paras": [
+    {
+      "to": "Parasect",
+      "type": "level-up",
+      "level": 24
+    }
+  ],
+  "Venonat": [
+    {
+      "to": "Venomoth",
+      "type": "level-up",
+      "level": 31
+    }
+  ],
+  "Diglett": [
+    {
+      "to": "Dugtrio",
+      "type": "level-up",
+      "level": 26
+    }
+  ],
+  "Meowth": [
+    {
+      "to": "Persian",
+      "type": "level-up",
+      "level": 28
+    },
+    {
+      "to": "Perrserker",
+      "type": "level-up",
+      "level": 28
+    }
+  ],
+  "Psyduck": [
+    {
+      "to": "Golduck",
+      "type": "level-up",
+      "level": 33
+    }
+  ],
+  "Mankey": [
+    {
+      "to": "Primeape",
+      "type": "level-up",
+      "level": 28
+    }
+  ],
+  "Primeape": [
+    {
+      "to": "Annihilape",
+      "type": "use-move"
+    }
+  ],
+  "Growlithe": [
+    {
+      "to": "Arcanine",
+      "type": "use-item",
+      "item": "fire-stone"
+    }
+  ],
+  "Poliwag": [
+    {
+      "to": "Poliwhirl",
+      "type": "level-up",
+      "level": 25
+    }
+  ],
+  "Poliwhirl": [
+    {
+      "to": "Poliwrath",
+      "type": "use-item",
+      "item": "water-stone"
+    },
+    {
+      "to": "Politoed",
+      "type": "trade",
+      "held_item": "kings-rock"
+    }
+  ],
+  "Abra": [
+    {
+      "to": "Kadabra",
+      "type": "level-up",
+      "level": 16
+    }
+  ],
+  "Kadabra": [
+    {
+      "to": "Alakazam",
+      "type": "trade"
+    }
+  ],
+  "Machop": [
+    {
+      "to": "Machoke",
+      "type": "level-up",
+      "level": 28
+    }
+  ],
+  "Machoke": [
+    {
+      "to": "Machamp",
+      "type": "trade"
+    }
+  ],
+  "Bellsprout": [
+    {
+      "to": "Weepinbell",
+      "type": "level-up",
+      "level": 21
+    }
+  ],
+  "Weepinbell": [
+    {
+      "to": "Victreebel",
+      "type": "use-item",
+      "item": "leaf-stone"
+    }
+  ],
+  "Tentacool": [
+    {
+      "to": "Tentacruel",
+      "type": "level-up",
+      "level": 30
+    }
+  ],
+  "Geodude": [
+    {
+      "to": "Graveler",
+      "type": "level-up",
+      "level": 25
+    }
+  ],
+  "Graveler": [
+    {
+      "to": "Golem",
+      "type": "trade"
+    }
+  ],
+  "Ponyta": [
+    {
+      "to": "Rapidash",
+      "type": "level-up",
+      "level": 40
+    }
+  ],
+  "Slowpoke": [
+    {
+      "to": "Slowbro",
+      "type": "level-up",
+      "level": 37
+    },
+    {
+      "to": "Slowking",
+      "type": "trade",
+      "held_item": "kings-rock"
+    }
+  ],
+  "Magnemite": [
+    {
+      "to": "Magneton",
+      "type": "level-up",
+      "level": 30
+    }
+  ],
+  "Magneton": [
+    {
+      "to": "Magnezone",
+      "type": "level-up"
+    }
+  ],
+  "Farfetchd": [
+    {
+      "to": "Sirfetchd",
+      "type": "three-critical-hits"
+    }
+  ],
+  "Doduo": [
+    {
+      "to": "Dodrio",
+      "type": "level-up",
+      "level": 31
+    }
+  ],
+  "Seel": [
+    {
+      "to": "Dewgong",
+      "type": "level-up",
+      "level": 34
+    }
+  ],
+  "Grimer": [
+    {
+      "to": "Muk",
+      "type": "level-up",
+      "level": 38
+    }
+  ],
+  "Shellder": [
+    {
+      "to": "Cloyster",
+      "type": "use-item",
+      "item": "water-stone"
+    }
+  ],
+  "Gastly": [
+    {
+      "to": "Haunter",
+      "type": "level-up",
+      "level": 25
+    }
+  ],
+  "Haunter": [
+    {
+      "to": "Gengar",
+      "type": "trade"
+    }
+  ],
+  "Onix": [
+    {
+      "to": "Steelix",
+      "type": "trade",
+      "held_item": "metal-coat"
+    }
+  ],
+  "Drowzee": [
+    {
+      "to": "Hypno",
+      "type": "level-up",
+      "level": 26
+    }
+  ],
+  "Krabby": [
+    {
+      "to": "Kingler",
+      "type": "level-up",
+      "level": 28
+    }
+  ],
+  "Voltorb": [
+    {
+      "to": "Electrode",
+      "type": "level-up",
+      "level": 30
+    }
+  ],
+  "Exeggcute": [
+    {
+      "to": "Exeggutor",
+      "type": "use-item",
+      "item": "leaf-stone"
+    }
+  ],
+  "Cubone": [
+    {
+      "to": "Marowak",
+      "type": "level-up",
+      "level": 28
+    }
+  ],
+  "Tyrogue": [
+    {
+      "to": "Hitmonlee",
+      "type": "level-up",
+      "level": 20
+    },
+    {
+      "to": "Hitmonchan",
+      "type": "level-up",
+      "level": 20
+    },
+    {
+      "to": "Hitmontop",
+      "type": "level-up",
+      "level": 20
+    }
+  ],
+  "Lickitung": [
+    {
+      "to": "Lickilicky",
+      "type": "level-up",
+      "known_move": "rollout"
+    }
+  ],
+  "Koffing": [
+    {
+      "to": "Weezing",
+      "type": "level-up",
+      "level": 35
+    }
+  ],
+  "Rhyhorn": [
+    {
+      "to": "Rhyhorn",
+      "type": "level-up",
+      "level": 42
+    }
+  ],
+  "Rhydon": [
+    {
+      "to": "Rhyperior",
+      "type": "trade",
+      "held_item": "protector"
+    }
+  ],
+  "Happiny": [
+    {
+      "to": "Chansey",
+      "type": "level-up",
+      "held_item": "oval-stone",
+      "time_of_day": "day"
+    }
+  ],
+  "Chansey": [
+    {
+      "to": "Blissey",
+      "type": "level-up",
+      "friendship": 160
+    }
+  ],
+  "Tangela": [
+    {
+      "to": "Tangrowth",
+      "type": "level-up",
+      "known_move": "ancient-power"
+    }
+  ],
+  "Horsea": [
+    {
+      "to": "Seadra",
+      "type": "level-up",
+      "level": 32
+    }
+  ],
+  "Seadra": [
+    {
+      "to": "Kingdra",
+      "type": "trade",
+      "held_item": "dragon-scale"
+    }
+  ],
+  "Goldeen": [
+    {
+      "to": "Seaking",
+      "type": "level-up",
+      "level": 33
+    }
+  ],
+  "Staryu": [
+    {
+      "to": "Starmie",
+      "type": "use-item",
+      "item": "water-stone"
+    }
+  ],
+  "Mime-Jr": [
+    {
+      "to": "Mr-Mime",
+      "type": "level-up",
+      "known_move": "mimic"
+    }
+  ],
+  "Mr-Mime": [
+    {
+      "to": "Mr-Rime",
+      "type": "level-up",
+      "level": 42
+    }
+  ],
+  "Scyther": [
+    {
+      "to": "Scizor",
+      "type": "trade",
+      "held_item": "metal-coat"
+    },
+    {
+      "to": "Kleavor",
+      "type": "use-item",
+      "item": "black-augurite"
+    }
+  ],
+  "Smoochum": [
+    {
+      "to": "Jynx",
+      "type": "level-up",
+      "level": 30
+    }
+  ],
+  "Elekid": [
+    {
+      "to": "Electabuzz",
+      "type": "level-up",
+      "level": 30
+    }
+  ],
+  "Electabuzz": [
+    {
+      "to": "Electivire",
+      "type": "trade",
+      "held_item": "electirizer"
+    }
+  ],
+  "Magby": [
+    {
+      "to": "Magmar",
+      "type": "level-up",
+      "level": 30
+    }
+  ],
+  "Magmar": [
+    {
+      "to": "Magmortar",
+      "type": "trade",
+      "held_item": "magmarizer"
+    }
+  ],
+  "Magikarp": [
+    {
+      "to": "Gyarados",
+      "type": "level-up",
+      "level": 20
+    }
+  ],
+  "Eevee": [
+    {
+      "to": "Vaporeon",
+      "type": "use-item",
+      "item": "water-stone"
+    },
+    {
+      "to": "Jolteon",
+      "type": "use-item",
+      "item": "thunder-stone"
+    },
+    {
+      "to": "Flareon",
+      "type": "use-item",
+      "item": "fire-stone"
+    },
+    {
+      "to": "Espeon",
+      "type": "level-up",
+      "friendship": 160,
+      "time_of_day": "day"
+    },
+    {
+      "to": "Umbreon",
+      "type": "level-up",
+      "friendship": 160,
+      "time_of_day": "night"
+    },
+    {
+      "to": "Leafeon",
+      "type": "level-up"
+    },
+    {
+      "to": "Glaceon",
+      "type": "level-up"
+    },
+    {
+      "to": "Sylveon",
+      "type": "level-up"
+    }
+  ],
+  "Porygon": [
+    {
+      "to": "Porygon2",
+      "type": "trade",
+      "held_item": "up-grade"
+    }
+  ],
+  "Porygon2": [
+    {
+      "to": "Porygon-Z",
+      "type": "trade",
+      "held_item": "dubious-disc"
+    }
+  ],
+  "Omanyte": [
+    {
+      "to": "Omastar",
+      "type": "level-up",
+      "level": 40
+    }
+  ],
+  "Kabuto": [
+    {
+      "to": "Kabutops",
+      "type": "level-up",
+      "level": 40
+    }
+  ],
+  "Munchlax": [
+    {
+      "to": "Snorlax",
+      "type": "level-up",
+      "friendship": 160
+    }
+  ],
+  "Dratini": [
+    {
+      "to": "Dragonair",
+      "type": "level-up",
+      "level": 30
+    }
+  ],
+  "Dragonair": [
+    {
+      "to": "Dragonite",
+      "type": "level-up",
+      "level": 55
+    }
+  ]
+}

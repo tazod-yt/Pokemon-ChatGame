@@ -1,0 +1,70 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Create Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pillow requests
+
+      - name: Build GameEngine.exe
+        run: |
+          .\build.ps1
+
+      - name: Create Shippable Release Zip
+        shell: powershell
+        run: |
+          $ReleaseDir = "PokemonChatGame"
+          New-Item -ItemType Directory -Path $ReleaseDir
+          
+          # Create subdirectories
+          New-Item -ItemType Directory -Path "$ReleaseDir\GameEngine"
+          New-Item -ItemType Directory -Path "$ReleaseDir\Streamerbot"
+          
+          # Copy files/folders
+          Copy-Item "GameEngine\GameEngine.exe" "$ReleaseDir\GameEngine\GameEngine.exe"
+          Copy-Item "Overlay" "$ReleaseDir\Overlay" -Recurse
+          Copy-Item "data_downloader" "$ReleaseDir\data_downloader" -Recurse
+          Copy-Item "Streamerbot\import_actions_full.json" "$ReleaseDir\Streamerbot\import_actions_full.json"
+          Copy-Item "Streamerbot\import_actions_full.txt" "$ReleaseDir\Streamerbot\import_actions_full.txt"
+          Copy-Item "evolution_rules.json" "$ReleaseDir\evolution_rules.json"
+          Copy-Item "SETUP.md" "$ReleaseDir\SETUP.md"
+          Copy-Item "README.md" "$ReleaseDir\README.md"
+          
+          # Clean up development python files or artifacts inside data_downloader
+          Remove-Item "$ReleaseDir\data_downloader\*.py" -ErrorAction SilentlyContinue
+          Remove-Item "$ReleaseDir\data_downloader\__pycache__" -Recurse -ErrorAction SilentlyContinue
+          
+          # Zip the release directory
+          Compress-Archive -Path "$ReleaseDir" -DestinationPath "PokemonChatGame.zip"
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: PokemonChatGame.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
