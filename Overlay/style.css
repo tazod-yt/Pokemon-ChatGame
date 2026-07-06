@@ -456,8 +456,8 @@ body {
 .evolution-container {
   position: fixed;
   bottom: 38px;
-  right: 10px;
-  width: 200px;
+  right: 48px;
+  width: 220px;
   background: transparent;
   border: none;
   padding: 0;
