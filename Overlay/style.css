@@ -473,9 +473,10 @@ body {
 .evolution-arena {
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   height: 200px;
+  padding-right: 36px;
 }
 
 .evolution-gif {
