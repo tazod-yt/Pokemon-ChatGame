@@ -44,16 +44,16 @@ jobs:
           # Copy files/folders
           Copy-Item "GameEngine\GameEngine.exe" "$ReleaseDir\GameEngine\GameEngine.exe"
           Copy-Item "Overlay" "$ReleaseDir\Overlay" -Recurse
-          Copy-Item "data_downloader" "$ReleaseDir\data_downloader" -Recurse
+          Copy-Item "image_data" "$ReleaseDir\image_data" -Recurse
           Copy-Item "Streamerbot\import_actions_full.json" "$ReleaseDir\Streamerbot\import_actions_full.json"
           Copy-Item "Streamerbot\import_actions_full.txt" "$ReleaseDir\Streamerbot\import_actions_full.txt"
-          Copy-Item "evolution_rules.json" "$ReleaseDir\evolution_rules.json"
+          Copy-Item "image_data\evolution_rules.json" "$ReleaseDir\evolution_rules.json"
           Copy-Item "SETUP.md" "$ReleaseDir\SETUP.md"
           Copy-Item "README.md" "$ReleaseDir\README.md"
           
-          # Clean up development python files or artifacts inside data_downloader
-          Remove-Item "$ReleaseDir\data_downloader\*.py" -ErrorAction SilentlyContinue
-          Remove-Item "$ReleaseDir\data_downloader\__pycache__" -Recurse -ErrorAction SilentlyContinue
+          # Clean up development python files or artifacts inside image_data
+          Remove-Item "$ReleaseDir\image_data\*.py" -ErrorAction SilentlyContinue
+          Remove-Item "$ReleaseDir\image_data\__pycache__" -Recurse -ErrorAction SilentlyContinue
           
           # Zip the release directory
           Compress-Archive -Path "$ReleaseDir" -DestinationPath "PokemonChatGame.zip"

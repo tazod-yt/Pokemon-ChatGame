@@ -21,7 +21,7 @@ let nameToImage = new Map();
 let currentSpawnName = "";
 const POKEMON_INDEX_URL = (() => {
   const base = new URL(window.location.href);
-  return new URL("../data_downloader/pokemon_base_stats.json", base).toString();
+  return new URL("../image_data/pokemon_base_stats.json", base).toString();
 })();
 
 function setHidden(el, hidden) {
@@ -84,7 +84,7 @@ function showGifForName(name) {
   const imageFile = nameToImage.get(name);
   if (!imageFile) return false;
   const baseName = imageFile.replace(/\.[^.]+$/, '');
-  const gifUrl = `../data_downloader/gif/${encodeURIComponent(baseName)}.gif`;
+  const gifUrl = `../image_data/gif/${encodeURIComponent(baseName)}.gif`;
   spawnGifEl.onload = () => {
     setHidden(spawnGifEl, false);
     spawnGifEl.classList.add("visible");
@@ -209,8 +209,8 @@ function playBattleSequence(result) {
   const p1Base = p1Image.replace(/\.[^.]+$/, '');
   const p2Base = p2Image.replace(/\.[^.]+$/, '');
   
-  p1GifEl.src = `../data_downloader/gif/${encodeURIComponent(p1Base)}.gif`;
-  p2GifEl.src = `../data_downloader/gif/${encodeURIComponent(p2Base)}.gif`;
+  p1GifEl.src = `../image_data/gif/${encodeURIComponent(p1Base)}.gif`;
+  p2GifEl.src = `../image_data/gif/${encodeURIComponent(p2Base)}.gif`;
   
   p1Wrapper.className = "fighter-wrapper left";
   p2Wrapper.className = "fighter-wrapper right";

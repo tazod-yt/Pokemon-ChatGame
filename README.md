@@ -269,7 +269,7 @@ This project includes a data-downloading workflow for PokémonDB assets.
 
 The sprite downloader saves Gen 1 Pokémon colored sprites using Gen 6 artwork from PokémonDB. Files are written to:
 
-`data_downloader/images/pokemon`
+`image_data/images/pokemon`
 
 Filename format:
 - `001_Bulbasaur.png`
@@ -278,14 +278,14 @@ Filename format:
 
 Run the sprite downloader with:
 ```powershell
-python .\data_downloader\download_sprites.py
+python .\image_data\download_sprites.py
 ```
 
 ## Animated GIF Sprites
 
 The GIF downloader saves Gen 6 animated sprites from Pokémon Showdown to:
 
-`data_downloader/gif`
+`image_data/gif`
 
 Filename format:
 - `001_Bulbasaur.gif`
@@ -294,25 +294,25 @@ Filename format:
 
 Run the GIF downloader with:
 ```powershell
-python .\data_downloader\download_gifs.py
+python .\image_data\download_gifs.py
 ```
 
 ## Grayscale Silhouette Images
 
 The silhouette generator converts the downloaded colored images into solid gray silhouettes to use for unrevealed spawn animations in the overlay. Files are written to:
 
-`data_downloader/grey_images`
+`image_data/grey_images`
 
 Run the silhouette generator with:
 ```powershell
-python .\data_downloader\generate_grey_images.py
+python .\image_data\generate_grey_images.py
 ```
 
 ## Base Stats JSON
 
 The base stats downloader creates one JSON file containing the Gen 1 roster and their stats from PokémonDB. The file is written to:
 
-`data_downloader/pokemon_base_stats.json`
+`image_data/pokemon_base_stats.json`
 
 Each Pokémon entry includes:
 - `name`
@@ -322,11 +322,11 @@ Each Pokémon entry includes:
 
 Run the stats downloader with:
 ```powershell
-python .\data_downloader\download_base_stats.py
+python .\image_data\download_base_stats.py
 ```
 
 ## Game Engine Data Source
 
-`src/game_engine.py` loads its default creature roster from `data_downloader/pokemon_base_stats.json` instead of using a hard-coded list.
+`src/game_engine.py` loads its default creature roster from `image_data/pokemon_base_stats.json` instead of using a hard-coded list.
 
 If you regenerate the JSON file, rerun the game or rebuild the executable so it picks up the updated data.

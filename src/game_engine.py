@@ -98,23 +98,23 @@ CREATURE_EMOJI = {
 }
 
 
-def get_data_downloader_dir() -> Path:
-    """Get data downloader dir."""
+def get_image_data_dir() -> Path:
+    """Get image data dir."""
     candidates = []
 
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        candidates.append(Path(sys._MEIPASS) / "data_downloader")
+        candidates.append(Path(sys._MEIPASS) / "image_data")
 
     repo_base = Path(__file__).resolve().parent.parent
-    candidates.append(repo_base / "data_downloader")
-    candidates.append(Path(sys.argv[0]).resolve().parent / "data_downloader")
-    candidates.append(Path.cwd() / "data_downloader")
+    candidates.append(repo_base / "image_data")
+    candidates.append(Path(sys.argv[0]).resolve().parent / "image_data")
+    candidates.append(Path.cwd() / "image_data")
 
     def find_up(start: Path) -> Optional[Path]:
         """Find up."""
         current = start.resolve()
         for _ in range(8):
-            candidate = current / "data_downloader"
+            candidate = current / "image_data"
             if candidate.exists():
                 return candidate
             if current.parent == current:
@@ -134,13 +134,13 @@ def get_data_downloader_dir() -> Path:
     return candidates[0]
 
 
-DATA_DOWNLOADER_DIR = get_data_downloader_dir()
-POKEMON_STATS_FILE = DATA_DOWNLOADER_DIR / "pokemon_base_stats.json"
+IMAGE_DATA_DIR = get_image_data_dir()
+POKEMON_STATS_FILE = IMAGE_DATA_DIR / "pokemon_base_stats.json"
 
 def _find_evolution_rules() -> Path:
     """Find the path of the evolution rules file, handling frozen binary scenarios."""
     candidates = []
-    candidates.append(DATA_DOWNLOADER_DIR / "evolution_rules.json")
+    candidates.append(IMAGE_DATA_DIR / "evolution_rules.json")
     repo_base = Path(__file__).resolve().parent.parent
     candidates.append(repo_base / "evolution_rules.json")
     if getattr(sys, "frozen", False):
@@ -922,15 +922,15 @@ class GameEngine:
         creature_name_by_id = {c.get("species_id", 0): c["name"] for c in DEFAULT_CREATURES if "species_id" in c}
 
         # Load and resize the pokeball image
-        pokeball_path = DATA_DOWNLOADER_DIR / "pokeball.png"
+        pokeball_path = IMAGE_DATA_DIR / "pokeball.png"
         if pokeball_path.exists():
             pokeball_base = Image.open(pokeball_path).convert("RGBA")
             pokeball_sprite = pokeball_base.resize((item_w, 100), Image.Resampling.LANCZOS)
         else:
             pokeball_sprite = None
 
-        pokemon_images_dir = DATA_DOWNLOADER_DIR / "images" / "pokemon"
-        grey_images_dir = DATA_DOWNLOADER_DIR / "grey_images"
+        pokemon_images_dir = IMAGE_DATA_DIR / "images" / "pokemon"
+        grey_images_dir = IMAGE_DATA_DIR / "grey_images"
 
         total_items = 151
         for idx in range(total_items):

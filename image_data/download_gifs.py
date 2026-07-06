@@ -4,9 +4,9 @@ Download animated GIF sprites from Pokemon Showdown and save them
 matching the naming convention used in the images/pokemon folder.
 
 Usage:
-    python data_downloader/download_gifs.py --out data_downloader/gif --delay 0.15
+    python image_data/download_gifs.py --out image_data/gif --delay 0.15
 
-The script reads files from data_downloader/images/pokemon and for each
+The script reads files from image_data/images/pokemon and for each
 file like `001_Bulbasaur.png` attempts to download
 https://play.pokemonshowdown.com/sprites/ani/<slug>.gif using a few
 slug transformations until one succeeds.
