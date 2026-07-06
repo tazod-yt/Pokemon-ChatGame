@@ -29,7 +29,7 @@ To let Streamer.bot execute the game CLI commands, follow these steps:
 1. Open **Streamer.bot**.
 2. Click **Import** (top left).
 3. Open the `Streamerbot` folder in your extracted game directory.
-4. Drag and drop `import_actions_full.txt` (or copy its contents) into the **Import String** box in Streamer.bot, then click **Import**.
+4. Drag and drop `import_actions.txt` (or copy its contents) into the **Import String** box in Streamer.bot, then click **Import**.
 5. Go to the **Settings** tab in Streamer.bot -> **Globals**.
 6. Create a new **Global Variable**:
    - **Name**: `pokemonGamePath`

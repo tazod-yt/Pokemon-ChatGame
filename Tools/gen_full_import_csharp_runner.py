@@ -332,13 +332,13 @@ export = {
     "minimumVersion": "1.0.0-alpha.1",
 }
 
-out_json = os.path.join(root, "Streamerbot", "import_actions_full.json")
+out_json = os.path.join(root, "Streamerbot", "import_actions.json")
 with open(out_json, "w", encoding="utf-8") as handle:
     json.dump(export, handle, indent=2)
 
 raw = json.dumps(export, indent=2).encode("utf-8")
 blob = b"SBAE" + gzip.compress(raw)
-out_txt = os.path.join(root, "Streamerbot", "import_actions_full.txt")
+out_txt = os.path.join(root, "Streamerbot", "import_actions.txt")
 with open(out_txt, "w", encoding="utf-8") as handle:
     handle.write(base64.b64encode(blob).decode("ascii"))
 

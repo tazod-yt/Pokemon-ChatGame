@@ -45,8 +45,7 @@ jobs:
           Copy-Item "GameEngine\GameEngine.exe" "$ReleaseDir\GameEngine\GameEngine.exe"
           Copy-Item "Overlay" "$ReleaseDir\Overlay" -Recurse
           Copy-Item "image_data" "$ReleaseDir\image_data" -Recurse
-          Copy-Item "Streamerbot\import_actions_full.json" "$ReleaseDir\Streamerbot\import_actions_full.json"
-          Copy-Item "Streamerbot\import_actions_full.txt" "$ReleaseDir\Streamerbot\import_actions_full.txt"
+          Copy-Item "Streamerbot\import_actions.txt" "$ReleaseDir\Streamerbot\import_actions.txt"
           Copy-Item "image_data\evolution_rules.json" "$ReleaseDir\evolution_rules.json"
           Copy-Item "SETUP.md" "$ReleaseDir\SETUP.md"
           Copy-Item "README.md" "$ReleaseDir\README.md"

@@ -26,7 +26,7 @@ Pokemon Chat Game/
 ├── Logs/
 │   └── game.log
 ├── Streamerbot/
-│   └── import_actions.json
+│   └── import_actions.txt
 ├── src/
 │   └── game_engine.py
 ├── tests/
@@ -62,7 +62,7 @@ Logs/
 - `game.log`: Engine log file (commands, spawns, catches, battles, errors).
 
 Streamerbot/
-- `import_actions.json`: Streamer.bot actions template wired to `GameEngine.exe`.
+- `import_actions.txt`: Streamer.bot actions C# runner import template (handles chat commands and executes the game engine).
 
 src/
 - `game_engine.py`: Python source for the game engine CLI.
@@ -182,13 +182,9 @@ The overlay polls `Data/overlay_state.json` once per second.
 
 ## Streamer.bot Setup
 
-1. Import `Streamerbot/import_actions.json`.
-2. Update any paths if your Streamer.bot setup uses a different working directory.
-3. Wire actions to chat commands (e.g., `!spawn`, `!catch`, `!inventory`, `!battle`, `!accept`, `!leaderboard`).
-
-Import `Streamerbot/import_actions_full.json` (or `import_actions_full.txt`) for the C# runner variant with `!accept` and `!leaderboard` included.
-
-The current JSON uses placeholders like `${user}` and `${arg1}`. Adjust to your Streamer.bot variable syntax if needed.
+1. Import `Streamerbot/import_actions.txt` (drag and drop the file, or copy-paste its contents into the **Import** box in Streamer.bot).
+2. Go to **Settings -> Globals** in Streamer.bot, and create a global variable named `pokemonGamePath` pointing to the directory where the game is installed (e.g., `C:\Games\PokemonChatGame`).
+3. Under the **Commands** tab, ensure that all chat commands (`!spawn`, `!catch`, `!inventory` / `!pokedex`, `!stats`, `!battle`, `!accept`, and `!leaderboard`) are enabled.
 
 ## Tools
 
