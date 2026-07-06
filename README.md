@@ -4,6 +4,7 @@ This project builds a fully standalone, offline, no-install local stream game fo
 
 ## Folder Structure (Required)
 
+```text
 Pokemon Chat Game/
 ├── GameEngine/
 │   └── GameEngine.exe
@@ -31,6 +32,7 @@ Pokemon Chat Game/
 ├── tests/
 │   └── test_game_engine.py
 └── build.ps1
+```
 
 ## What Each Folder / File Does
 
@@ -96,7 +98,7 @@ These commands are the contract between Streamer.bot and the engine.
   - Applies cooldown, catch rate, and inventory limit
   - Updates inventory and overlay
 
-- `GameEngine.exe inventory <username>`
+- `GameEngine.exe pokedex <username>`
   - Returns a text list of the user's creatures (level, XP, trait, ELO, wins/losses)
 
 - `GameEngine.exe stats <username> <pokemon>`
@@ -113,7 +115,7 @@ These commands are the contract between Streamer.bot and the engine.
   - Awards XP, updates ELO, checks level-up evolutions, writes battle transcript to overlay state
 
 - `GameEngine.exe leaderboard`
-  - Shows top 10 Pokémon by ELO
+  - Shows top 10 Pokémon by ELO and top 10 players by ELO
 
 - `GameEngine.exe test_battle`
   - Triggers a mock battle animation on the OBS overlay for testing animations
@@ -127,11 +129,11 @@ These commands are the contract between Streamer.bot and the engine.
 | --- | --- |
 | `!spawn` | Spawn a wild Pokémon |
 | `!catch` | Attempt to catch the active spawn |
-| `!inventory` | List your Pokémon |
+| `!inventory` or `!pokedex` | List your Pokémon collection |
 | `!stats <pokemon>` | View detailed stats, ELO, and records for a Pokémon in your collection |
 | `!battle @user <pokemon>` | Challenge a user with a chosen Pokémon |
 | `!accept @user <pokemon>` | Accept a challenge from that user |
-| `!leaderboard` | Top 10 Pokémon by ELO |
+| `!leaderboard` | Top 10 Pokémon and Top 10 Players by ELO |
 
 ## Configuration
 
