@@ -12,6 +12,8 @@ import sqlite3
 import sys
 import time
 
+VERSION = "1.0.1"
+
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 if hasattr(sys.stderr, "reconfigure"):
@@ -860,6 +862,64 @@ class GameEngine:
         payload["updated_at"] = now_ts()
         write_json(self.paths.overlay_state_json, payload)
 
+    def _check_for_updates(self) -> Optional[str]:
+        """Check for updates on GitHub Releases, caching the result for 24 hours."""
+        cache_file = self.paths.data_dir / "update_check.json"
+        now = int(time.time())
+        cached_ver = None
+        needs_check = True
+
+        if cache_file.exists():
+            try:
+                cache_data = read_json(cache_file)
+                last_checked = cache_data.get("last_checked", 0)
+                cached_ver = cache_data.get("latest_version")
+                if now - last_checked < 86400:
+                    needs_check = False
+            except Exception:
+                pass
+
+        if not needs_check:
+            if cached_ver:
+                try:
+                    c_parts = [int(x) for x in cached_ver.strip().lstrip("v").split(".")]
+                    l_parts = [int(x) for x in VERSION.split(".")]
+                    if c_parts > l_parts:
+                        return cached_ver
+                except Exception:
+                    if cached_ver.strip().lstrip("v") != VERSION.strip().lstrip("v"):
+                        return cached_ver
+            return None
+
+        # Perform update check
+        latest_version = None
+        try:
+            url = "https://api.github.com/repos/tazod-yt/Pokemon-ChatGame/releases/latest"
+            req = Request(url, headers={"User-Agent": "Pokemon-ChatGame-Updater"})
+            with urlopen(req, timeout=1.5) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                latest_version = res_data.get("tag_name")
+        except Exception:
+            pass
+
+        # If checker failed, keep cached_ver or use current VERSION to avoid hammering the API
+        write_ver = latest_version if latest_version else (cached_ver if cached_ver else "v" + VERSION)
+        try:
+            write_json(cache_file, {"last_checked": now, "latest_version": write_ver})
+        except Exception:
+            pass
+
+        if latest_version:
+            try:
+                c_parts = [int(x) for x in latest_version.strip().lstrip("v").split(".")]
+                l_parts = [int(x) for x in VERSION.split(".")]
+                if c_parts > l_parts:
+                    return latest_version
+            except Exception:
+                if latest_version.strip().lstrip("v") != VERSION.strip().lstrip("v"):
+                    return latest_version
+        return None
+
     def _is_battle_active(self) -> bool:
         """Check if a battle is currently active on the overlay, including 10s post-battle buffer."""
         if not self.paths.overlay_state_json.exists():
@@ -1150,6 +1210,12 @@ class GameEngine:
     def _respond(self, message: str) -> str:
         """Internal helper to respond."""
         self._write_stdout_log(message)
+        try:
+            update_ver = self._check_for_updates()
+            if update_ver:
+                message += f"\n[UPDATE_NOTIFICATION] {update_ver}"
+        except Exception:
+            pass
         return message
 
     def _spawn_is_expired(self, spawn: Dict[str, Any]) -> bool:

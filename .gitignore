@@ -16,4 +16,5 @@ __pycache__/
 *.pyc
 .venv/
 /Data/temp/
+/Streamerbot/import_actions.json
 
