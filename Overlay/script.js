@@ -291,14 +291,20 @@ function updateOverlay(state) {
         return;
       }
     } else if (state.state === "battle" && state.result && state.result.type === "battle") {
-      if (lastProcessedBattleTime === -1) {
-        lastProcessedBattleTime = state.updated_at || 0;
-      }
-      if (state.updated_at > lastProcessedBattleTime) {
-        lastProcessedBattleTime = state.updated_at;
-        currentSpawnName = "";
-        playBattleSequence(state.result);
-        return;
+      const now = Math.floor(Date.now() / 1000);
+      const isBattleActive = now < (state.result.expires_at || 0);
+      
+      if (isBattleActive) {
+        if (state.updated_at > lastProcessedBattleTime) {
+          lastProcessedBattleTime = state.updated_at;
+          currentSpawnName = "";
+          playBattleSequence(state.result);
+          return;
+        }
+      } else {
+        if (state.updated_at > lastProcessedBattleTime) {
+          lastProcessedBattleTime = state.updated_at;
+        }
       }
     }
   }

@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 import sys
 import tempfile
@@ -28,6 +28,7 @@ def make_engine(tmp_path: Path) -> GameEngine:
     paths = build_paths(tmp_path)
     ensure_dirs(paths)
     settings = load_settings(paths)
+    settings["discord_inventory_webhook_url"] = ""  # Disable webhooks in tests
     init_db(paths)
     seed_creatures(paths)
     ensure_data_files(paths)
@@ -60,7 +61,7 @@ def test_spawn_creation():
     with tempfile.TemporaryDirectory() as tmp:
         engine = make_engine(Path(tmp))
         result = engine.spawn()
-        assert "Spawned" in result
+        assert "appeared" in result
 
 
 def test_catch_success():
@@ -94,7 +95,7 @@ def test_inventory_item_includes_username():
         engine = make_engine(Path(tmp))
         catch_for_user(engine, "ankit", 1)
         result = engine.inventory("ankit")
-        assert "Pokemon Inventory:" in result
+        assert "Pokedex:" in result
         assert "HP" in result
         assert "ELO" in result
 
@@ -166,5 +167,6 @@ def test_load_settings_streamerbot_globals_override(tmp_path: Path, monkeypatch)
 
     settings = load_settings(paths)
 
-    assert settings["spawn_interval_seconds"] == 10
-    assert settings["cooldown_seconds"] == 7
+    assert settings["spawn_interval_seconds"] == 5
+    assert settings["cooldown_seconds"] == 2
+

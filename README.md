@@ -1,4 +1,4 @@
-﻿# Pokemon Chat Game (Portable Local Stream Game)
+# Pokemon Chat Game (Portable Local Stream Game)
 
 This project builds a fully standalone, offline, no-install local stream game for Streamer.bot + OBS. It packages a Python game engine into a single Windows EXE and serves overlay visuals via a local Browser Source.
 
@@ -88,6 +88,9 @@ These commands are the contract between Streamer.bot and the engine.
   - Spawns a random creature (one at a time)
   - Writes to `Data/active_spawn.json` and `Data/overlay_state.json`
 
+- `GameEngine.exe auto_spawn`
+  - Automates wild Pokémon spawning based on configuration. If the active spawn has expired and the auto-spawn interval cooldown has elapsed, it spawns a new wild Pokémon.
+
 - `GameEngine.exe catch <username>`
   - Attempts to catch the active creature
   - Applies cooldown, catch rate, and inventory limit
@@ -96,6 +99,9 @@ These commands are the contract between Streamer.bot and the engine.
 - `GameEngine.exe inventory <username>`
   - Returns a text list of the user's creatures (level, XP, trait, ELO, wins/losses)
 
+- `GameEngine.exe stats <username> <pokemon>`
+  - Returns detailed stats (base stats + IVs), ELO, and records for a user's Pokémon. If a Discord webhook is configured, it sends a beautifully formatted stats card to Discord.
+
 - `GameEngine.exe battle <challenger> <opponent> <pokemon>`
   - Challenges another user with a specific Pokémon (name or inventory slot number)
   - Creates a pending battle that expires after `battle_timeout_seconds` (default 120s)
@@ -103,10 +109,14 @@ These commands are the contract between Streamer.bot and the engine.
 
 - `GameEngine.exe accept <accepter> <challenger> <pokemon>`
   - Accepts a pending battle challenge and runs the fight
+  - If a wild Pokémon spawn is active and not expired, the battle is queued and starts automatically once the spawn is caught or has fled
   - Awards XP, updates ELO, checks level-up evolutions, writes battle transcript to overlay state
 
 - `GameEngine.exe leaderboard`
   - Shows top 10 Pokémon by ELO
+
+- `GameEngine.exe test_battle`
+  - Triggers a mock battle animation on the OBS overlay for testing animations
 
 - `GameEngine.exe reset_spawn`
   - Clears the active spawn and resets overlay state
@@ -118,6 +128,7 @@ These commands are the contract between Streamer.bot and the engine.
 | `!spawn` | Spawn a wild Pokémon |
 | `!catch` | Attempt to catch the active spawn |
 | `!inventory` | List your Pokémon |
+| `!stats <pokemon>` | View detailed stats, ELO, and records for a Pokémon in your collection |
 | `!battle @user <pokemon>` | Challenge a user with a chosen Pokémon |
 | `!accept @user <pokemon>` | Accept a challenge from that user |
 | `!leaderboard` | Top 10 Pokémon by ELO |
@@ -126,22 +137,30 @@ These commands are the contract between Streamer.bot and the engine.
 
 `Config/settings.json` fields (defaults in `DEFAULT_SETTINGS` in `src/game_engine.py`):
 
-- `spawn_interval_seconds`
-- `catch_timeout_seconds`
-- `base_catch_rate`
-- `battle_timeout_seconds` — pending challenge expiry (120s)
-- `battle_cooldown_seconds` — per-user battle cooldown (60s)
-- `rematch_cooldown_seconds` — cooldown between same opponents (300s)
-- `cooldown_seconds` — catch cooldown
-- `max_inventory_size`
-- `max_level`
-- `crit_chance`, `miss_chance`, `crit_multiplier`, `berserk_crit_bonus`
-- `lucky_xp_multiplier`, trait multipliers
-- `iv_min`, `iv_max` — IV range on catch (0–15)
-- `default_elo`, `elo_win`, `elo_loss`
-- `leaderboard_size`
-- `xp_winner_base`, `xp_winner_level_mult`, `xp_loser_base`, `xp_loser_level_mult`
-- `discord_inventory_webhook_url` — optional webhook URL to send `!inventory` results to a Discord channel
+- `spawn_interval_seconds` — Cooldown between manual spawns.
+- `catch_timeout_seconds` — How long a spawn stays catchable before timing out (120s).
+- `base_catch_rate` — Base probability modifier for catching (0.35).
+- `battle_timeout_seconds` — Pending challenge expiry duration (120s).
+- `battle_cooldown_seconds` — Per-user battle cooldown (6s).
+- `rematch_cooldown_seconds` — Cooldown between same opponents (3s).
+- `cooldown_seconds` — Catch cooldown.
+- `max_inventory_size` — Max inventory size per user.
+- `max_level` — Maximum Pokémon level allowed.
+- `crit_chance`, `miss_chance` — Base probability for critical hits (10%) and misses (5%).
+- `crit_multiplier` — Damage multiplier for critical hits (1.5x).
+- `berserk_crit_bonus` — Additional critical chance bonus for Berserk trait (+0.15).
+- `lucky_xp_multiplier` — Experience multiplier for Lucky trait (1.15x).
+- `trait_attack_multiplier` — Attack multiplier for Brave trait (1.10x).
+- `trait_defense_multiplier` — Defense multiplier for Tank trait (1.10x).
+- `trait_speed_multiplier` — Speed multiplier for Swift trait (1.10x).
+- `min_battle_damage` — Minimum damage dealt per turn in battles (default 5).
+- `iv_min`, `iv_max` — Individual Values (IVs) range assigned on catch (0–15).
+- `default_elo`, `elo_win`, `elo_loss` — Default ELO rating (1000), win gain (+25), and loss penalty (-20).
+- `leaderboard_size` — Number of entries shown on the leaderboard (10).
+- `xp_winner_base`, `xp_winner_level_mult` — Winner base XP (50) and multiplier per opponent level (5).
+- `xp_loser_base`, `xp_loser_level_mult` — Loser base XP (15) and multiplier per opponent level (2).
+- `discord_inventory_webhook_url` — Optional webhook URL to send `!inventory` and `!stats` results to a Discord channel.
+- `auto_spawn_interval_seconds` — Interval for automated spawns in seconds (0 = disabled).
 
 ### Environment variables
 
@@ -237,30 +256,54 @@ Tests cover spawn, catch success/failure, inventory retrieval, battle challenge/
 - Battles are challenge/accept: challenger picks a Pokémon, opponent accepts with their own pick.
 - Each caught Pokémon has random IVs (0–15), a random trait, and starts at ELO 1000.
 - Battle HP is derived fresh each fight; damage is not carried between battles.
-- Level-up evolutions use `evolution_rules.json` (item/trade evolutions are not implemented yet).
-- Battle transcripts are written to `overlay_state.json`; overlay UI rendering is planned (see `todo.md`).
-
+- Level-up evolutions use `evolution_rules.json` (item/trade/friendship rules are defined but not yet implemented).
+- Battle transcripts and animations are rendered dynamically in real-time on the overlay UI.
 
 # Downloaded Pokémon Data
 
-This project now includes a small data-downloading workflow for PokémonDB assets.
+This project includes a data-downloading workflow for PokémonDB assets.
 
 ## Generated Sprite Images
 
-The sprite downloader saves Gen 1 Pokémon sprites using Gen 6 artwork from PokémonDB. Files are written to:
+The sprite downloader saves Gen 1 Pokémon colored sprites using Gen 6 artwork from PokémonDB. Files are written to:
 
 `data_downloader/images/pokemon`
 
 Filename format:
-
 - `001_Bulbasaur.png`
 - `002_Ivysaur.png`
 - `003_Venusaur.png`
 
 Run the sprite downloader with:
-
 ```powershell
 python .\data_downloader\download_sprites.py
+```
+
+## Animated GIF Sprites
+
+The GIF downloader saves Gen 6 animated sprites from Pokémon Showdown to:
+
+`data_downloader/gif`
+
+Filename format:
+- `001_Bulbasaur.gif`
+- `002_Ivysaur.gif`
+- `003_Venusaur.gif`
+
+Run the GIF downloader with:
+```powershell
+python .\data_downloader\download_gifs.py
+```
+
+## Grayscale Silhouette Images
+
+The silhouette generator converts the downloaded colored images into solid gray silhouettes to use for unrevealed spawn animations in the overlay. Files are written to:
+
+`data_downloader/grey_images`
+
+Run the silhouette generator with:
+```powershell
+python .\data_downloader\generate_grey_images.py
 ```
 
 ## Base Stats JSON
@@ -270,20 +313,18 @@ The base stats downloader creates one JSON file containing the Gen 1 roster and 
 `data_downloader/pokemon_base_stats.json`
 
 Each Pokémon entry includes:
-
 - `name`
 - `base_stats` with `hp`, `attack`, `defense`, `sp_atk`, `sp_def`, `speed`, and `total`
 - `catch_rate`
 - `image_file`
 
 Run the stats downloader with:
-
 ```powershell
 python .\data_downloader\download_base_stats.py
 ```
 
 ## Game Engine Data Source
 
-`src/game_engine.py` now loads its default creature roster from `data_downloader/pokemon_base_stats.json` instead of using a hard-coded list.
+`src/game_engine.py` loads its default creature roster from `data_downloader/pokemon_base_stats.json` instead of using a hard-coded list.
 
 If you regenerate the JSON file, rerun the game or rebuild the executable so it picks up the updated data.

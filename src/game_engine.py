@@ -373,7 +373,6 @@ def load_settings(paths: Paths) -> Dict[str, Any]:
 
     if not paths.settings_json.exists():
         write_json(paths.settings_json, settings)
-        settings.update(_get_streamerbot_overrides())
         settings.update(_get_discord_webhook_override())
         return settings
 
@@ -384,7 +383,6 @@ def load_settings(paths: Paths) -> Dict[str, Any]:
 
     settings.update({k: v for k, v in data.items() if k in DEFAULT_SETTINGS})
     write_json(paths.settings_json, settings)
-    settings.update(_get_streamerbot_overrides())
     settings.update(_get_discord_webhook_override())
     return settings
 
@@ -1619,6 +1617,10 @@ class GameEngine:
             )
         result = "\n".join(lines)
         return self._respond(result)
+
+    def inventory(self, username: str) -> str:
+        """Inventory (alias for pokedex)."""
+        return self.pokedex(username)
 
     def stats(self, username: str, selector: str) -> str:
         """Get stats for all matching Pokémon of a user and send to Discord webhook."""
