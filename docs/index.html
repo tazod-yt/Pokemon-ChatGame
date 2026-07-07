@@ -29,7 +29,6 @@
       <p class="hero-subtitle">Catch wild spawns, level up, battle other viewers, and trade your creatures in real-time. Use the commands below to begin your journey!</p>
       <div class="hero-buttons">
         <a href="#commands" class="btn btn-primary">Browse Commands</a>
-        <a href="#simulator" class="btn btn-secondary">Try Chat Simulator</a>
       </div>
     </div>
   </section>
@@ -233,78 +232,7 @@
     </div>
   </section>
 
-  <!-- Interactive Chat Simulator -->
-  <section id="simulator" class="simulator-section">
-    <div class="container grid-2-equal">
-      <div class="sim-info">
-        <h2>Interactive Chat Simulator</h2>
-        <p>Unsure how the commands look in live chat? Try typing them or clicking the presets to see the bot replies in real-time!</p>
-        
-        <div class="presets-container">
-          <h4>Click to test a preset command:</h4>
-          <button class="preset-btn" onclick="runPreset('!catch')">🎣 Test Standard Catch</button>
-          <button class="preset-btn" onclick="runPreset('!catch great')">🔵 Test Great Ball Catch</button>
-          <button class="preset-btn" onclick="runPreset('!trade @tazod Jolteon')">🤝 Test Trade Conflict</button>
-          <button class="preset-btn" onclick="runPreset('!stats Jolteon')">📋 Test Stats Query</button>
-          <button class="preset-btn" onclick="runPreset('!use fire-stone P1')">✨ Test Stone Evolution</button>
-        </div>
-      </div>
 
-      <div class="sim-console">
-        <div class="console-header">
-          <span class="dot red"></span>
-          <span class="dot yellow"></span>
-          <span class="dot green"></span>
-          <span class="console-title">Live Chat Stream Simulator</span>
-        </div>
-        <div class="console-body" id="chat-messages">
-          <div class="message system-msg">Welcome to the Live Pokémon Chat Simulator! Select a preset or type a command below.</div>
-        </div>
-        <div class="console-input-area">
-          <span class="username-prefix">Trainer:</span>
-          <input type="text" id="chat-input" placeholder="Type command here (e.g. !catch)..." onkeydown="handleKeyDown(event)">
-          <button class="btn-send" onclick="sendInput()">Send</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- How mechanics work -->
-  <section class="mechanics-section">
-    <div class="container">
-      <div class="section-header">
-        <h2>Advanced Game Mechanics</h2>
-        <p>Important rules, multipliers, and drop tables to help you become a master trainer!</p>
-      </div>
-
-      <div class="grid-3">
-        <div class="mechanic-card">
-          <h4>📈 Catch Multipliers</h4>
-          <ul>
-            <li><strong>Standard Ball</strong>: 1.0x catch rate modifier (Unlimited use).</li>
-            <li><strong>Great Ball</strong>: 1.5x catch rate modifier (Consumed from bag).</li>
-            <li><strong>Ultra Ball</strong>: 2.0x catch rate modifier (Consumed from bag).</li>
-          </ul>
-        </div>
-        <div class="mechanic-card">
-          <h4>🎁 100% Battle Drop Rates</h4>
-          <p>After every battle, both the challenger and defender are 100% guaranteed to receive a drop in this probability order:</p>
-          <ul>
-            <li><strong>Great Ball</strong>: 50% probability.</li>
-            <li><strong>Evolution Item/Stone</strong>: 35% probability.</li>
-            <li><strong>Ultra Ball</strong>: 15% probability.</li>
-          </ul>
-        </div>
-        <div class="mechanic-card">
-          <h4>✨ Evolutions & PIDs</h4>
-          <ul>
-            <li><strong>Level Evolution</strong>: Pokémon evolve automatically at their trigger level (e.g. Bulbasaur to Ivysaur at Lv 16) after a battle.</li>
-            <li><strong>Unique PIDs</strong>: Every Pokémon has a unique text PID (e.g. `P149`) to help identify duplicates during trades or item uses.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- Toast Notification -->
   <div id="toast" class="toast">Command copied to clipboard!</div>
