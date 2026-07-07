@@ -16,8 +16,24 @@ if ($LASTEXITCODE -ne 0) {
 
 if ($Zip) {
   $zipPath = Join-Path (Split-Path -Parent $root) "Pokemon Chat Game.zip"
+  $staging = Join-Path $root "_zip_staging"
+
   if (Test-Path $zipPath) { Remove-Item $zipPath }
+  if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
+
+  Write-Host "Copying to staging: $staging..."
+  Copy-Item -Path $root -Destination $staging -Recurse -Force
+
+  # Replace live settings with the blank template
+  $templateSrc  = Join-Path $root    "Config\settings.template.json"
+  $templateDest = Join-Path $staging "Config\settings.json"
+  Copy-Item -Path $templateSrc -Destination $templateDest -Force
+
   Write-Host "Creating $zipPath..."
-  Compress-Archive -Path (Join-Path $root "*") -DestinationPath $zipPath
+  Compress-Archive -Path (Join-Path $staging "*") -DestinationPath $zipPath
+
+  Remove-Item $staging -Recurse -Force
+  Write-Host "Done."
 }
+
 

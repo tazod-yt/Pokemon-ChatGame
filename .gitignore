@@ -6,6 +6,7 @@
 
 # Build artifacts
 /build/
+/_zip_staging/
 /GameEngine/GameEngine.exe
 /PokemonChatGame/
 /PokemonChatGame.zip

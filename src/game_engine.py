@@ -84,9 +84,9 @@ DEFAULT_SETTINGS = {
     # Additional loser XP per level.
     "xp_loser_level_mult": 2,
     # Discord webhook URL for inventory command notifications.
-    "discord_inventory_webhook_url": "https://discord.com/api/webhooks/1519674426436616375/q1X3B0C7TpWq73PXipSiE9XyMZiJC9oz6iTi--Jhx6H0k231ESAr4eX7-ElPnA5BkAlZ",
-    # Auto-spawn interval in seconds (0 = disabled). Set via STREAMERBOT_AUTO_SPAWN_INTERVAL_SECONDS
-    "auto_spawn_interval_seconds": 0,
+    "discord_inventory_webhook_url": "",
+    # Auto-spawn interval in seconds. Set to 0 to disable.
+    "auto_spawn_interval_seconds": 120,
 }
 
 TRAITS = ["Brave", "Tank", "Swift", "Lucky", "Berserk"]
@@ -139,22 +139,7 @@ def get_image_data_dir() -> Path:
 IMAGE_DATA_DIR = get_image_data_dir()
 POKEMON_STATS_FILE = IMAGE_DATA_DIR / "pokemon_base_stats.json"
 
-def _find_evolution_rules() -> Path:
-    """Find the path of the evolution rules file, handling frozen binary scenarios."""
-    candidates = []
-    candidates.append(IMAGE_DATA_DIR / "evolution_rules.json")
-    repo_base = Path(__file__).resolve().parent.parent
-    candidates.append(repo_base / "evolution_rules.json")
-    if getattr(sys, "frozen", False):
-        exe_dir = Path(sys.executable).resolve().parent
-        candidates.append(exe_dir / "evolution_rules.json")
-        candidates.append(exe_dir.parent / "evolution_rules.json")
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    return candidates[0]
-
-EVOLUTION_RULES_FILE = _find_evolution_rules()
+EVOLUTION_RULES_FILE = IMAGE_DATA_DIR / "evolution_rules.json"
 
 
 
@@ -395,13 +380,28 @@ def load_settings(paths: Paths) -> Dict[str, Any]:
         settings.update(_get_discord_webhook_override())
         return settings
 
-    try:
-        data = read_json(paths.settings_json)
-    except Exception:
+    data = None
+    for attempt in range(5):
+        try:
+            data = read_json(paths.settings_json)
+            break
+        except Exception as e:
+            if attempt == 4:
+                raise RuntimeError(
+                    f"Fatal: Could not read settings file {paths.settings_json} after retries: {e}"
+                )
+            time.sleep(0.1)
+
+    if data is None:
         data = {}
 
     settings.update({k: v for k, v in data.items() if k in DEFAULT_SETTINGS})
-    write_json(paths.settings_json, settings)
+    
+    try:
+        write_json(paths.settings_json, settings)
+    except Exception as e:
+        logging.warning(f"Could not write to settings.json: {e}")
+
     settings.update(_get_discord_webhook_override())
     return settings
 
