@@ -143,7 +143,7 @@ These commands are the contract between Streamer.bot and the engine.
 | Command | Description |
 | --- | --- |
 | `!spawn` | Spawn a wild Pokémon |
-| `!catch` | Attempt to catch the active spawn |
+| `!catch` or `!catch <great|ultra>` | Attempt to catch the active spawn (Poke Ball is free; Great/Ultra Balls apply catch rate multipliers and are consumed from your bag) |
 | `!inventory` or `!pokedex` | List your Pokémon collection |
 | `!stats <pokemon>` | View detailed stats, ELO, and records for a Pokémon in your collection |
 | `!battle @user <pokemon>` | Challenge a user with a chosen Pokémon |

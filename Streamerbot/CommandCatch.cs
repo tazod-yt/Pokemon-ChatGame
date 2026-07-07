@@ -27,9 +27,37 @@ public class CPHInline
 
         if (command == "catch")
         {
-            string target = !string.IsNullOrWhiteSpace(userArg) ? userArg : invokerName;
+            string ball = "";
+            string target = invokerName;
+            
+            if (!string.IsNullOrWhiteSpace(userArg))
+            {
+                string val = userArg.ToLower();
+                if (val == "great" || val == "great-ball" || val == "ultra" || val == "ultra-ball")
+                {
+                    ball = val;
+                }
+                else
+                {
+                    target = userArg;
+                }
+            }
+            
+            if (!string.IsNullOrWhiteSpace(arg2))
+            {
+                string val = arg2.ToLower();
+                if (val == "great" || val == "great-ball" || val == "ultra" || val == "ultra-ball")
+                {
+                    ball = val;
+                }
+            }
+            
             if (string.IsNullOrWhiteSpace(target)) return true;
             processArgs = $"catch {target}";
+            if (!string.IsNullOrWhiteSpace(ball))
+            {
+                processArgs += $" {ball}";
+            }
         }
         else if (command == "inventory")
         {

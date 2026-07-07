@@ -272,23 +272,23 @@ def test_items_trading_and_evolution():
             eevee_id = conn.execute("SELECT id FROM creatures WHERE name = 'Eevee'").fetchone()[0]
             conn.execute(
                 """
-                INSERT INTO inventory (user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
-                VALUES (?, 'ankit', ?, 1, 0, ?, 0, 0, 1000)
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
+                VALUES ('P1', ?, 'ankit', ?, 1, 0, ?, 0, 0, 1000)
                 """,
                 (user1_id, eevee_id, int(time.time()))
             )
-            eevee_pid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+            eevee_pid = "P1"
             
             # Catch a Growlithe for tazod
             growlithe_id = conn.execute("SELECT id FROM creatures WHERE name = 'Growlithe'").fetchone()[0]
             conn.execute(
                 """
-                INSERT INTO inventory (user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
-                VALUES (?, 'tazod', ?, 10, 0, ?, 0, 0, 1000)
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
+                VALUES ('P2', ?, 'tazod', ?, 10, 0, ?, 0, 0, 1000)
                 """,
                 (user2_id, growlithe_id, int(time.time()))
             )
-            growlithe_pid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+            growlithe_pid = "P2"
 
         # 2. Check empty bag
         bag_output = engine.bag("ankit")
@@ -354,12 +354,12 @@ def test_items_trading_and_evolution():
             onix_id = conn.execute("SELECT id FROM creatures WHERE name = 'Onix'").fetchone()[0]
             conn.execute(
                 """
-                INSERT INTO inventory (user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
-                VALUES (?, 'ankit', ?, 10, 0, ?, 0, 0, 1000)
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
+                VALUES ('P3', ?, 'ankit', ?, 10, 0, ?, 0, 0, 1000)
                 """,
                 (user1_id, onix_id, int(time.time()))
             )
-            onix_pid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+            onix_pid = "P3"
             
             # Give metal-coat to tazod (the receiver of Onix)
             conn.execute("INSERT INTO bag (user_id, item_name, quantity) VALUES (?, 'metal-coat', 1)", (user2_id,))
@@ -381,6 +381,111 @@ def test_items_trading_and_evolution():
             
             qty = conn.execute("SELECT quantity FROM bag WHERE user_id = ? AND item_name = 'metal-coat'", (user2_id,)).fetchone()[0]
             assert qty == 0
+
+
+def test_catch_with_specialty_balls():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        
+        # 1. Spawn a wild creature
+        engine.spawn()
+        
+        # 2. Try to catch with great ball without having one in bag (should fail and warn)
+        catch_res = engine.catch("ankit", "great")
+        assert "do not have any great ball" in catch_res
+        
+        # 3. Try to catch with ultra ball without having one in bag (should fail and warn)
+        catch_res = engine.catch("ankit", "ultra")
+        assert "do not have any ultra ball" in catch_res
+        
+        # 4. Award balls to user
+        with db_session(engine.paths) as conn:
+            user_id = engine._ensure_user(conn, "ankit")
+            conn.execute("INSERT INTO bag (user_id, item_name, quantity) VALUES (?, 'great-ball', 1)", (user_id,))
+            conn.execute("INSERT INTO bag (user_id, item_name, quantity) VALUES (?, 'ultra-ball', 1)", (user_id,))
+            
+        # 5. Catch using specialty ball
+        with db_session(engine.paths) as conn:
+            conn.execute("UPDATE users SET last_catch_at = 0 WHERE id = ?", (user_id,))
+            
+        catch_res = engine.catch("ankit", "great")
+        # Check that the great-ball was consumed from bag
+        with db_session(engine.paths) as conn:
+            qty = conn.execute("SELECT quantity FROM bag WHERE user_id = ? AND item_name = 'great-ball'", (user_id,)).fetchone()[0]
+            assert qty == 0
+            
+        # 6. Reset spawn and test catch success multiplier
+        engine._write_active_spawn({})
+        with db_session(engine.paths) as conn:
+            conn.execute("UPDATE settings SET value = '0' WHERE key = 'last_spawn_at'")
+        engine.spawn()
+        with db_session(engine.paths) as conn:
+            conn.execute("UPDATE users SET last_catch_at = 0 WHERE id = ?", (user_id,))
+            
+        catch_res2 = engine.catch("ankit", "ultra")
+        with db_session(engine.paths) as conn:
+            qty = conn.execute("SELECT quantity FROM bag WHERE user_id = ? AND item_name = 'ultra-ball'", (user_id,)).fetchone()[0]
+            assert qty == 0
+
+
+def test_trade_by_name_and_number_conflict():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        
+        # 1. Setup users
+        with db_session(engine.paths) as conn:
+            user1_id = engine._ensure_user(conn, "ankit")
+            user2_id = engine._ensure_user(conn, "tazod")
+            
+            eevee_id = conn.execute("SELECT id FROM creatures WHERE name = 'Eevee'").fetchone()[0]
+            growlithe_id = conn.execute("SELECT id FROM creatures WHERE name = 'Growlithe'").fetchone()[0]
+            
+            # Catch ONE Eevee for ankit
+            conn.execute(
+                """
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
+                VALUES ('P1', ?, 'ankit', ?, 1, 0, ?, 0, 0, 1000)
+                """,
+                (user1_id, eevee_id, int(time.time()))
+            )
+            
+            # Catch ONE Growlithe for tazod
+            conn.execute(
+                """
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
+                VALUES ('P2', ?, 'tazod', ?, 1, 0, ?, 0, 0, 1000)
+                """,
+                (user2_id, growlithe_id, int(time.time()))
+            )
+            
+        # 2. Trade Eevee by name (should succeed since unique)
+        trade_res = engine.trade("ankit", "tazod", "Eevee")
+        assert "wants to trade their Eevee (PID: P1)" in trade_res
+        
+        # 3. accepttrade by name (should succeed since unique)
+        accept_res = engine.accepttrade("tazod", "ankit", "Growlithe")
+        assert "Trade complete" in accept_res
+        
+        # 4. Catch a second Eevee for tazod (who now also owns P1 Eevee from the trade)
+        # So tazod owns both 'P1' (Eevee) and 'P3' (Eevee)
+        with db_session(engine.paths) as conn:
+            conn.execute(
+                """
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
+                VALUES ('P3', ?, 'tazod', ?, 1, 0, ?, 0, 0, 1000)
+                """,
+                (user2_id, eevee_id, int(time.time()))
+            )
+            
+        # 5. Try to trade Eevee by name from tazod (should trigger duplicate warning conflict)
+        trade_conflict_res = engine.trade("tazod", "ankit", "Eevee")
+        assert "you have more than 1 Eevee use PID instead" in trade_conflict_res
+        
+        # 6. Try to trade by species ID (133 is Eevee) from tazod (should also trigger conflict)
+        trade_conflict_res2 = engine.trade("tazod", "ankit", "133")
+        assert "you have more than 1 Eevee use PID instead" in trade_conflict_res2
+
+
 
 
 

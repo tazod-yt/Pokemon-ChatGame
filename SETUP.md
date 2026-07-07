@@ -60,7 +60,7 @@ Now go to the **Commands** tab in Streamer.bot and ensure that the following com
 | Chat Command | Streamer.bot Action | Description |
 | --- | --- | --- |
 | `!spawn` | Spawn Wild Pokémon | Manually spawn a wild Pokémon (cooldown enforced) |
-| `!catch` | Catch Spawned Pokémon | Attempt to catch the active wild Pokémon |
+| `!catch [great\|ultra]` | Catch Spawned Pokémon | Attempt to catch the active wild Pokémon (Pokeball is free, Great/Ultra balls apply catch rate multipliers and are consumed from your bag) |
 | `!inventory` or `!pokedex` | List Collection | Lists Pokémon in your collection (sends image to Discord if webhook is set) |
 | `!stats <pokemon>` | View Stats Card | View detailed ELO, record, traits, and stats (also routes to Discord webhook) |
 | `!battle @user <pokemon>` | Challenge User | Challenge another user in chat with your selected Pokémon |
