@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon ChatGame - Player & Command Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <span class="logo-orb"></span>
+        <h1>Pokémon <span>ChatGame</span></h1>
+      </div>
+      <div class="version-badge">v1.0.5</div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="container hero-content">
+      <h2 class="hero-title animate-pop">Play Pokémon directly in the Stream Chat!</h2>
+      <p class="hero-subtitle">Catch wild spawns, level up, battle other viewers, and trade your creatures in real-time. Use the commands below to begin your journey!</p>
+      <div class="hero-buttons">
+        <a href="#commands" class="btn btn-primary">Browse Commands</a>
+        <a href="#simulator" class="btn btn-secondary">Try Chat Simulator</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Stats Infographic -->
+  <section class="quick-stats">
+    <div class="container grid-3">
+      <div class="stat-card">
+        <div class="stat-icon">🎣</div>
+        <h3>Unlimited Spawns</h3>
+        <p>Wild Pokémon spawn automatically. Capture them using Poke Balls, Great Balls (1.5x catch rate), or Ultra Balls (2.0x catch rate)!</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚔️</div>
+        <h3>Ranked ELO Battles</h3>
+        <p>Challenge other chatters to active ELO-rated battles. Win to gain XP, ELO points, and 100% guaranteed reward drops!</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🤝</div>
+        <h3>Real-time Trading</h3>
+        <p>Trade with friends directly in chat. Some Pokémon require specific items held during trades to trigger special evolutions!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Commands Reference -->
+  <section id="commands" class="commands-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Interactive Commands Reference</h2>
+        <p>Click any category to filter, and click the copy icon on any command to copy it instantly!</p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="tabs-container">
+        <button class="tab-btn active" data-category="all">All Commands</button>
+        <button class="tab-btn" data-category="catch">🎣 Catching</button>
+        <button class="tab-btn" data-category="battle">⚔️ Battling</button>
+        <button class="tab-btn" data-category="items">🎒 Items & Bag</button>
+        <button class="tab-btn" data-category="trade">🤝 Trading</button>
+      </div>
+
+      <!-- Commands Grid -->
+      <div class="commands-grid">
+        <!-- Catch Standard -->
+        <div class="command-card" data-category="catch">
+          <div class="command-header">
+            <span class="cmd-badge bg-catch">Catch</span>
+            <div class="copy-wrapper" onclick="copyText('!catch')">
+              <code>!catch</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Catch the currently active wild Pokémon using an unlimited, standard Poke Ball.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!catch</code></div>
+        </div>
+
+        <!-- Catch Great -->
+        <div class="command-card" data-category="catch">
+          <div class="command-header">
+            <span class="cmd-badge bg-catch">Great Ball</span>
+            <div class="copy-wrapper" onclick="copyText('!catch great')">
+              <code>!catch great</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Catch the active spawn using a Great Ball (consumes 1 from bag, gives <strong>1.5x</strong> catch success multiplier).</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!catch great</code></div>
+        </div>
+
+        <!-- Catch Ultra -->
+        <div class="command-card" data-category="catch">
+          <div class="command-header">
+            <span class="cmd-badge bg-catch">Ultra Ball</span>
+            <div class="copy-wrapper" onclick="copyText('!catch ultra')">
+              <code>!catch ultra</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Catch the active spawn using an Ultra Ball (consumes 1 from bag, gives <strong>2.0x</strong> catch success multiplier).</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!catch ultra</code></div>
+        </div>
+
+        <!-- Battle Challenge -->
+        <div class="command-card" data-category="battle">
+          <div class="command-header">
+            <span class="cmd-badge bg-battle">Challenge</span>
+            <div class="copy-wrapper" onclick="copyText('!battle @username pokemon')">
+              <code>!battle @user [pokemon/number]</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Challenge another viewer to a battle using a specific Pokémon from your inventory (can be name, species number, or PID).</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!battle @tazod Jolteon</code></div>
+        </div>
+
+        <!-- Battle Accept -->
+        <div class="command-card" data-category="battle">
+          <div class="command-header">
+            <span class="cmd-badge bg-battle">Accept Battle</span>
+            <div class="copy-wrapper" onclick="copyText('!accept @username pokemon')">
+              <code>!accept @user [pokemon/number]</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Accept a pending battle challenge from a trainer using one of your Pokémon.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!accept @ankit P3</code></div>
+        </div>
+
+        <!-- Stats -->
+        <div class="command-card" data-category="battle">
+          <div class="command-header">
+            <span class="cmd-badge bg-battle">Stats</span>
+            <div class="copy-wrapper" onclick="copyText('!stats Jolteon')">
+              <code>!stats [pokemon/PID]</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Check ELO, levels, wins/losses, IV stats, and unique PIDs for a specific creature or your entire collection of that species.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!stats Jolteon</code> or <code>!stats P149</code></div>
+        </div>
+
+        <!-- Pokedex -->
+        <div class="command-card" data-category="items">
+          <div class="command-header">
+            <span class="cmd-badge bg-items">Pokedex</span>
+            <div class="copy-wrapper" onclick="copyText('!pokedex')">
+              <code>!pokedex</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Get a summary of your Pokémon collection progress, total wins, losses, overall win rate, and total unique caught species.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!pokedex</code></div>
+        </div>
+
+        <!-- Bag -->
+        <div class="command-card" data-category="items">
+          <div class="command-header">
+            <span class="cmd-badge bg-items">Bag</span>
+            <div class="copy-wrapper" onclick="copyText('!bag')">
+              <code>!bag</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Check all items currently held in your bag (evolution items, stones, great-balls, and ultra-balls).</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!bag</code></div>
+        </div>
+
+        <!-- Use Item -->
+        <div class="command-card" data-category="items">
+          <div class="command-header">
+            <span class="cmd-badge bg-items">Use Item</span>
+            <div class="copy-wrapper" onclick="copyText('!use stone pid')">
+              <code>!use [item_name] [PID]</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Use an evolution stone or item (like a Fire Stone or Metal Coat) from your bag on a Pokémon (must be at least Level 10) to evolve it.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!use fire-stone P1</code></div>
+        </div>
+
+        <!-- Trade -->
+        <div class="command-card" data-category="trade">
+          <div class="command-header">
+            <span class="cmd-badge bg-trade">Trade</span>
+            <div class="copy-wrapper" onclick="copyText('!trade @username pokemon')">
+              <code>!trade @user [pokemon/PID]</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Send a trade proposal offering a Pokémon. You can specify by name/species number (if unique) or PID (if you own duplicates).</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!trade @tazod Jolteon</code></div>
+        </div>
+
+        <!-- Accept Trade -->
+        <div class="command-card" data-category="trade">
+          <div class="command-header">
+            <span class="cmd-badge bg-trade">Accept Trade</span>
+            <div class="copy-wrapper" onclick="copyText('!accepttrade @username pokemon')">
+              <code>!accepttrade @user [pokemon/PID]</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">Accept a pending trade from another trainer and specify what Pokémon you are giving in return.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!accepttrade @ankit Growlithe</code></div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="command-card" data-category="battle">
+          <div class="command-header">
+            <span class="cmd-badge bg-battle">Leaderboard</span>
+            <div class="copy-wrapper" onclick="copyText('!leaderboard')">
+              <code>!leaderboard</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">See the top trainers on the stream ranked by their ELO score.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!leaderboard</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Chat Simulator -->
+  <section id="simulator" class="simulator-section">
+    <div class="container grid-2-equal">
+      <div class="sim-info">
+        <h2>Interactive Chat Simulator</h2>
+        <p>Unsure how the commands look in live chat? Try typing them or clicking the presets to see the bot replies in real-time!</p>
+        
+        <div class="presets-container">
+          <h4>Click to test a preset command:</h4>
+          <button class="preset-btn" onclick="runPreset('!catch')">🎣 Test Standard Catch</button>
+          <button class="preset-btn" onclick="runPreset('!catch great')">🔵 Test Great Ball Catch</button>
+          <button class="preset-btn" onclick="runPreset('!trade @tazod Jolteon')">🤝 Test Trade Conflict</button>
+          <button class="preset-btn" onclick="runPreset('!stats Jolteon')">📋 Test Stats Query</button>
+          <button class="preset-btn" onclick="runPreset('!use fire-stone P1')">✨ Test Stone Evolution</button>
+        </div>
+      </div>
+
+      <div class="sim-console">
+        <div class="console-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="console-title">Live Chat Stream Simulator</span>
+        </div>
+        <div class="console-body" id="chat-messages">
+          <div class="message system-msg">Welcome to the Live Pokémon Chat Simulator! Select a preset or type a command below.</div>
+        </div>
+        <div class="console-input-area">
+          <span class="username-prefix">Trainer:</span>
+          <input type="text" id="chat-input" placeholder="Type command here (e.g. !catch)..." onkeydown="handleKeyDown(event)">
+          <button class="btn-send" onclick="sendInput()">Send</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How mechanics work -->
+  <section class="mechanics-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Advanced Game Mechanics</h2>
+        <p>Important rules, multipliers, and drop tables to help you become a master trainer!</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="mechanic-card">
+          <h4>📈 Catch Multipliers</h4>
+          <ul>
+            <li><strong>Standard Ball</strong>: 1.0x catch rate modifier (Unlimited use).</li>
+            <li><strong>Great Ball</strong>: 1.5x catch rate modifier (Consumed from bag).</li>
+            <li><strong>Ultra Ball</strong>: 2.0x catch rate modifier (Consumed from bag).</li>
+          </ul>
+        </div>
+        <div class="mechanic-card">
+          <h4>🎁 100% Battle Drop Rates</h4>
+          <p>After every battle, both the challenger and defender are 100% guaranteed to receive a drop in this probability order:</p>
+          <ul>
+            <li><strong>Great Ball</strong>: 50% probability.</li>
+            <li><strong>Evolution Item/Stone</strong>: 35% probability.</li>
+            <li><strong>Ultra Ball</strong>: 15% probability.</li>
+          </ul>
+        </div>
+        <div class="mechanic-card">
+          <h4>✨ Evolutions & PIDs</h4>
+          <ul>
+            <li><strong>Level Evolution</strong>: Pokémon evolve automatically at their trigger level (e.g. Bulbasaur to Ivysaur at Lv 16) after a battle.</li>
+            <li><strong>Unique PIDs</strong>: Every Pokémon has a unique text PID (e.g. `P149`) to help identify duplicates during trades or item uses.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Command copied to clipboard!</div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Pokémon ChatGame. Built for streamers, powered by viewers in chat.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
