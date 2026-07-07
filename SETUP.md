@@ -65,6 +65,10 @@ Now go to the **Commands** tab in Streamer.bot and ensure that the following com
 | `!stats <pokemon>` | View Stats Card | View detailed ELO, record, traits, and stats (also routes to Discord webhook) |
 | `!battle @user <pokemon>` | Challenge User | Challenge another user in chat with your selected Pokémon |
 | `!accept @user <pokemon>` | Accept Challenge | Accept a pending battle challenge and start the battle |
+| `!bag` | View Bag Items | Displays all evolutionary stones and held items in your inventory |
+| `!use <item_name> <pid>` | Use Stone/Item | Evolves a Level 10+ Pokémon by consuming the specified item from your bag |
+| `!trade @user <pid>` | Propose Trade | Propose trading one of your Pokémon (by PID) to another user |
+| `!accepttrade @user <pid>` | Accept Trade Swaps | Accept a pending trade from another user and swap ownership, triggering trade evolutions |
 | `!leaderboard` | Show Leaderboard | Displays the top 10 players and top 10 Pokémon by ELO |
 
 Enjoy streaming your new Pokémon Chat Game!

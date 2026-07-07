@@ -114,6 +114,18 @@ These commands are the contract between Streamer.bot and the engine.
   - If a wild Pokémon spawn is active and not expired, the battle is queued and starts automatically once the spawn is caught or has fled
   - Awards XP, updates ELO, checks level-up evolutions, writes battle transcript to overlay state
 
+- `GameEngine.exe bag <username>`
+  - Returns a text list of the items and stones in the user's bag.
+
+- `GameEngine.exe use <username> <item_name> <pid>`
+  - Uses an item/stone on the user's level 10+ Pokémon (referenced by database ELO/inventory PID) to evolve it.
+
+- `GameEngine.exe trade <sender> <receiver> <sender_pid>`
+  - Proposes a trade of the sender's Pokémon (referenced by PID) to the receiver. The offer expires after 2 minutes.
+
+- `GameEngine.exe accepttrade <receiver> <sender> <receiver_pid>`
+  - Accepts a trade. Swaps ownership of both Pokémon and automatically triggers any trade or trade-with-held-item evolutions (consuming the item from the receiver's bag).
+
 - `GameEngine.exe leaderboard`
   - Shows top 10 Pokémon by ELO and top 10 players by ELO
 
@@ -136,6 +148,10 @@ These commands are the contract between Streamer.bot and the engine.
 | `!stats <pokemon>` | View detailed stats, ELO, and records for a Pokémon in your collection |
 | `!battle @user <pokemon>` | Challenge a user with a chosen Pokémon |
 | `!accept @user <pokemon>` | Accept a challenge from that user |
+| `!bag` | View all stones, items, and trade items in your inventory bag |
+| `!use <item_name> <pid>` | Use an item or stone to evolve a Level 10+ Pokémon in your inventory (requires unique Database ID/PID) |
+| `!trade @user <pid>` | Propose a swap: trade your Pokémon (by PID) to another user |
+| `!accepttrade @user <pid>` | Accept a pending trade from another user with your own Pokémon (by PID) |
 | `!leaderboard` | Top 10 Pokémon and Top 10 Players by ELO |
 
 ## Configuration

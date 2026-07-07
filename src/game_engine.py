@@ -91,6 +91,12 @@ DEFAULT_SETTINGS = {
 
 TRAITS = ["Brave", "Tank", "Swift", "Lucky", "Berserk"]
 
+EVOLUTION_ITEMS = [
+    "moon-stone", "water-stone", "thunder-stone", "fire-stone", "leaf-stone",
+    "sun-stone", "black-augurite", "oval-stone", "electirizer", "magmarizer",
+    "metal-coat", "kings-rock", "up-grade", "dubious-disc", "protector", "dragon-scale"
+]
+
 CREATURE_EMOJI = {
     "Electric": "⚡",
     "Grass": "🌿",
@@ -617,6 +623,14 @@ def migrate_db(conn: sqlite3.Connection) -> None:
         types_val = json.dumps(types_by_name.get(name, []), ensure_ascii=False)
         conn.execute("UPDATE creatures SET types = ? WHERE id = ?", (types_val, creature_id))
 
+    # Migration: Pre-populate pokedex from current inventory
+    conn.execute(
+        """
+        INSERT OR IGNORE INTO pokedex (user_id, creature_id)
+        SELECT DISTINCT user_id, creature_id FROM inventory
+        """
+    )
+
 
 def init_db(paths: Paths) -> None:
     """Init db."""
@@ -684,7 +698,7 @@ def init_db(paths: Paths) -> None:
                 created_at INTEGER NOT NULL,
                 FOREIGN KEY(user1_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY(user2_id) REFERENCES users(id) ON DELETE CASCADE,
-                    FOREIGN KEY(winner_id) REFERENCES users(id) ON DELETE CASCADE
+                FOREIGN KEY(winner_id) REFERENCES users(id) ON DELETE CASCADE
                 )
                 """
             )
@@ -693,6 +707,43 @@ def init_db(paths: Paths) -> None:
                 CREATE TABLE IF NOT EXISTS settings (
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS pokedex (
+                user_id INTEGER NOT NULL,
+                creature_id INTEGER NOT NULL,
+                PRIMARY KEY(user_id, creature_id),
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(creature_id) REFERENCES creatures(id) ON DELETE CASCADE
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS bag (
+                user_id INTEGER NOT NULL,
+                item_name TEXT NOT NULL,
+                quantity INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY(user_id, item_name),
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS pending_trades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sender_id INTEGER NOT NULL,
+                receiver_id INTEGER NOT NULL,
+                sender_inventory_id INTEGER NOT NULL,
+                created_at INTEGER NOT NULL,
+                expires_at INTEGER NOT NULL,
+                FOREIGN KEY(sender_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(sender_inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
                 )
                 """
             )
@@ -851,6 +902,49 @@ class GameEngine:
         except Exception:
             self._evolution_rules = {}
         return self._evolution_rules
+
+    def _get_item_targets(self, item_name: str) -> List[str]:
+        """Get names of pokemon that can be evolved by this item/stone."""
+        rules = self._load_evolution_rules()
+        targets = []
+        for pokemon_name, rule_list in rules.items():
+            for r in rule_list:
+                if r.get("item") == item_name or r.get("held_item") == item_name:
+                    targets.append(pokemon_name)
+        return sorted(list(set(targets)))
+
+    def _check_ready_to_evolve_prompt(self, conn: sqlite3.Connection, username: str) -> List[str]:
+        """Check if user has level 10+ pokemon ready to evolve via item, return list of prompts."""
+        prompts = []
+        user_row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+        if not user_row:
+            return prompts
+        user_id = user_row[0]
+        
+        # Fetch all inventory items
+        rows = conn.execute(
+            """
+            SELECT inventory.id, creatures.name, inventory.level
+            FROM inventory
+            JOIN creatures ON creatures.id = inventory.creature_id
+            WHERE inventory.user_id = ?
+            """,
+            (user_id,)
+        ).fetchall()
+        
+        rules = self._load_evolution_rules()
+        for inv_id, creature_name, level in rows:
+            if level >= 10:
+                species_rules = rules.get(creature_name, [])
+                for r in species_rules:
+                    if r.get("type") == "use-item":
+                        item_name = r.get("item")
+                        prompts.append(
+                            f"💡 @{username}, your {creature_name} (PID: {inv_id}) is level {level} and ready to evolve! "
+                            f"Use !use {item_name} {inv_id} if you have it."
+                        )
+                        break
+        return prompts
 
     def _load_active_spawn(self) -> Dict[str, Any]:
         """Internal helper to load active spawn."""
@@ -1569,7 +1663,7 @@ class GameEngine:
             if not creature_row:
                 return self._respond("Spawn creature missing.")
 
-            catch_rate = float(creature_row[3]) / 600
+            catch_rate = float(creature_row[3]) / 765
             catch_rate = min(1.0, max(0.0, catch_rate))
             roll = self.rng.random()
             success = roll <= catch_rate
@@ -1611,6 +1705,10 @@ class GameEngine:
                         int(self.settings["default_elo"]),
                     ),
                 )
+                conn.execute(
+                    "INSERT OR IGNORE INTO pokedex (user_id, creature_id) VALUES (?, ?)",
+                    (user_id, spawn["creature_id"]),
+                )
                 self._write_active_spawn({})
                 self._write_overlay(
                     {
@@ -1622,7 +1720,11 @@ class GameEngine:
                     }
                 )
                 logging.info("Catch success: %s caught %s", username, spawn.get("name"))
-                return self._respond(f"{self._mention(username)} caught {spawn.get('name')}! ({trait})")
+                prompts = self._check_ready_to_evolve_prompt(conn, username)
+                success_msg = f"{self._mention(username)} caught {spawn.get('name')}! ({trait})"
+                if prompts:
+                    success_msg += "\n" + "\n".join(prompts)
+                return self._respond(success_msg)
 
             self._write_overlay(
                 {
@@ -1662,11 +1764,22 @@ class GameEngine:
                 (user_id,),
             ).fetchall()
 
-        if not rows:
+            # Query pokedex table for all ever-owned species
+            pokedex_rows = conn.execute(
+                """
+                SELECT creatures.species_id 
+                FROM pokedex
+                JOIN creatures ON creatures.id = pokedex.creature_id
+                WHERE pokedex.user_id = ?
+                """,
+                (user_id,),
+            ).fetchall()
+
+        if not pokedex_rows:
             return self._respond(f"{self._mention(username)} has no creatures yet.")
 
         # Create image payload first
-        owned_species = {row[1] for row in rows if row[1]}
+        owned_species = {p_row[0] for p_row in pokedex_rows if p_row[0]}
         
         # Calculate stats for Discord message
         total_owned = len(rows)
@@ -2086,7 +2199,367 @@ class GameEngine:
                 "timer": 0,
             })
 
+        # --- Phase 4: Execute Item Drops and Level-10 Evolve Prompts ---
+        drop_msgs = []
+        with db_session(self.paths) as conn:
+            for player in [challenger, accepter]:
+                if self.rng.random() < 0.5:
+                    dropped_item = self.rng.choice(EVOLUTION_ITEMS)
+                    uid_row = conn.execute("SELECT id FROM users WHERE username = ?", (player,)).fetchone()
+                    if uid_row:
+                        uid = uid_row[0]
+                        conn.execute(
+                            """
+                            INSERT INTO bag (user_id, item_name, quantity)
+                            VALUES (?, ?, 1)
+                            ON CONFLICT(user_id, item_name)
+                            DO UPDATE SET quantity = quantity + 1
+                            """,
+                            (uid, dropped_item)
+                        )
+                        targets = self._get_item_targets(dropped_item)
+                        targets_str = ", ".join(targets)
+                        if "stone" in dropped_item or dropped_item == "black-augurite":
+                            note = f"This can be used to evolve {targets_str} directly."
+                        else:
+                            note = f"This can be used to evolve {targets_str} during a trade."
+                        drop_msgs.append(f"🎉 @{player} found a {dropped_item}! {note}")
+
+            # Check Level 10 Evolve prompts for both players
+            p1_prompts = self._check_ready_to_evolve_prompt(conn, challenger)
+            p2_prompts = self._check_ready_to_evolve_prompt(conn, accepter)
+
+        chat_responses.extend(drop_msgs)
+        chat_responses.extend(p1_prompts)
+        chat_responses.extend(p2_prompts)
+
         return self._respond("\n".join(chat_responses))
+
+    def bag(self, username: str) -> str:
+        """List items in user's bag."""
+        username = normalize_username(username)
+        if not username:
+            return self._respond("Invalid username.")
+            
+        logging.info("Command: bag %s", username)
+        with db_session(self.paths) as conn:
+            user_row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+            if not user_row:
+                return self._respond(f"@{username}, your Bag is empty. Win battles to earn items!")
+            user_id = user_row[0]
+            
+            rows = conn.execute(
+                "SELECT item_name, quantity FROM bag WHERE user_id = ? AND quantity > 0",
+                (user_id,)
+            ).fetchall()
+            
+        if not rows:
+            return self._respond(f"@{username}, your Bag is empty. Win battles to earn items!")
+            
+        items_str = ", ".join(f"{qty}x {name}" for name, qty in rows)
+        return self._respond(f"@{username}, your Bag contains: {items_str}.")
+
+    def use(self, username: str, item_name: str, pid: str) -> str:
+        """Use an item/stone on a pokemon (by PID)."""
+        username = normalize_username(username)
+        if not username:
+            return self._respond("Invalid username.")
+        item_name = item_name.strip().lower()
+        
+        try:
+            pid_int = int(pid)
+        except ValueError:
+            return self._respond("Invalid PID.")
+            
+        logging.info("Command: use %s %s on PID %s", username, item_name, pid)
+        with db_session(self.paths) as conn:
+            user_row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+            if not user_row:
+                return self._respond(f"@{username} has no creatures.")
+            user_id = user_row[0]
+            
+            # Check item in bag
+            item_row = conn.execute(
+                "SELECT quantity FROM bag WHERE user_id = ? AND item_name = ?",
+                (user_id, item_name)
+            ).fetchone()
+            if not item_row or int(item_row[0]) <= 0:
+                return self._respond(f"@{username}, you do not have a {item_name} in your bag.")
+                
+            # Check pokemon ownership and level
+            inv_row = conn.execute(
+                """
+                SELECT creatures.name, inventory.level, inventory.creature_id
+                FROM inventory
+                JOIN creatures ON creatures.id = inventory.creature_id
+                WHERE inventory.id = ? AND inventory.user_id = ?
+                """,
+                (pid_int, user_id)
+            ).fetchone()
+            
+            if not inv_row:
+                return self._respond(f"@{username}, you do not own a Pokémon with PID {pid_int}.")
+                
+            pokemon_name, level, creature_id = inv_row
+            
+            if level < 10:
+                return self._respond(f"@{username}, {pokemon_name} (PID: {pid_int}) must be at least Level 10 to evolve via item.")
+                
+            # Find matching rules
+            rules = self._load_evolution_rules()
+            species_rules = rules.get(pokemon_name, [])
+            target_evolution = None
+            
+            for rule in species_rules:
+                if rule.get("type") == "use-item" and rule.get("item") == item_name:
+                    target_evolution = rule.get("to")
+                    break
+                    
+            if not target_evolution:
+                return self._respond(f"@{username}, {item_name} cannot be used to evolve {pokemon_name}.")
+                
+            new_creature = conn.execute(
+                "SELECT id FROM creatures WHERE name = ?",
+                (target_evolution,)
+            ).fetchone()
+            if not new_creature:
+                return self._respond("Evolution target creature missing in database.")
+                
+            new_creature_id = int(new_creature[0])
+            
+            # Update database: consume item, update creature
+            conn.execute(
+                "UPDATE bag SET quantity = quantity - 1 WHERE user_id = ? AND item_name = ?",
+                (user_id, item_name)
+            )
+            conn.execute(
+                "UPDATE inventory SET creature_id = ? WHERE id = ?",
+                (new_creature_id, pid_int)
+            )
+            conn.execute(
+                "INSERT OR IGNORE INTO pokedex (user_id, creature_id) VALUES (?, ?)",
+                (user_id, new_creature_id)
+            )
+            
+        # Trigger evolution overlay animation
+        self._write_overlay({
+            "state": "evolution",
+            "message": f"{username}'s {pokemon_name} is evolving!",
+            "spawn": None,
+            "timer": 0,
+            "evolution": {
+                "username": username,
+                "from": pokemon_name,
+                "to": target_evolution,
+                "expires_at": int(time.time()) + 8,
+            }
+        })
+        time.sleep(8)
+        self._write_overlay({
+            "state": "none",
+            "message": "",
+            "spawn": None,
+            "timer": 0,
+        })
+        
+        return self._respond(f"✨ @{username} used a {item_name} on their {pokemon_name} (PID: {pid_int}), evolving it into {target_evolution}!")
+
+    def trade(self, sender: str, receiver: str, sender_pid: str) -> str:
+        """Create a pending trade offer."""
+        sender = normalize_username(sender)
+        receiver = normalize_username(receiver)
+        if not sender or not receiver or sender == receiver:
+            return self._respond("Invalid trade participants.")
+            
+        try:
+            sender_pid_int = int(sender_pid)
+        except ValueError:
+            return self._respond("Invalid PID.")
+            
+        logging.info("Command: trade %s offers PID %s to %s", sender, sender_pid, receiver)
+        with db_session(self.paths) as conn:
+            sender_id = self._ensure_user(conn, sender)
+            receiver_id = self._ensure_user(conn, receiver)
+            
+            # Check ownership
+            inv_row = conn.execute(
+                "SELECT creatures.name FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = ? AND inventory.user_id = ?",
+                (sender_pid_int, sender_id)
+            ).fetchone()
+            
+            if not inv_row:
+                return self._respond(f"@{sender} does not own a Pokémon with PID {sender_pid_int}.")
+                
+            pokemon_name = inv_row[0]
+            
+            # Insert into pending_trades
+            now = now_ts()
+            expires_at = now + 120 # 2 minutes
+            
+            # Delete any existing active trade from sender to receiver
+            conn.execute(
+                "DELETE FROM pending_trades WHERE sender_id = ? AND receiver_id = ?",
+                (sender_id, receiver_id)
+            )
+            
+            conn.execute(
+                """
+                INSERT INTO pending_trades (sender_id, receiver_id, sender_inventory_id, created_at, expires_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (sender_id, receiver_id, sender_pid_int, now, expires_at)
+            )
+            
+        return self._respond(
+            f"🤝 @{sender} wants to trade their {pokemon_name} (PID: {sender_pid_int}) with @{receiver}. "
+            f"@{receiver}, type !accepttrade @{sender} <receiver_pid> to complete the trade."
+        )
+
+    def accepttrade(self, receiver: str, sender: str, receiver_pid: str) -> str:
+        """Accept a trade offer."""
+        receiver = normalize_username(receiver)
+        sender = normalize_username(sender)
+        if not receiver or not sender or receiver == sender:
+            return self._respond("Invalid trade participants.")
+            
+        try:
+            receiver_pid_int = int(receiver_pid)
+        except ValueError:
+            return self._respond("Invalid PID.")
+            
+        logging.info("Command: accepttrade %s accepts from %s with PID %s", receiver, sender, receiver_pid)
+        with db_session(self.paths) as conn:
+            receiver_id = self._ensure_user(conn, receiver)
+            sender_id = self._ensure_user(conn, sender)
+            
+            # Verify trade exists
+            trade = conn.execute(
+                """
+                SELECT id, sender_inventory_id, expires_at FROM pending_trades
+                WHERE sender_id = ? AND receiver_id = ?
+                ORDER BY created_at DESC LIMIT 1
+                """,
+                (sender_id, receiver_id)
+            ).fetchone()
+            
+            if not trade:
+                return self._respond(f"No pending trade offer from @{sender}.")
+                
+            trade_id, sender_pid_int, expires_at = trade
+            
+            if now_ts() >= int(expires_at):
+                conn.execute("DELETE FROM pending_trades WHERE id = ?", (trade_id,))
+                return self._respond("The trade offer has expired.")
+                
+            # Verify receiver PID ownership
+            receiver_inv = conn.execute(
+                "SELECT creatures.name, inventory.level, creatures.id FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = ? AND inventory.user_id = ?",
+                (receiver_pid_int, receiver_id)
+            ).fetchone()
+            
+            if not receiver_inv:
+                return self._respond(f"@{receiver} does not own a Pokémon with PID {receiver_pid_int}.")
+                
+            receiver_pokemon_name, receiver_level, receiver_creature_id = receiver_inv
+            
+            # Verify sender PID ownership still holds
+            sender_inv = conn.execute(
+                "SELECT creatures.name, inventory.level, creatures.id FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = ? AND inventory.user_id = ?",
+                (sender_pid_int, sender_id)
+            ).fetchone()
+            
+            if not sender_inv:
+                conn.execute("DELETE FROM pending_trades WHERE id = ?", (trade_id,))
+                return self._respond(f"@{sender}'s Pokémon is no longer available.")
+                
+            sender_pokemon_name, sender_level, sender_creature_id = sender_inv
+            
+            # Swap owners in inventory
+            conn.execute(
+                "UPDATE inventory SET user_id = ?, username = ? WHERE id = ?",
+                (receiver_id, receiver, sender_pid_int)
+            )
+            conn.execute(
+                "UPDATE inventory SET user_id = ?, username = ? WHERE id = ?",
+                (sender_id, sender, receiver_pid_int)
+            )
+            
+            # Log both in pokedex for their new owners
+            conn.execute("INSERT OR IGNORE INTO pokedex (user_id, creature_id) VALUES (?, ?)", (receiver_id, sender_creature_id))
+            conn.execute("INSERT OR IGNORE INTO pokedex (user_id, creature_id) VALUES (?, ?)", (sender_id, receiver_creature_id))
+            
+            # Evolution Checks during trade
+            rules = self._load_evolution_rules()
+            
+            def check_trade_evo(pid, p_name, user_id_val):
+                species_rules = rules.get(p_name, [])
+                for r in species_rules:
+                    if r.get("type") == "trade":
+                        held_item = r.get("held_item")
+                        if held_item:
+                            item_check = conn.execute(
+                                "SELECT quantity FROM bag WHERE user_id = ? AND item_name = ?",
+                                (user_id_val, held_item)
+                            ).fetchone()
+                            if not item_check or int(item_check[0]) <= 0:
+                                continue
+                            conn.execute(
+                                "UPDATE bag SET quantity = quantity - 1 WHERE user_id = ? AND item_name = ?",
+                                (user_id_val, held_item)
+                            )
+                        
+                        evolves_to = r.get("to")
+                        new_c = conn.execute("SELECT id FROM creatures WHERE name = ?", (evolves_to,)).fetchone()
+                        if new_c:
+                            conn.execute("UPDATE inventory SET creature_id = ? WHERE id = ?", (int(new_c[0]), pid))
+                            conn.execute("INSERT OR IGNORE INTO pokedex (user_id, creature_id) VALUES (?, ?)", (user_id_val, int(new_c[0])))
+                            return evolves_to
+                return None
+                
+            sender_new_pokemon_evo = check_trade_evo(receiver_pid_int, receiver_pokemon_name, sender_id)
+            receiver_new_pokemon_evo = check_trade_evo(sender_pid_int, sender_pokemon_name, receiver_id)
+            
+            # Delete trade offer
+            conn.execute("DELETE FROM pending_trades WHERE id = ?", (trade_id,))
+            
+        # Build Response
+        msg = f"🤝 Trade complete! @{sender} received @{receiver}'s {receiver_pokemon_name} (PID: {receiver_pid_int}) and @{receiver} received @{sender}'s {sender_pokemon_name} (PID: {sender_pid_int})."
+        
+        evo_notes = []
+        if sender_new_pokemon_evo:
+            evo_notes.append(f"@{sender}'s {receiver_pokemon_name} evolved into {sender_new_pokemon_evo}!")
+        if receiver_new_pokemon_evo:
+            evo_notes.append(f"@{receiver}'s {sender_pokemon_name} evolved into {receiver_new_pokemon_evo}!")
+            
+        if evo_notes:
+            msg += " " + " ".join(evo_notes)
+            
+        first_evo_username = sender if sender_new_pokemon_evo else (receiver if receiver_new_pokemon_evo else None)
+        first_evo_from = receiver_pokemon_name if sender_new_pokemon_evo else (sender_pokemon_name if receiver_new_pokemon_evo else None)
+        first_evo_to = sender_new_pokemon_evo if sender_new_pokemon_evo else (receiver_new_pokemon_evo if receiver_new_pokemon_evo else None)
+        
+        if first_evo_to:
+            self._write_overlay({
+                "state": "evolution",
+                "message": f"{first_evo_username}'s {first_evo_from} is evolving!",
+                "spawn": None,
+                "timer": 0,
+                "evolution": {
+                    "username": first_evo_username,
+                    "from": first_evo_from,
+                    "to": first_evo_to,
+                    "expires_at": int(time.time()) + 8,
+                }
+            })
+            time.sleep(8)
+            self._write_overlay({
+                "state": "none",
+                "message": "",
+                "spawn": None,
+                "timer": 0,
+            })
+            
+        return self._respond(msg)
 
     def leaderboard(self) -> str:
         """Leaderboard."""
@@ -2220,19 +2693,57 @@ class GameEngine:
             return None
 
         row = conn.execute(
-            "SELECT level FROM inventory WHERE id = ?",
+            "SELECT level, user_id FROM inventory WHERE id = ?",
             (pokemon.inv_id,),
         ).fetchone()
         if not row:
             return None
         level = int(row[0])
+        user_id = int(row[1])
 
         for rule in species_rules:
-            if rule.get("type") != "level-up":
+            rtype = rule.get("type", "level-up")
+            if rtype in ["use-item", "trade"]:
                 continue
-            required_level = rule.get("level")
-            if required_level is None or level < int(required_level):
-                continue
+
+            if rtype == "level-up":
+                if "level" in rule:
+                    required_level = int(rule.get("level"))
+                elif "friendship" in rule:
+                    required_level = int(rule.get("friendship")) // 10
+                else:
+                    required_level = 1
+
+                if level < required_level:
+                    continue
+
+                if "time_of_day" in rule:
+                    from datetime import datetime
+                    hour = datetime.now().hour
+                    tod = rule.get("time_of_day")
+                    is_day = 6 <= hour < 18
+                    if tod == "day" and not is_day:
+                        continue
+                    if tod == "night" and is_day:
+                        continue
+
+                if "held_item" in rule:
+                    item_needed = rule.get("held_item")
+                    item_count = conn.execute(
+                        "SELECT quantity FROM bag WHERE user_id = ? AND item_name = ?",
+                        (user_id, item_needed)
+                    ).fetchone()
+                    if not item_count or int(item_count[0]) <= 0:
+                        continue
+                    conn.execute(
+                        "UPDATE bag SET quantity = quantity - 1 WHERE user_id = ? AND item_name = ?",
+                        (user_id, item_needed)
+                    )
+            else:
+                # E.g. use-move, three-critical-hits, etc. default to level 16
+                if level < 16:
+                    continue
+
             evolves_to = rule.get("to")
             if not evolves_to:
                 continue
@@ -2246,6 +2757,10 @@ class GameEngine:
             conn.execute(
                 "UPDATE inventory SET creature_id = ? WHERE id = ?",
                 (int(new_creature[0]), pokemon.inv_id),
+            )
+            conn.execute(
+                "INSERT OR IGNORE INTO pokedex (user_id, creature_id) VALUES (?, ?)",
+                (user_id, int(new_creature[0])),
             )
             logging.info("Evolution: %s evolved into %s", pokemon.name, evolves_to)
             return evolves_to
@@ -2564,6 +3079,24 @@ def main() -> int:
     stats_parser.add_argument("username")
     stats_parser.add_argument("pokemon")
 
+    bag_parser = subparsers.add_parser("bag")
+    bag_parser.add_argument("username")
+
+    use_parser = subparsers.add_parser("use")
+    use_parser.add_argument("username")
+    use_parser.add_argument("item_name")
+    use_parser.add_argument("pid")
+
+    trade_parser = subparsers.add_parser("trade")
+    trade_parser.add_argument("sender")
+    trade_parser.add_argument("receiver")
+    trade_parser.add_argument("sender_pid")
+
+    accepttrade_parser = subparsers.add_parser("accepttrade")
+    accepttrade_parser.add_argument("receiver")
+    accepttrade_parser.add_argument("sender")
+    accepttrade_parser.add_argument("receiver_pid")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -2617,6 +3150,22 @@ def main() -> int:
     if args.command == "stats":
         cmd_logger.info("Command: stats %s %s", args.username, args.pokemon)
         print(engine.stats(args.username, args.pokemon), flush=True)
+        return 0
+    if args.command == "bag":
+        cmd_logger.info("Command: bag %s", args.username)
+        print(engine.bag(args.username), flush=True)
+        return 0
+    if args.command == "use":
+        cmd_logger.info("Command: use %s %s on PID %s", args.username, args.item_name, args.pid)
+        print(engine.use(args.username, args.item_name, args.pid), flush=True)
+        return 0
+    if args.command == "trade":
+        cmd_logger.info("Command: trade %s to %s with PID %s", args.sender, args.receiver, args.sender_pid)
+        print(engine.trade(args.sender, args.receiver, args.sender_pid), flush=True)
+        return 0
+    if args.command == "accepttrade":
+        cmd_logger.info("Command: accepttrade %s from %s with PID %s", args.receiver, args.sender, args.receiver_pid)
+        print(engine.accepttrade(args.receiver, args.sender, args.receiver_pid), flush=True)
         return 0
 
     return 1
