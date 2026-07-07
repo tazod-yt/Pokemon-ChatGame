@@ -3,6 +3,7 @@
 /Data/*.db
 /Data/*.txt
 /Logs/*.log
+/Config/streamerbot_sync_debug.log
 
 # Build artifacts
 /build/

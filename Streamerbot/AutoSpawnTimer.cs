@@ -17,6 +17,13 @@ public class CPHInline
             string dir = Path.GetDirectoryName(SettingsPath);
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             string logPath = Path.Combine(dir, "streamerbot_sync_debug.log");
+            
+            // Limit log size to 1 MB to prevent infinite growth
+            if (File.Exists(logPath) && new FileInfo(logPath).Length > 1024 * 1024)
+            {
+                File.Delete(logPath);
+            }
+            
             File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {message}\r\n", System.Text.Encoding.UTF8);
         }
         catch {}
@@ -112,21 +119,28 @@ public class CPHInline
             JToken current = settings[key];
             try
             {
+                string cleanRaw = raw.Trim('"', '\'');
+                JToken newValue = null;
                 switch (current.Type)
                 {
                     case JTokenType.Integer:
-                        settings[key] = long.Parse(raw, System.Globalization.CultureInfo.InvariantCulture);
+                        newValue = new JValue(long.Parse(cleanRaw, System.Globalization.CultureInfo.InvariantCulture));
                         break;
                     case JTokenType.Float:
-                        settings[key] = double.Parse(raw, System.Globalization.CultureInfo.InvariantCulture);
+                        newValue = new JValue(double.Parse(cleanRaw, System.Globalization.CultureInfo.InvariantCulture));
                         break;
                     default:
-                        settings[key] = raw;
+                        newValue = new JValue(cleanRaw);
                         break;
                 }
-                changed = true;
-                LogDebug($"Updated key '{key}' to '{raw}' in JObject");
-                CPH.LogInfo($"[PokemonSettings] {key} = {raw} (from global)");
+
+                if (!JToken.DeepEquals(current, newValue))
+                {
+                    settings[key] = newValue;
+                    changed = true;
+                    LogDebug($"Updated key '{key}' from '{current}' to '{cleanRaw}' in JObject");
+                    CPH.LogInfo($"[PokemonSettings] {key} updated to {cleanRaw} (from global)");
+                }
             }
             catch (Exception ex)
             {

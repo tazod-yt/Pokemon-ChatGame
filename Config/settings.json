@@ -5,7 +5,7 @@
   "battle_timeout_seconds": 120,
   "battle_cooldown_seconds": 6,
   "rematch_cooldown_seconds": 3,
-  "cooldown_seconds": 5,
+  "cooldown_seconds": 10,
   "max_inventory_size": 151,
   "max_level": 500,
   "crit_chance": 0.1,

@@ -408,18 +408,28 @@ def load_settings(paths: Paths) -> Dict[str, Any]:
 
 def setup_logging(paths: Paths) -> None:
     """Setup logging."""
+    from logging.handlers import TimedRotatingFileHandler
+    
     paths.logs_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Weekly rotation (rotates on Monday 'W0', keeping 1 backup)
+    game_handler = TimedRotatingFileHandler(
+        paths.log_file, when="W0", interval=1, backupCount=1, encoding="utf-8"
+    )
+    game_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+    
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[
-            logging.FileHandler(paths.log_file, encoding="utf-8"),
-        ],
+        handlers=[game_handler],
     )
+    
     cmd_logger = logging.getLogger("cmd")
     cmd_logger.setLevel(logging.INFO)
     cmd_logger.propagate = False
-    cmd_handler = logging.FileHandler(paths.cmd_log_file, encoding="utf-8")
+    
+    cmd_handler = TimedRotatingFileHandler(
+        paths.cmd_log_file, when="W0", interval=1, backupCount=1, encoding="utf-8"
+    )
     cmd_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
     cmd_logger.addHandler(cmd_handler)
 
