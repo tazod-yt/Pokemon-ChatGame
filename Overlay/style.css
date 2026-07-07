@@ -526,3 +526,24 @@ body {
   50% { filter: brightness(2) contrast(1.5); transform: scale(1.2); }
   100% { filter: brightness(1) contrast(1); transform: scale(1); }
 }
+
+/* Custom specialty balls from images */
+.pokeball.great-ball {
+  background: url('../image_data/great_ball.png') no-repeat center center;
+  background-size: contain;
+  border: none;
+  box-shadow: none;
+}
+.pokeball.great-ball::before, .pokeball.great-ball .pokeball-button {
+  display: none;
+}
+
+.pokeball.ultra-ball {
+  background: url('../image_data/ultra_ball.png') no-repeat center center;
+  background-size: contain;
+  border: none;
+  box-shadow: none;
+}
+.pokeball.ultra-ball::before, .pokeball.ultra-ball .pokeball-button {
+  display: none;
+}

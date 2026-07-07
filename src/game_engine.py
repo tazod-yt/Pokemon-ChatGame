@@ -1944,6 +1944,7 @@ class GameEngine:
                         "spawn": spawn,
                         "timer": 0,
                         "result": "success",
+                        "ball_type": ball_name,
                     }
                 )
                 logging.info("Catch success: %s caught %s", username, spawn.get("name"))

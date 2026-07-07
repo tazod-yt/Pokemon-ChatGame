@@ -115,11 +115,20 @@ function playSpawnSequence(name) {
 let isAnimatingCatch = false;
 let lastProcessedCatchTime = -1;
 
-function playCatchSuccessAnimation(pokemonName) {
+function playCatchSuccessAnimation(pokemonName, ballType) {
   isAnimatingCatch = true;
   
   const ballContainer = document.getElementById("pokeball-container");
+  const ball = ballContainer.querySelector(".pokeball");
   const starsContainer = document.getElementById("stars-container");
+  
+  // Reset and set ball class
+  ball.className = "pokeball";
+  if (ballType === "great-ball") {
+    ball.classList.add("great-ball");
+  } else if (ballType === "ultra-ball") {
+    ball.classList.add("ultra-ball");
+  }
   
   // Make sure containers are visible and reset
   setHidden(ballContainer, false);
@@ -339,7 +348,7 @@ function updateOverlay(state) {
       if (state.updated_at > lastProcessedCatchTime) {
         lastProcessedCatchTime = state.updated_at;
         currentSpawnName = "";
-        playCatchSuccessAnimation(state.spawn?.name);
+        playCatchSuccessAnimation(state.spawn?.name, state.ball_type);
         return;
       }
     } else if (state.state === "battle" && state.result && state.result.type === "battle") {
