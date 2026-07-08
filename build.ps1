@@ -16,7 +16,7 @@ if ($LASTEXITCODE -ne 0) {
 
 if ($Zip) {
   $zipPath = Join-Path (Split-Path -Parent $root) "Pokemon Chat Game.zip"
-  $staging = Join-Path $root "_zip_staging"
+  $staging = Join-Path (Split-Path -Parent $root) "_zip_staging"
 
   if (Test-Path $zipPath) { Remove-Item $zipPath }
   if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
