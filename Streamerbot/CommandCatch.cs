@@ -37,19 +37,6 @@ public class CPHInline
                 {
                     ball = val;
                 }
-                else
-                {
-                    target = userArg;
-                }
-            }
-            
-            if (!string.IsNullOrWhiteSpace(arg2))
-            {
-                string val = arg2.ToLower();
-                if (val == "great" || val == "great-ball" || val == "ultra" || val == "ultra-ball")
-                {
-                    ball = val;
-                }
             }
             
             if (string.IsNullOrWhiteSpace(target)) return true;
