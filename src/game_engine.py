@@ -1551,7 +1551,16 @@ class GameEngine:
             return None
 
         selector = selector.strip()
-        # If numeric selector, treat it as a global creature id (creatures.id)
+        selector_lower = selector.lower()
+
+        # Case 1: PID (e.g. P1)
+        if selector_lower.startswith("p") and selector_lower[1:].isdigit():
+            for row in rows:
+                if row[0].lower() == selector_lower:
+                    return row
+            return None
+
+        # Case 2: If numeric selector, treat it as a global creature id (creatures.id)
         if selector.isdigit():
             creature_id = int(selector)
             row = conn.execute(
@@ -1573,7 +1582,6 @@ class GameEngine:
                 return row
             return None
 
-        selector_lower = selector.lower()
         for row in rows:
             if row[2].lower() == selector_lower:
                 return row
