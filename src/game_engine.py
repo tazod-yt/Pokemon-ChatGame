@@ -1147,6 +1147,125 @@ class GameEngine:
                     return latest_version
         return None
 
+    def update_game(self) -> str:
+        """Download and install the latest release from GitHub if available."""
+        import zipfile
+        import io
+        import shutil
+
+        # Force checking for updates by bypassing the cache checks
+        latest_version = None
+        try:
+            url = "https://api.github.com/repos/tazod-yt/Pokemon-ChatGame/releases/latest"
+            req = Request(url, headers={"User-Agent": "Pokemon-ChatGame-Updater"})
+            with urlopen(req, timeout=5.0) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                latest_version = res_data.get("tag_name")
+                assets = res_data.get("assets", [])
+        except Exception as e:
+            return self._respond(f"Error checking for updates on GitHub: {e}")
+
+        if not latest_version:
+            return self._respond("Could not retrieve latest release info from GitHub.")
+
+        # Check if latest_version is newer than current VERSION
+        is_newer = False
+        try:
+            c_parts = [int(x) for x in latest_version.strip().lstrip("v").split(".")]
+            l_parts = [int(x) for x in VERSION.split(".")]
+            if c_parts > l_parts:
+                is_newer = True
+        except Exception:
+            if latest_version.strip().lstrip("v") != VERSION.strip().lstrip("v"):
+                is_newer = True
+
+        if not is_newer:
+            return self._respond(f"Already up to date (current version: v{VERSION}, latest: {latest_version}).")
+
+        # Find the zip asset
+        download_url = None
+        for asset in assets:
+            name = asset.get("name", "")
+            if name.endswith(".zip") or "zip" in asset.get("content_type", ""):
+                download_url = asset.get("browser_download_url")
+                break
+
+        if not download_url:
+            return self._respond(f"No zip asset found in release {latest_version}.")
+
+        # Download the zip file into memory
+        self._respond(f"Downloading update {latest_version} from GitHub...")
+        try:
+            req = Request(download_url, headers={"User-Agent": "Pokemon-ChatGame-Updater"})
+            with urlopen(req, timeout=30.0) as response:
+                zip_data = response.read()
+        except Exception as e:
+            return self._respond(f"Failed to download update zip: {e}")
+
+        # Rename the currently running executable to GameEngine.exe.old so it can be overwritten
+        # The game root is self.paths.root
+        # Typically the exe is at: self.paths.root / "GameEngine" / "GameEngine.exe"
+        exe_dir = self.paths.root / "GameEngine"
+        exe_path = exe_dir / "GameEngine.exe"
+        exe_old_path = exe_dir / "GameEngine.exe.old"
+
+        if exe_path.exists():
+            try:
+                if exe_old_path.exists():
+                    try:
+                        exe_old_path.unlink()
+                    except Exception:
+                        pass
+                exe_path.rename(exe_old_path)
+            except Exception as e:
+                return self._respond(f"Failed to backup/rename GameEngine.exe: {e}. Please ensure it is closed and try again.")
+
+        # Extract files from the zip
+        try:
+            with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
+                for file_info in z.infolist():
+                    # Sanitize the file path to prevent directory traversal
+                    filename = os.path.normpath(file_info.filename)
+                    if filename.startswith("..") or filename.startswith("/") or filename.startswith("\\"):
+                        continue
+                    
+                    target_path = self.paths.root / filename
+
+                    # Skip directory extraction (Python zipfile extracts directories as folders naturally when extracting files)
+                    if file_info.is_dir():
+                        continue
+
+                    # Critical files to NOT overwrite if they already exist
+                    if filename.lower() == os.path.normpath("config/settings.json").lower() and target_path.exists():
+                        continue
+                    if filename.lower().endswith(".db") and target_path.exists():
+                        continue
+
+                    # Create parent directories if they don't exist
+                    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+                    # Extract file
+                    with z.open(file_info) as source, open(target_path, "wb") as target:
+                        shutil.copyfileobj(source, target)
+        except Exception as e:
+            # If extraction failed, try to restore the old GameEngine.exe if renamed
+            if exe_old_path.exists() and not exe_path.exists():
+                try:
+                    exe_old_path.rename(exe_path)
+                except Exception:
+                    pass
+            return self._respond(f"Failed to extract update zip: {e}")
+
+        # Try to delete the old executable
+        if exe_old_path.exists():
+            try:
+                exe_old_path.unlink()
+            except Exception:
+                # If locked, it's fine, we'll try to delete it on next startup/sync or leave it
+                pass
+
+        return self._respond(f"[UPDATE_SUCCESS] Successfully updated to version {latest_version}! Please restart Streamer.bot if necessary.")
+
     def _is_battle_active(self) -> bool:
         """Check if a battle is currently active on the overlay, including 10s post-battle buffer."""
         if not self.paths.overlay_state_json.exists():
@@ -3327,6 +3446,8 @@ def main() -> int:
 
     subparsers.add_parser("init")
 
+    subparsers.add_parser("update")
+
     subparsers.add_parser("test_battle")
 
     test_evolution_parser = subparsers.add_parser("test_evolution")
@@ -3397,6 +3518,10 @@ def main() -> int:
     if args.command == "init":
         cmd_logger.info("Command: init")
         print(engine.init_game(), flush=True)
+        return 0
+    if args.command == "update":
+        cmd_logger.info("Command: update")
+        print(engine.update_game(), flush=True)
         return 0
     if args.command == "test_battle":
         cmd_logger.info("Command: test_battle")

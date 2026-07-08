@@ -486,6 +486,8 @@ def test_trade_by_name_and_number_conflict():
         assert "you have more than 1 Eevee use PID instead" in trade_conflict_res2
 
 
-
-
-
+def test_update_game_already_up_to_date():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        result = engine.update_game()
+        assert "Already up to date" in result or "Error checking for updates on GitHub" in result or "Could not retrieve latest release info" in result

@@ -216,7 +216,10 @@ def csharp_bytecode(args: str) -> str:
         "                    }",
         "                    else",
         "                    {",
-        "                        SendMsg(msg);",
+        "                        if (command != \"update\" || msg.Contains(\"[UPDATE_SUCCESS]\"))",
+        "                        {",
+        "                            SendMsg(msg);",
+        "                        }",
         "                    }",
         "                }",
         "            }",
@@ -368,6 +371,7 @@ actions = [
     make_action("Pokemon Chat Game Leaderboard", "leaderboard", commands[5]["id"]),
     make_action("Pokemon Chat Game Stats", "stats", commands[6]["id"]),
     make_init_action("Pokemon Chat Game Init", "init"),
+    make_init_action("Pokemon Chat Game Update", "update"),
 ]
 
 export = {
