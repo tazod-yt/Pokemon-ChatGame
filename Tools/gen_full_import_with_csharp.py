@@ -4,9 +4,9 @@ import uuid
 import gzip
 import base64
 
-root = r"D:\Code\pokemon\Pokemon ChatGame"
-exe = root + r"\GameEngine\GameEngine.exe"
-chat_path = root + r"\Data\last_chat_message.txt"
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+exe = os.path.join(root, "GameEngine", "GameEngine.exe")
+chat_path = os.path.join(root, "Data", "last_chat_message.txt")
 
 queue = "00000000-0000-0000-0000-000000000000"
 

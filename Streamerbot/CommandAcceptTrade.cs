@@ -16,8 +16,9 @@ public class CPHInline
 
     public bool Execute()
     {
-        string exe = @"D:\Code\pokemon\Pokemon ChatGame\GameEngine\GameEngine.exe";
-        string root = @"D:\Code\pokemon\Pokemon ChatGame";
+        string gameRoot = GetGameRoot();
+        string exe      = System.IO.Path.Combine(gameRoot, @"GameEngine\GameEngine.exe");
+        string root     = gameRoot;
         string command = "accepttrade"; 
 
         string userName = GetArgValue(new[] { "userDisplayName", "userDisplay", "userName", "user", "displayName", "username" });
@@ -108,4 +109,26 @@ public class CPHInline
 
         return true;
     }
+
+    private string GetGameRoot()
+    {
+        string path = CPH.GetGlobalVar<string>("pokemonGamePath");
+        if (!string.IsNullOrWhiteSpace(path) && System.IO.Directory.Exists(path))
+            return path.Trim();
+
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        if (System.IO.File.Exists(System.IO.Path.Combine(baseDir, @"GameEngine\GameEngine.exe")))
+            return baseDir;
+
+        string sub1 = System.IO.Path.Combine(baseDir, "Pokemon Chat Game");
+        if (System.IO.File.Exists(System.IO.Path.Combine(sub1, @"GameEngine\GameEngine.exe")))
+            return sub1;
+
+        string sub2 = System.IO.Path.Combine(baseDir, "PokemonChatGame");
+        if (System.IO.File.Exists(System.IO.Path.Combine(sub2, @"GameEngine\GameEngine.exe")))
+            return sub2;
+
+        return System.IO.Directory.GetCurrentDirectory();
+    }
+
 }

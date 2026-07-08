@@ -1,8 +1,10 @@
-﻿import json
+import json
 import uuid
 
-root = r"D:\Code\pokemon\Pokemon ChatGame"
-exe = root + r"\GameEngine\GameEngine.exe"
+import os
+
+root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+exe = os.path.join(root, "GameEngine", "GameEngine.exe")
 
 queue = "00000000-0000-0000-0000-000000000000"
 
