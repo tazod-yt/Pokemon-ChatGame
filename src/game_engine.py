@@ -1318,7 +1318,7 @@ class GameEngine:
                     chunks.append(line)
         return [chunk for chunk in chunks if chunk]
 
-    def _generate_inventory_grid_image(self, username: str, owned_species: set) -> Path:
+    def _generate_inventory_grid_image(self, username: str, owned_species: set, species_counts: Optional[Dict[int, int]] = None) -> Path:
         """Generate a grid image showing the user's inventory collection."""
         from PIL import Image, ImageDraw, ImageFont
         import glob
@@ -1394,6 +1394,9 @@ class GameEngine:
 
             draw = ImageDraw.Draw(grid_img)
             pokemon_name = creature_name_by_id.get(species_id, "Unknown")
+            if species_id in owned_species:
+                cnt = species_counts.get(species_id, 0) if species_counts else 0
+                pokemon_name = f"{pokemon_name}({cnt})"
 
             # 1. Draw the species name above the sprite
             try:
@@ -2158,6 +2161,12 @@ class GameEngine:
         # Create image payload first
         owned_species = {p_row[0] for p_row in pokedex_rows if p_row[0]}
         
+        species_counts = {}
+        for row in rows:
+            sid = row[1]
+            if sid:
+                species_counts[sid] = species_counts.get(sid, 0) + 1
+        
         # Calculate stats for Discord message
         total_owned = len(rows)
         unique_caught = len(owned_species)
@@ -2172,7 +2181,7 @@ class GameEngine:
             f"⚔️ **Battle Record:** {total_wins} W - {total_losses} L ({win_rate_str} Win Rate)"
         )
 
-        img_path = self._generate_inventory_grid_image(username, owned_species)
+        img_path = self._generate_inventory_grid_image(username, owned_species, species_counts)
         webhook_link = self._send_discord_inventory_image_webhook(username, img_path, stats_text)
 
         # Cleanup temp file
@@ -2275,34 +2284,6 @@ class GameEngine:
             total_battles = int(wins) + int(losses)
             win_rate_str = f"{(int(wins) / total_battles) * 100:.1f}% WR" if total_battles > 0 else "No battles"
 
-            # Load evolution rules to display next evolution requirements
-            rules = self._load_evolution_rules()
-            species_evos = rules.get(name, [])
-            evo_text = ""
-            if species_evos:
-                evo_details = []
-                for e in species_evos:
-                    target_name = e.get("to")
-                    evo_type = e.get("type")
-                    if "friendship" in e:
-                        friendship_val = e.get("friendship")
-                        level_req = int(friendship_val / 10)
-                        evo_details.append(f"evolves into {target_name} at Level {level_req}")
-                    elif evo_type == "level-up":
-                        level_req = e.get("level")
-                        evo_details.append(f"evolves into {target_name} at Level {level_req}")
-                    elif evo_type == "use-item":
-                        item_req = e.get("item")
-                        evo_details.append(f"evolves into {target_name} using a {item_req}")
-                    elif evo_type == "trade":
-                        held_item = e.get("held_item")
-                        if held_item:
-                            evo_details.append(f"evolves into {target_name} via trade while holding a {held_item}")
-                        else:
-                            evo_details.append(f"evolves into {target_name} via trade")
-                if evo_details:
-                    evo_text = "✨ **Evolution Info:** " + " or ".join(evo_details) + "\n"
-
             lines.append(f"🔹 **Lv. {level} {name}** (PID: `{inv_id}`)")
             lines.append(f"🧬 **Trait:** `{trait}`  |  🏆 **ELO:** `{elo}`  |  ⚔️ **Record:** `{wins}W - {losses}L` ({win_rate_str})")
             lines.append("📊 **Stats (Base + IV):**")
@@ -2312,10 +2293,34 @@ class GameEngine:
             lines.append(f"DEF : {total_def:<3} ({base_defense} + {def_iv})")
             lines.append(f"SPD : {total_spd:<3} ({base_speed} + {spd_iv})")
             lines.append("```")
-            if evo_text:
-                lines.append(evo_text)
-            else:
-                lines.append("")
+            lines.append("")
+
+        # Load evolution rules to display next evolution requirements once at the end
+        rules = self._load_evolution_rules()
+        species_evos = rules.get(pokemon_name, [])
+        if species_evos:
+            evo_details = []
+            for e in species_evos:
+                target_name = e.get("to")
+                evo_type = e.get("type")
+                if "friendship" in e:
+                    friendship_val = e.get("friendship")
+                    level_req = int(friendship_val / 10)
+                    evo_details.append(f"evolves into {target_name} at Level {level_req}")
+                elif evo_type == "level-up":
+                    level_req = e.get("level")
+                    evo_details.append(f"evolves into {target_name} at Level {level_req}")
+                elif evo_type == "use-item":
+                    item_req = e.get("item")
+                    evo_details.append(f"evolves into {target_name} using a {item_req}")
+                elif evo_type == "trade":
+                    held_item = e.get("held_item")
+                    if held_item:
+                        evo_details.append(f"evolves into {target_name} via trade while holding a {held_item}")
+                    else:
+                        evo_details.append(f"evolves into {target_name} via trade")
+            if evo_details:
+                lines.append(f"✨ **Evolution Info:** " + " or ".join(evo_details) + "\n")
 
         result = "\n".join(lines)
 
