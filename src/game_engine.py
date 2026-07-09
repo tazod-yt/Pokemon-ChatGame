@@ -2275,6 +2275,34 @@ class GameEngine:
             total_battles = int(wins) + int(losses)
             win_rate_str = f"{(int(wins) / total_battles) * 100:.1f}% WR" if total_battles > 0 else "No battles"
 
+            # Load evolution rules to display next evolution requirements
+            rules = self._load_evolution_rules()
+            species_evos = rules.get(name, [])
+            evo_text = ""
+            if species_evos:
+                evo_details = []
+                for e in species_evos:
+                    target_name = e.get("to")
+                    evo_type = e.get("type")
+                    if "friendship" in e:
+                        friendship_val = e.get("friendship")
+                        level_req = int(friendship_val / 10)
+                        evo_details.append(f"evolves into {target_name} at Level {level_req}")
+                    elif evo_type == "level-up":
+                        level_req = e.get("level")
+                        evo_details.append(f"evolves into {target_name} at Level {level_req}")
+                    elif evo_type == "use-item":
+                        item_req = e.get("item")
+                        evo_details.append(f"evolves into {target_name} using a {item_req}")
+                    elif evo_type == "trade":
+                        held_item = e.get("held_item")
+                        if held_item:
+                            evo_details.append(f"evolves into {target_name} via trade while holding a {held_item}")
+                        else:
+                            evo_details.append(f"evolves into {target_name} via trade")
+                if evo_details:
+                    evo_text = "✨ **Evolution Info:** " + " or ".join(evo_details) + "\n"
+
             lines.append(f"🔹 **Lv. {level} {name}** (PID: `{inv_id}`)")
             lines.append(f"🧬 **Trait:** `{trait}`  |  🏆 **ELO:** `{elo}`  |  ⚔️ **Record:** `{wins}W - {losses}L` ({win_rate_str})")
             lines.append("📊 **Stats (Base + IV):**")
@@ -2283,7 +2311,11 @@ class GameEngine:
             lines.append(f"ATK : {total_atk:<3} ({base_attack} + {atk_iv})")
             lines.append(f"DEF : {total_def:<3} ({base_defense} + {def_iv})")
             lines.append(f"SPD : {total_spd:<3} ({base_speed} + {spd_iv})")
-            lines.append("```\n")
+            lines.append("```")
+            if evo_text:
+                lines.append(evo_text)
+            else:
+                lines.append("")
 
         result = "\n".join(lines)
 

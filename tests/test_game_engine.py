@@ -362,7 +362,15 @@ def test_items_trading_and_evolution():
             onix_pid = "P3"
             
             # Give metal-coat to tazod (the receiver of Onix)
-            conn.execute("INSERT INTO bag (user_id, item_name, quantity) VALUES (?, 'metal-coat', 1)", (user2_id,))
+            conn.execute(
+                """
+                INSERT INTO bag (user_id, item_name, quantity)
+                VALUES (?, 'metal-coat', 1)
+                ON CONFLICT(user_id, item_name)
+                DO UPDATE SET quantity = quantity + 1
+                """,
+                (user2_id,)
+            )
             
         # Offer trade: ankit offers Onix to tazod
         engine.trade("ankit", "tazod", str(onix_pid))
@@ -549,4 +557,23 @@ def test_trade_locking_and_simulation():
         # 6. auto_spawn() should skip (return empty string)
         auto_res = engine.auto_spawn()
         assert auto_res == ""
+
+        # 7. Test stats command prints evolution info
+        with db_session(engine.paths) as conn:
+            user_id = engine._ensure_user(conn, "ankit")
+            eevee_id = conn.execute("SELECT id FROM creatures WHERE name = 'Eevee'").fetchone()[0]
+            conn.execute(
+                """
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at)
+                VALUES ('P99', ?, 'ankit', ?, 10, 0, ?)
+                """,
+                (user_id, eevee_id, int(time.time()))
+            )
+            
+        stats_res = engine.stats("ankit", "Eevee")
+        assert "Jolteon" in stats_res
+        assert "Flareon" in stats_res
+        assert "Vaporeon" in stats_res
+        assert "Evolution Info" in stats_res
+
 
