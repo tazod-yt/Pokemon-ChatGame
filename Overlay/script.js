@@ -22,6 +22,16 @@ const evolutionContainerEl = document.getElementById("evolution-container");
 const evolutionGifEl = document.getElementById("evolution-gif");
 const evolutionMessageBoxEl = document.getElementById("evolution-message-box");
 
+// Trade overlay elements
+const tradeContainerEl = document.getElementById("trade-container");
+const t1TrainerEl = document.getElementById("t1-trainer");
+const t2TrainerEl = document.getElementById("t2-trainer");
+const t1GifEl = document.getElementById("t1-gif");
+const t2GifEl = document.getElementById("t2-gif");
+const t1Bubble = document.getElementById("t1-bubble");
+const t2Bubble = document.getElementById("t2-bubble");
+const tradeMessageBoxEl = document.getElementById("trade-message-box");
+
 let nameToImage = new Map();
 let currentSpawnName = "";
 const POKEMON_INDEX_URL = (() => {
@@ -206,6 +216,27 @@ function spawnStars(container) {
   }
 }
 
+function spawnStarsAtElement(el) {
+  const numStars = 8;
+  const tempStars = [];
+  for (let i = 0; i < numStars; i++) {
+    const star = document.createElement("div");
+    star.className = "star";
+    const angle = (i * 2 * Math.PI) / numStars;
+    const distance = 35 + Math.random() * 20;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance;
+    
+    star.style.setProperty("--dx", `${dx}px`);
+    star.style.setProperty("--dy", `${dy}px`);
+    el.appendChild(star);
+    tempStars.push(star);
+  }
+  setTimeout(() => {
+    tempStars.forEach(s => s.remove());
+  }, 1000);
+}
+
 let lastProcessedBattleTime = -1;
 
 function playBattleSequence(result) {
@@ -283,6 +314,91 @@ function playBattleSequence(result) {
   }
   
   playNextLine();
+}
+
+let lastProcessedTradeTime = -1;
+
+function playTradeSequence(trade) {
+  isAnimatingCatch = true;
+  setHidden(spawnGifEl, true); // Hide active spawn during trade
+  setHidden(tradeContainerEl, false);
+
+  t1TrainerEl.textContent = trade.sender;
+  t2TrainerEl.textContent = trade.receiver;
+
+  // Retrieve sprites
+  const p1Image = nameToImage.get(trade.sender_pokemon) || "";
+  const p2Image = nameToImage.get(trade.receiver_pokemon) || "";
+
+  const p1Base = p1Image.replace(/\.[^.]+$/, '');
+  const p2Base = p2Image.replace(/\.[^.]+$/, '');
+
+  const p1GifUrl = `../image_data/gif/${encodeURIComponent(p1Base)}.gif`;
+  const p2GifUrl = `../image_data/gif/${encodeURIComponent(p2Base)}.gif`;
+
+  // Reset classes and set initial source
+  t1GifEl.src = p1GifUrl;
+  t2GifEl.src = p2GifUrl;
+  t1Bubble.className = "pokemon-bubble";
+  t2Bubble.className = "pokemon-bubble";
+
+  // Step 1: Start (0s)
+  tradeMessageBoxEl.textContent = `Trade between @${trade.sender} and @${trade.receiver} starting...`;
+
+  // Step 2: Shrink and glow (at 1.0s)
+  setTimeout(() => {
+    t1Bubble.classList.add("shrinking");
+    t2Bubble.classList.add("shrinking");
+    tradeMessageBoxEl.textContent = `Trading @${trade.sender}'s ${trade.sender_pokemon}...`;
+  }, 1000);
+
+  // Step 3: Swap travel (at 2.0s)
+  setTimeout(() => {
+    t1Bubble.classList.remove("shrinking");
+    t2Bubble.classList.remove("shrinking");
+    t1Bubble.classList.add("swapping");
+    t2Bubble.classList.add("swapping");
+    tradeMessageBoxEl.textContent = `...for @${trade.receiver}'s ${trade.receiver_pokemon}!`;
+  }, 2000);
+
+  // Step 4: Swap completion, swap src, reset positions, add reveal burst (at 3.5s)
+  setTimeout(() => {
+    t1Bubble.classList.remove("swapping");
+    t2Bubble.classList.remove("swapping");
+    
+    // Swap the image sources
+    t1GifEl.src = p2GifUrl;
+    t2GifEl.src = p1GifUrl;
+
+    // Trigger reveal burst
+    t1Bubble.classList.add("revealing");
+    t2Bubble.classList.add("revealing");
+
+    // Spawn stars/particles at both platforms
+    spawnStarsAtElement(t1Bubble);
+    spawnStarsAtElement(t2Bubble);
+
+    tradeMessageBoxEl.textContent = "Swapping complete!";
+  }, 3500);
+
+  // Step 5: Trade complete (at 4.5s)
+  setTimeout(() => {
+    t1Bubble.classList.remove("revealing");
+    t2Bubble.classList.remove("revealing");
+    tradeMessageBoxEl.textContent = "Trade complete!";
+  }, 4500);
+
+  // Step 6: Cleanup and hide (at 5.0s)
+  setTimeout(() => {
+    tradeContainerEl.style.transition = "opacity 0.5s";
+    tradeContainerEl.style.opacity = "0";
+    setTimeout(() => {
+      setHidden(tradeContainerEl, true);
+      tradeContainerEl.style.opacity = "1";
+      tradeContainerEl.style.transition = "";
+      isAnimatingCatch = false;
+    }, 500);
+  }, 5000);
 }
 
 let lastProcessedEvolutionTime = -1;
@@ -381,6 +497,22 @@ function updateOverlay(state) {
       } else {
         if (state.updated_at > lastProcessedEvolutionTime) {
           lastProcessedEvolutionTime = state.updated_at;
+        }
+      }
+    } else if (state.state === "trade" && state.trade) {
+      const now = Math.floor(Date.now() / 1000);
+      const isTradeActive = now < (state.trade.expires_at || 0);
+      
+      if (isTradeActive) {
+        if (state.updated_at > lastProcessedTradeTime) {
+          lastProcessedTradeTime = state.updated_at;
+          currentSpawnName = "";
+          playTradeSequence(state.trade);
+          return;
+        }
+      } else {
+        if (state.updated_at > lastProcessedTradeTime) {
+          lastProcessedTradeTime = state.updated_at;
         }
       }
     }

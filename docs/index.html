@@ -141,6 +141,19 @@
           <div class="cmd-example"><strong>Example:</strong> <code>!pokedex</code></div>
         </div>
 
+        <!-- Stats -->
+        <div class="command-card" data-category="items">
+          <div class="command-header">
+            <span class="cmd-badge bg-items">Stats</span>
+            <div class="copy-wrapper" onclick="copyText('!stats pokemon')">
+              <code>!stats [pokemon/PID]</code>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+          <p class="cmd-desc">View detailed stats (HP, Attack, Defense, Speed, etc.), ELO rating, level, XP, IVs, trait, and battle record for a specific Pokémon in your collection.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!stats Jolteon</code></div>
+        </div>
+
         <!-- Bag -->
         <div class="command-card" data-category="items">
           <div class="command-header">
@@ -208,6 +221,27 @@
       </div>
     </div>
   </section>
+
+  <!-- Pokemon Search Pokedex Section -->
+  <section id="pokedex-search" class="pokedex-search">
+    <div class="container">
+      <h2 class="section-title">🔍 Pokémon Search Database</h2>
+      <p class="section-subtitle">Search any Generation 1 Pokémon to view stats, types, and evolution rules.</p>
+      
+      <div class="search-bar-container">
+        <div class="search-input-wrapper">
+          <input type="text" id="pokedex-input" placeholder="Type Pokémon name (e.g. Eevee, Pikachu, Charizard)..." autocomplete="off" />
+          <span class="search-icon">🔍</span>
+        </div>
+        <div id="pokedex-suggestions" class="pokedex-suggestions hidden"></div>
+      </div>
+
+      <div id="pokedex-result-container" class="pokedex-result-container hidden">
+        <!-- Result card is rendered here dynamically -->
+      </div>
+    </div>
+  </section>
+
 
 
 

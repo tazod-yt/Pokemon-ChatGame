@@ -1280,6 +1280,20 @@ class GameEngine:
             pass
         return False
 
+    def _is_trade_active(self) -> bool:
+        """Check if a trade is currently active on the overlay, including 10s post-trade buffer."""
+        if not self.paths.overlay_state_json.exists():
+            return False
+        try:
+            state = read_json(self.paths.overlay_state_json)
+            if state and state.get("state") == "trade":
+                expires_at = state.get("trade", {}).get("expires_at", 0)
+                if now_ts() < int(expires_at) + 10:
+                    return True
+        except Exception:
+            pass
+        return False
+
     def _mention(self, username: str) -> str:
         """Format a username with an @ prefix for chat output."""
         if not username:
@@ -1816,6 +1830,8 @@ class GameEngine:
         logging.info("Command: spawn")
         if self._is_battle_active():
             return self._respond("A battle is in progress. Please wait until it completes.")
+        if self._is_trade_active():
+            return self._respond("A trade is in progress. Please wait until it completes.")
         spawn = self._load_active_spawn()
         if spawn and not self._spawn_is_expired(spawn):
             return self._respond(f"Spawn already active: {spawn.get('name', 'Unknown')}")
@@ -1870,8 +1886,8 @@ class GameEngine:
     def auto_spawn(self) -> str:
         """Auto spawn on interval."""
         logging.info("Command: auto_spawn")
-        if self._is_battle_active():
-            logging.info("Skipping auto-spawn because a battle is active")
+        if self._is_battle_active() or self._is_trade_active():
+            logging.info("Skipping auto-spawn because a battle or trade is active")
             return ""
 
         # Check if auto-spawn is enabled
@@ -1949,6 +1965,8 @@ class GameEngine:
         logging.info("Command: catch %s using %s", username, ball_type)
         if self._is_battle_active():
             return self._respond("A battle is in progress. Please wait until it completes.")
+        if self._is_trade_active():
+            return self._respond("A trade is in progress. Please wait until it completes.")
         spawn = self._load_active_spawn()
         if spawn and self._spawn_is_expired(spawn):
             spawn_name = spawn.get("name", "Unknown")
@@ -2287,6 +2305,8 @@ class GameEngine:
         logging.info("Command: battle %s vs %s with %s", challenger, opponent, pokemon)
         if self._is_battle_active():
             return self._respond("A battle is in progress. Please wait until it completes.")
+        if self._is_trade_active():
+            return self._respond("A trade is in progress. Please wait until it completes.")
 
         with db_session(self.paths) as conn:
             self._expire_pending_battles(conn)
@@ -2362,6 +2382,8 @@ class GameEngine:
         logging.info("Command: accept %s from %s with %s", accepter, challenger, pokemon)
         if self._is_battle_active():
             return self._respond("A battle is in progress. Please wait until it completes.")
+        if self._is_trade_active():
+            return self._respond("A trade is in progress. Please wait until it completes.")
 
         # --- Phase 1: Database Validations ---
         with db_session(self.paths) as conn:
@@ -2426,17 +2448,24 @@ class GameEngine:
             if not challenger_row:
                 return self._respond("Challenger's Pokémon is no longer available.")
 
-        # --- Phase 2: Active Spawn Queue & Wait (Closed DB connection) ---
+        # --- Phase 2: Active Spawn/Trade Queue & Wait (Closed DB connection) ---
         spawn = self._load_active_spawn()
-        active_spawn_blocked = False
-        if spawn and not self._spawn_is_expired(spawn):
-            active_spawn_blocked = True
+        active_spawn_blocked = bool(spawn and not self._spawn_is_expired(spawn))
+        trade_active_blocked = self._is_trade_active()
 
-        if active_spawn_blocked:
-            print("Battle accepted! It will start after the active spawned pokemon is caught or has fled.", flush=True)
+        if active_spawn_blocked or trade_active_blocked:
+            if active_spawn_blocked and trade_active_blocked:
+                print("Battle accepted! It will start after the active spawned pokemon is caught/fled and the trade completes.", flush=True)
+            elif active_spawn_blocked:
+                print("Battle accepted! It will start after the active spawned pokemon is caught or has fled.", flush=True)
+            else:
+                print("Battle accepted! It will start after the active trade completes.", flush=True)
+
             while True:
                 cur_spawn = self._load_active_spawn()
-                if not cur_spawn or self._spawn_is_expired(cur_spawn):
+                spawn_active = bool(cur_spawn and not self._spawn_is_expired(cur_spawn))
+                trade_active = self._is_trade_active()
+                if not spawn_active and not trade_active:
                     break
                 time.sleep(1)
             print("Battle will start now!", flush=True)
@@ -2800,8 +2829,12 @@ class GameEngine:
         sender = normalize_username(sender)
         if not receiver or not sender or receiver == sender:
             return self._respond("Invalid trade participants.")
+        if self._is_trade_active():
+            return self._respond("A trade is in progress. Please wait until it completes.")
             
         logging.info("Command: accepttrade %s accepts from %s with %s", receiver, sender, receiver_pid)
+        
+        # --- Phase 1: Database Validations (Open & Close DB connection) ---
         with db_session(self.paths) as conn:
             receiver_id = self._ensure_user(conn, receiver)
             sender_id = self._ensure_user(conn, sender)
@@ -2849,8 +2882,74 @@ class GameEngine:
                 "SELECT inventory.level, creatures.id FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = ?",
                 (resolved_receiver_pid,)
             ).fetchone()
+            if not receiver_inv:
+                return self._respond(f"@{receiver}'s Pokémon is no longer available.")
             receiver_level, receiver_creature_id = receiver_inv
-            
+
+        # --- Phase 2: Active Spawn/Battle/Trade Queue & Wait (Closed DB connection) ---
+        spawn = self._load_active_spawn()
+        active_spawn_blocked = bool(spawn and not self._spawn_is_expired(spawn))
+        battle_active_blocked = self._is_battle_active()
+        trade_active_blocked = self._is_trade_active()
+
+        if active_spawn_blocked or battle_active_blocked or trade_active_blocked:
+            if active_spawn_blocked:
+                print("Trade accepted! It will start after the active spawned pokemon is caught or has fled.", flush=True)
+            elif battle_active_blocked:
+                print("Trade accepted! It will start after the active battle completes.", flush=True)
+            else:
+                print("Trade accepted! It will start after the active trade completes.", flush=True)
+
+            while True:
+                cur_spawn = self._load_active_spawn()
+                spawn_active = bool(cur_spawn and not self._spawn_is_expired(cur_spawn))
+                battle_active = self._is_battle_active()
+                trade_active = self._is_trade_active()
+                if not spawn_active and not battle_active and not trade_active:
+                    break
+                time.sleep(1)
+            print("Trade will start now!", flush=True)
+        else:
+            print("Trade will start now!", flush=True)
+
+        drop_msgs = []
+        # --- Phase 3: Execute Trade, Evolve, and Write Overlay ---
+        with db_session(self.paths) as conn:
+            # Re-fetch trade/inventory records in case anything changed during the wait loop
+            trade = conn.execute(
+                """
+                SELECT id, sender_inventory_id, expires_at FROM pending_trades
+                WHERE sender_id = ? AND receiver_id = ?
+                ORDER BY created_at DESC LIMIT 1
+                """,
+                (sender_id, receiver_id)
+            ).fetchone()
+            if not trade:
+                return self._respond(f"No pending trade offer from @{sender}.")
+            trade_id, sender_pid, expires_at = trade
+
+            sender_inv = conn.execute(
+                "SELECT creatures.name, inventory.level, creatures.id FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = ? AND inventory.user_id = ?",
+                (sender_pid, sender_id)
+            ).fetchone()
+            if not sender_inv:
+                conn.execute("DELETE FROM pending_trades WHERE id = ?", (trade_id,))
+                return self._respond(f"@{sender}'s Pokémon is no longer available.")
+            sender_pokemon_name, sender_level, sender_creature_id = sender_inv
+
+            resolved = self._resolve_trade_pokemon(conn, receiver_id, receiver, receiver_pid)
+            if isinstance(resolved, str):
+                return self._respond(resolved)
+            resolved_receiver_pid, receiver_pokemon_name = resolved
+
+            receiver_inv = conn.execute(
+                "SELECT inventory.level, creatures.id FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = ?",
+                (resolved_receiver_pid,)
+            ).fetchone()
+            if not receiver_inv:
+                return self._respond(f"@{receiver}'s Pokémon is no longer available.")
+            receiver_level, receiver_creature_id = receiver_inv
+
             # Swap owners in inventory
             conn.execute(
                 "UPDATE inventory SET user_id = ?, username = ? WHERE id = ?",
@@ -2898,7 +2997,66 @@ class GameEngine:
             
             # Delete trade offer
             conn.execute("DELETE FROM pending_trades WHERE id = ?", (trade_id,))
+
+            # --- Phase 4 of accepttrade: Execute Item Drops after Trade ---
+            for player, uid in [(sender, sender_id), (receiver, receiver_id)]:
+                roll = self.rng.random()
+                if roll < 0.50:
+                    dropped_item = "great-ball"
+                    conn.execute(
+                        """
+                        INSERT INTO bag (user_id, item_name, quantity)
+                        VALUES (?, ?, 1)
+                        ON CONFLICT(user_id, item_name)
+                        DO UPDATE SET quantity = quantity + 1
+                        """,
+                        (uid, dropped_item)
+                    )
+                    drop_msgs.append(f"🎉 @{player} found a great-ball! This can be used to catch wild Pokémon via !catch great.")
+                elif roll < 0.85:
+                    dropped_item = self.rng.choice(EVOLUTION_ITEMS)
+                    conn.execute(
+                        """
+                        INSERT INTO bag (user_id, item_name, quantity)
+                        VALUES (?, ?, 1)
+                        ON CONFLICT(user_id, item_name)
+                        DO UPDATE SET quantity = quantity + 1
+                        """,
+                        (uid, dropped_item)
+                    )
+                    targets = self._get_item_targets(dropped_item)
+                    targets_str = ", ".join(targets)
+                    if "stone" in dropped_item or dropped_item == "black-augurite":
+                        note = f"This can be used to evolve {targets_str} directly."
+                    else:
+                        note = f"This can be used to evolve {targets_str} during a trade."
+                    drop_msgs.append(f"🎉 @{player} found a {dropped_item}! {note}")
+                else:
+                    dropped_item = "ultra-ball"
+                    conn.execute(
+                        """
+                        INSERT INTO bag (user_id, item_name, quantity)
+                        VALUES (?, ?, 1)
+                        ON CONFLICT(user_id, item_name)
+                        DO UPDATE SET quantity = quantity + 1
+                        """,
+                        (uid, dropped_item)
+                    )
+                    drop_msgs.append(f"🎉 @{player} found an ultra-ball! This can be used to catch wild Pokémon via !catch ultra.")
             
+        # Write Trade state to Overlay (5-second animation)
+        self._write_overlay({
+            "state": "trade",
+            "trade": {
+                "sender": sender,
+                "receiver": receiver,
+                "sender_pokemon": sender_pokemon_name,
+                "receiver_pokemon": receiver_pokemon_name,
+                "expires_at": int(time.time()) + 5,
+            }
+        })
+        time.sleep(5)
+
         # Build Response
         msg = f"🤝 Trade complete! @{sender} received @{receiver}'s {receiver_pokemon_name} (PID: {resolved_receiver_pid}) and @{receiver} received @{sender}'s {sender_pokemon_name} (PID: {sender_pid})."
         
@@ -2910,6 +3068,9 @@ class GameEngine:
             
         if evo_notes:
             msg += " " + " ".join(evo_notes)
+
+        if drop_msgs:
+            msg += "\n" + "\n".join(drop_msgs)
             
         first_evo_username = sender if sender_new_pokemon_evo else (receiver if receiver_new_pokemon_evo else None)
         first_evo_from = receiver_pokemon_name if sender_new_pokemon_evo else (sender_pokemon_name if receiver_new_pokemon_evo else None)
@@ -2929,12 +3090,14 @@ class GameEngine:
                 }
             })
             time.sleep(8)
-            self._write_overlay({
-                "state": "none",
-                "message": "",
-                "spawn": None,
-                "timer": 0,
-            })
+
+        # Revert overlay back to none
+        self._write_overlay({
+            "state": "none",
+            "message": "",
+            "spawn": None,
+            "timer": 0,
+        })
             
         return self._respond(msg)
 
@@ -3382,6 +3545,30 @@ class GameEngine:
         })
         return self._respond(f"@{username} {old_name} evolved into {new_name}!")
 
+    def test_trade(self, sender: str, receiver: str, sender_pokemon: str, receiver_pokemon: str) -> str:
+        """Play a mock trade animation on the overlay."""
+        logging.info("Command: test_trade %s %s %s %s", sender, receiver, sender_pokemon, receiver_pokemon)
+        now = int(time.time())
+        mock_result = {
+            "state": "trade",
+            "trade": {
+                "sender": sender,
+                "receiver": receiver,
+                "sender_pokemon": sender_pokemon,
+                "receiver_pokemon": receiver_pokemon,
+                "expires_at": now + 5,
+            }
+        }
+        self._write_overlay(mock_result)
+        time.sleep(5)
+        self._write_overlay({
+            "state": "none",
+            "message": "",
+            "spawn": None,
+            "timer": 0,
+        })
+        return self._respond(f"Test trade triggered: {sender} traded {sender_pokemon} with {receiver} for {receiver_pokemon}!")
+
     def init_game(self) -> str:
         """Initialize game session, reset overlay/spawn, and check updates."""
         logging.info("Command: init")
@@ -3454,6 +3641,12 @@ def main() -> int:
     test_evolution_parser.add_argument("username")
     test_evolution_parser.add_argument("old_name")
     test_evolution_parser.add_argument("new_name")
+
+    test_trade_parser = subparsers.add_parser("test_trade")
+    test_trade_parser.add_argument("sender")
+    test_trade_parser.add_argument("receiver")
+    test_trade_parser.add_argument("sender_pokemon")
+    test_trade_parser.add_argument("receiver_pokemon")
 
     stats_parser = subparsers.add_parser("stats")
     stats_parser.add_argument("username")
@@ -3530,6 +3723,10 @@ def main() -> int:
     if args.command == "test_evolution":
         cmd_logger.info("Command: test_evolution %s %s %s", args.username, args.old_name, args.new_name)
         print(engine.test_evolution(args.username, args.old_name, args.new_name), flush=True)
+        return 0
+    if args.command == "test_trade":
+        cmd_logger.info("Command: test_trade %s %s %s %s", args.sender, args.receiver, args.sender_pokemon, args.receiver_pokemon)
+        print(engine.test_trade(args.sender, args.receiver, args.sender_pokemon, args.receiver_pokemon), flush=True)
         return 0
     if args.command == "stats":
         cmd_logger.info("Command: stats %s %s", args.username, args.pokemon)

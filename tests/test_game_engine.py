@@ -465,7 +465,15 @@ def test_trade_by_name_and_number_conflict():
         # 3. accepttrade by name (should succeed since unique)
         accept_res = engine.accepttrade("tazod", "ankit", "Growlithe")
         assert "Trade complete" in accept_res
+        assert "found" in accept_res
         
+        # Verify drops are in their bags
+        with db_session(engine.paths) as conn:
+            user1_bag = conn.execute("SELECT COUNT(*) FROM bag WHERE user_id = ?", (user1_id,)).fetchone()[0]
+            user2_bag = conn.execute("SELECT COUNT(*) FROM bag WHERE user_id = ?", (user2_id,)).fetchone()[0]
+            assert user1_bag > 0
+            assert user2_bag > 0
+            
         # 4. Catch a second Eevee for tazod (who now also owns P1 Eevee from the trade)
         # So tazod owns both 'P1' (Eevee) and 'P3' (Eevee)
         with db_session(engine.paths) as conn:
@@ -491,3 +499,54 @@ def test_update_game_already_up_to_date():
         engine = make_engine(Path(tmp))
         result = engine.update_game()
         assert "Already up to date" in result or "Error checking for updates on GitHub" in result or "Could not retrieve latest release info" in result
+
+
+def test_trade_locking_and_simulation():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        
+        # Test simulation CLI command test_trade
+        res = engine.test_trade("Tazod", "Ankit", "Charizard", "Blastoise")
+        assert "Test trade triggered" in res
+        
+        # Test _is_trade_active (should be False because test_trade cleaned it up)
+        assert not engine._is_trade_active()
+        
+        # Manually write an active trade state to the overlay state JSON
+        engine._write_overlay({
+            "state": "trade",
+            "trade": {
+                "sender": "ankit",
+                "receiver": "tazod",
+                "sender_pokemon": "Charizard",
+                "receiver_pokemon": "Blastoise",
+                "expires_at": int(time.time()) + 100,
+            }
+        })
+        
+        assert engine._is_trade_active()
+        
+        # 1. spawn() should fail
+        spawn_res = engine.spawn()
+        assert "A trade is in progress" in spawn_res
+        
+        # 2. catch() should fail
+        catch_res = engine.catch("ankit")
+        assert "A trade is in progress" in catch_res
+        
+        # 3. battle() should fail
+        battle_res = engine.battle("ankit", "tazod", "Charizard")
+        assert "A trade is in progress" in battle_res
+        
+        # 4. accept() should fail
+        accept_res = engine.accept("tazod", "ankit", "Blastoise")
+        assert "A trade is in progress" in accept_res
+        
+        # 5. accepttrade() should fail
+        accepttrade_res = engine.accepttrade("tazod", "ankit", "Growlithe")
+        assert "A trade is in progress" in accepttrade_res
+        
+        # 6. auto_spawn() should skip (return empty string)
+        auto_res = engine.auto_spawn()
+        assert auto_res == ""
+
