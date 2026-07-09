@@ -7,8 +7,12 @@ helper_method = """
     private string GetGameRoot()
     {
         string path = CPH.GetGlobalVar<string>("pokemonGamePath");
-        if (!string.IsNullOrWhiteSpace(path) && System.IO.Directory.Exists(path))
-            return path.Trim();
+        if (!string.IsNullOrWhiteSpace(path))
+        {
+            path = path.Trim().Trim('"', '\\'');
+            if (System.IO.Directory.Exists(path))
+                return path;
+        }
 
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
         if (System.IO.File.Exists(System.IO.Path.Combine(baseDir, @"GameEngine\\GameEngine.exe")))
