@@ -1301,22 +1301,52 @@ class GameEngine:
         return f"@{username}"
 
     def _split_discord_messages(self, message: str, max_length: int = 2000) -> List[str]:
-        """Split a long Discord message into chunks by whole lines without breaking a line."""
-        lines = message.splitlines(keepends=True)
-        if not lines:
+        """Split a long Discord message into chunks, preserving logical blocks separated by blank lines."""
+        segments = message.split("\n\n")
+        if not segments:
             return [""]
 
-        chunks: List[str] = [""]
-        for line in lines:
-            if len(chunks[-1]) + len(line) <= max_length:
-                chunks[-1] += line
+        chunks: List[str] = []
+        current_chunk: List[str] = []
+        current_len = 0
+
+        for segment in segments:
+            seg = segment.strip("\n")
+            if not seg:
+                continue
+
+            seg_len = len(seg) + (2 if current_chunk else 0)
+
+            if not current_chunk or current_len + seg_len <= max_length:
+                current_chunk.append(seg)
+                current_len += seg_len
             else:
-                if len(line) > max_length:
-                    # A single line exceeds Discord's length limit; send it separately.
-                    chunks.append(line)
-                else:
-                    chunks.append(line)
-        return [chunk for chunk in chunks if chunk]
+                chunks.append("\n\n".join(current_chunk))
+                current_chunk = [seg]
+                current_len = len(seg)
+
+        if current_chunk:
+            chunks.append("\n\n".join(current_chunk))
+
+        final_chunks: List[str] = []
+        for chunk in chunks:
+            if len(chunk) <= max_length:
+                final_chunks.append(chunk)
+            else:
+                # Fallback to line-by-line splitting if a single block is extremely large
+                lines = chunk.splitlines(keepends=True)
+                tmp_chunk = ""
+                for line in lines:
+                    if len(tmp_chunk) + len(line) <= max_length:
+                        tmp_chunk += line
+                    else:
+                        if tmp_chunk:
+                            final_chunks.append(tmp_chunk)
+                        tmp_chunk = line
+                if tmp_chunk:
+                    final_chunks.append(tmp_chunk)
+
+        return [c for c in final_chunks if c]
 
     def _generate_inventory_grid_image(self, username: str, owned_species: set, species_counts: Optional[Dict[int, int]] = None) -> Path:
         """Generate a grid image showing the user's inventory collection."""
