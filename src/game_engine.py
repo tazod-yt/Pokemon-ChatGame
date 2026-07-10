@@ -12,7 +12,7 @@ import sqlite3
 import sys
 import time
 
-VERSION = "1.0.7"
+VERSION = "1.0.8"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
