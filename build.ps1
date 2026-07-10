@@ -17,17 +17,22 @@ if ($LASTEXITCODE -ne 0) {
 if ($Zip) {
   $zipPath = Join-Path (Split-Path -Parent $root) "Pokemon Chat Game.zip"
   $staging = Join-Path (Split-Path -Parent $root) "_zip_staging"
+  $stagingInner = Join-Path $staging "PokemonChatGame"
 
   if (Test-Path $zipPath) { Remove-Item $zipPath }
   if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
 
-  Write-Host "Copying to staging: $staging..."
-  Copy-Item -Path $root -Destination $staging -Recurse -Force
+  New-Item -ItemType Directory -Path $stagingInner | Out-Null
 
-  # Replace live settings with the blank template
-  $templateSrc  = Join-Path $root    "Config\settings.template.json"
-  $templateDest = Join-Path $staging "Config\settings.json"
-  Copy-Item -Path $templateSrc -Destination $templateDest -Force
+  Write-Host "Staging release files to: $stagingInner..."
+
+  # Only copy the files/folders needed for the release
+  Copy-Item -Path (Join-Path $root "GameEngine") -Destination (Join-Path $stagingInner "GameEngine") -Recurse -Force
+  Copy-Item -Path (Join-Path $root "Overlay")    -Destination (Join-Path $stagingInner "Overlay")    -Recurse -Force
+  Copy-Item -Path (Join-Path $root "image_data") -Destination (Join-Path $stagingInner "image_data") -Recurse -Force
+  Copy-Item -Path (Join-Path $root "Streamerbot") -Destination (Join-Path $stagingInner "Streamerbot") -Recurse -Force
+  Copy-Item -Path (Join-Path $root "README.md")  -Destination (Join-Path $stagingInner "README.md")  -Force
+  Copy-Item -Path (Join-Path $root "SETUP.md")   -Destination (Join-Path $stagingInner "SETUP.md")   -Force
 
   Write-Host "Creating $zipPath..."
   Compress-Archive -Path (Join-Path $staging "*") -DestinationPath $zipPath
@@ -35,5 +40,3 @@ if ($Zip) {
   Remove-Item $staging -Recurse -Force
   Write-Host "Done."
 }
-
-
