@@ -251,17 +251,12 @@ public class CPHInline
                                     CPH.SetGlobalVar("pokemonUpdateNotifiedDate", todayDate, true);
                                 }
                             }
-                            else
+                            else if (!string.IsNullOrWhiteSpace(trimmed))
                             {
-                                if (!string.IsNullOrWhiteSpace(mainOutput)) mainOutput += "\n";
-                                mainOutput += trimmed;
+                                CPH.SendMessage(trimmed);
+                                CPH.SendYouTubeMessage(trimmed);
+                                System.Threading.Thread.Sleep(500);
                             }
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(mainOutput))
-                        {
-                            CPH.SendMessage(mainOutput);
-                            CPH.SendYouTubeMessage(mainOutput);
                         }
                     }
                 }

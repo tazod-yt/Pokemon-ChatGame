@@ -577,3 +577,143 @@ def test_trade_locking_and_simulation():
         assert "Evolution Info" in stats_res
 
 
+def test_rewards_distribution():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        
+        class MockRNG:
+            def __init__(self):
+                self.val = 0.0
+                self.qty = 2
+            def random(self):
+                return self.val
+            def choice(self, seq):
+                return seq[0]
+            def randint(self, a, b):
+                return self.qty
+            def uniform(self, a, b):
+                return 1.0
+
+        mock_rng = MockRNG()
+        engine.rng = mock_rng
+
+        with db_session(engine.paths) as conn:
+            user1_id = engine._ensure_user(conn, "user1")
+            user2_id = engine._ensure_user(conn, "user2")
+            eevee_id = conn.execute("SELECT id FROM creatures WHERE name = 'Eevee'").fetchone()[0]
+            growlithe_id = conn.execute("SELECT id FROM creatures WHERE name = 'Growlithe'").fetchone()[0]
+            
+            conn.execute(
+                "INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at) VALUES ('P1', ?, 'user1', ?, 1, 0, ?)",
+                (user1_id, eevee_id, int(time.time()))
+            )
+            conn.execute(
+                "INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at) VALUES ('P2', ?, 'user2', ?, 1, 0, ?)",
+                (user2_id, growlithe_id, int(time.time()))
+            )
+
+        # Case 1: roll = 0.25 (should drop Stone)
+        mock_rng.val = 0.25
+        engine.trade("user1", "user2", "P1")
+        res = engine.accepttrade("user2", "user1", "P2")
+        assert "found a moon-stone" in res
+
+        # Verify moon-stone in bag
+        with db_session(engine.paths) as conn:
+            qty = conn.execute("SELECT quantity FROM bag WHERE user_id = ? AND item_name = 'moon-stone'", (user1_id,)).fetchone()[0]
+            assert qty == 1
+
+        # Case 2: roll = 0.50 (should drop Great Ball)
+        with db_session(engine.paths) as conn:
+            conn.execute("INSERT OR REPLACE INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at) VALUES ('P3', ?, 'user1', ?, 1, 0, ?)",
+                         (user1_id, eevee_id, int(time.time())))
+            conn.execute("INSERT OR REPLACE INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at) VALUES ('P4', ?, 'user2', ?, 1, 0, ?)",
+                         (user2_id, growlithe_id, int(time.time())))
+
+        mock_rng.val = 0.50
+        mock_rng.qty = 4
+        engine.trade("user1", "user2", "P3")
+        res2 = engine.accepttrade("user2", "user1", "P4")
+        assert "found 4 great-balls" in res2
+
+        # Verify great-ball quantity in bag
+        with db_session(engine.paths) as conn:
+            qty = conn.execute("SELECT quantity FROM bag WHERE user_id = ? AND item_name = 'great-ball'", (user1_id,)).fetchone()[0]
+            assert qty == 4
+
+        # Case 3: roll = 0.85 (should drop Ultra Ball)
+        with db_session(engine.paths) as conn:
+            conn.execute("INSERT OR REPLACE INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at) VALUES ('P5', ?, 'user1', ?, 1, 0, ?)",
+                         (user1_id, eevee_id, int(time.time())))
+            conn.execute("INSERT OR REPLACE INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at) VALUES ('P6', ?, 'user2', ?, 1, 0, ?)",
+                         (user2_id, growlithe_id, int(time.time())))
+
+        mock_rng.val = 0.85
+        mock_rng.qty = 5
+        engine.trade("user1", "user2", "P5")
+        res3 = engine.accepttrade("user2", "user1", "P6")
+        assert "found 5 ultra-balls" in res3
+
+        # Verify ultra-ball quantity in bag
+        with db_session(engine.paths) as conn:
+            qty = conn.execute("SELECT quantity FROM bag WHERE user_id = ? AND item_name = 'ultra-ball'", (user1_id,)).fetchone()[0]
+            assert qty == 5
+
+        # Case 4: Battle reward with roll = 0.50 (Great Ball, quantity 3)
+        with db_session(engine.paths) as conn:
+            conn.execute("INSERT OR REPLACE INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, elo) VALUES ('P7', ?, 'user1', ?, 10, 0, ?, 1000)",
+                         (user1_id, eevee_id, int(time.time())))
+            conn.execute("INSERT OR REPLACE INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, elo) VALUES ('P8', ?, 'user2', ?, 10, 0, ?, 1000)",
+                         (user2_id, growlithe_id, int(time.time())))
+
+        mock_rng.val = 0.50
+        mock_rng.qty = 3
+        engine.battle("user1", "user2", "P7")
+        res_battle = engine.accept("user2", "user1", "P8")
+        assert "found 3 great-balls" in res_battle
+
+
+def test_expired_spawn_fled_and_appeared_seperate_lines():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        
+        # Manually set an active spawn that is expired
+        spawn_payload = {
+            "creature_id": 23,
+            "name": "Ekans",
+            "spawned_at": int(time.time()) - 100,
+            "expires_at": int(time.time()) - 50,
+        }
+        engine._write_active_spawn(spawn_payload)
+
+        # auto_spawn should output expired fled and new appeared on separate lines (\n)
+        with db_session(engine.paths) as conn:
+            conn.execute("DELETE FROM settings WHERE key = 'last_auto_spawn_at'")
+        
+        res = engine.auto_spawn()
+        lines = res.splitlines()
+        assert len(lines) == 2
+        assert lines[0] == "Ekans fled"
+        assert lines[1].startswith("wild ") and lines[1].endswith("appeared")
+
+        # Now test manual spawn with another expired spawn
+        spawn_payload_2 = {
+            "creature_id": 25,
+            "name": "Pikachu",
+            "spawned_at": int(time.time()) - 100,
+            "expires_at": int(time.time()) - 50,
+        }
+        engine._write_active_spawn(spawn_payload_2)
+
+        with db_session(engine.paths) as conn:
+            conn.execute("DELETE FROM settings WHERE key = 'last_spawn_at'")
+
+        res2 = engine.spawn()
+        lines2 = res2.splitlines()
+        assert len(lines2) == 2
+        assert lines2[0] == "Pikachu fled"
+        assert lines2[1].startswith("wild ") and lines2[1].endswith("appeared")
+
+
+
+

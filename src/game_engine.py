@@ -1914,6 +1914,8 @@ class GameEngine:
             }
         )
         logging.info("Spawned creature: %s", creature["name"])
+        if expired_name:
+            return self._respond(f"{expired_name} fled\nwild {creature['name']} appeared")
         return self._respond(f"wild {creature['name']} appeared")
 
     def auto_spawn(self) -> str:
@@ -2668,19 +2670,7 @@ class GameEngine:
                 if uid_row:
                     uid = uid_row[0]
                     roll = self.rng.random()
-                    if roll < 0.50:
-                        dropped_item = "great-ball"
-                        conn.execute(
-                            """
-                            INSERT INTO bag (user_id, item_name, quantity)
-                            VALUES (?, ?, 1)
-                            ON CONFLICT(user_id, item_name)
-                            DO UPDATE SET quantity = quantity + 1
-                            """,
-                            (uid, dropped_item)
-                        )
-                        drop_msgs.append(f"🎉 @{player} found a great-ball! This can be used to catch wild Pokémon via !catch great.")
-                    elif roll < 0.85:
+                    if roll < 0.30:
                         dropped_item = self.rng.choice(EVOLUTION_ITEMS)
                         conn.execute(
                             """
@@ -2698,18 +2688,32 @@ class GameEngine:
                         else:
                             note = f"This can be used to evolve {targets_str} during a trade."
                         drop_msgs.append(f"🎉 @{player} found a {dropped_item}! {note}")
-                    else:
-                        dropped_item = "ultra-ball"
+                    elif roll < 0.70:
+                        dropped_item = "great-ball"
+                        qty = self.rng.randint(2, 5)
                         conn.execute(
                             """
                             INSERT INTO bag (user_id, item_name, quantity)
-                            VALUES (?, ?, 1)
+                            VALUES (?, ?, ?)
                             ON CONFLICT(user_id, item_name)
-                            DO UPDATE SET quantity = quantity + 1
+                            DO UPDATE SET quantity = quantity + ?
                             """,
-                            (uid, dropped_item)
+                            (uid, dropped_item, qty, qty)
                         )
-                        drop_msgs.append(f"🎉 @{player} found an ultra-ball! This can be used to catch wild Pokémon via !catch ultra.")
+                        drop_msgs.append(f"🎉 @{player} found {qty} great-balls! These can be used to catch wild Pokémon via !catch great.")
+                    else:
+                        dropped_item = "ultra-ball"
+                        qty = self.rng.randint(2, 5)
+                        conn.execute(
+                            """
+                            INSERT INTO bag (user_id, item_name, quantity)
+                            VALUES (?, ?, ?)
+                            ON CONFLICT(user_id, item_name)
+                            DO UPDATE SET quantity = quantity + ?
+                            """,
+                            (uid, dropped_item, qty, qty)
+                        )
+                        drop_msgs.append(f"🎉 @{player} found {qty} ultra-balls! These can be used to catch wild Pokémon via !catch ultra.")
 
             # Check Level 10 Evolve prompts for both players
             p1_prompts = self._check_ready_to_evolve_prompt(conn, challenger)
@@ -3068,19 +3072,7 @@ class GameEngine:
             # --- Phase 4 of accepttrade: Execute Item Drops after Trade ---
             for player, uid in [(sender, sender_id), (receiver, receiver_id)]:
                 roll = self.rng.random()
-                if roll < 0.50:
-                    dropped_item = "great-ball"
-                    conn.execute(
-                        """
-                        INSERT INTO bag (user_id, item_name, quantity)
-                        VALUES (?, ?, 1)
-                        ON CONFLICT(user_id, item_name)
-                        DO UPDATE SET quantity = quantity + 1
-                        """,
-                        (uid, dropped_item)
-                    )
-                    drop_msgs.append(f"🎉 @{player} found a great-ball! This can be used to catch wild Pokémon via !catch great.")
-                elif roll < 0.85:
+                if roll < 0.30:
                     dropped_item = self.rng.choice(EVOLUTION_ITEMS)
                     conn.execute(
                         """
@@ -3098,18 +3090,32 @@ class GameEngine:
                     else:
                         note = f"This can be used to evolve {targets_str} during a trade."
                     drop_msgs.append(f"🎉 @{player} found a {dropped_item}! {note}")
-                else:
-                    dropped_item = "ultra-ball"
+                elif roll < 0.70:
+                    dropped_item = "great-ball"
+                    qty = self.rng.randint(2, 5)
                     conn.execute(
                         """
                         INSERT INTO bag (user_id, item_name, quantity)
-                        VALUES (?, ?, 1)
+                        VALUES (?, ?, ?)
                         ON CONFLICT(user_id, item_name)
-                        DO UPDATE SET quantity = quantity + 1
+                        DO UPDATE SET quantity = quantity + ?
                         """,
-                        (uid, dropped_item)
+                        (uid, dropped_item, qty, qty)
                     )
-                    drop_msgs.append(f"🎉 @{player} found an ultra-ball! This can be used to catch wild Pokémon via !catch ultra.")
+                    drop_msgs.append(f"🎉 @{player} found {qty} great-balls! These can be used to catch wild Pokémon via !catch great.")
+                else:
+                    dropped_item = "ultra-ball"
+                    qty = self.rng.randint(2, 5)
+                    conn.execute(
+                        """
+                        INSERT INTO bag (user_id, item_name, quantity)
+                        VALUES (?, ?, ?)
+                        ON CONFLICT(user_id, item_name)
+                        DO UPDATE SET quantity = quantity + ?
+                        """,
+                        (uid, dropped_item, qty, qty)
+                    )
+                    drop_msgs.append(f"🎉 @{player} found {qty} ultra-balls! These can be used to catch wild Pokémon via !catch ultra.")
             
         # Write Trade state to Overlay (5-second animation)
         self._write_overlay({

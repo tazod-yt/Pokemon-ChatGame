@@ -114,7 +114,19 @@ public class CPHInline
             CPH.LogWarn($"GameEngine stderr [{command}]: " + error.Trim());
 
         if (!string.IsNullOrWhiteSpace(msg))
-            CPH.SendYouTubeMessage(msg);
+        {
+            string[] lines = msg.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                string trimmed = line.Trim();
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                {
+                    CPH.SendMessage(trimmed);
+                    CPH.SendYouTubeMessage(trimmed);
+                    System.Threading.Thread.Sleep(500);
+                }
+            }
+        }
 
         return true;
     }

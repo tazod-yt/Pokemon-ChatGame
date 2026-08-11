@@ -223,6 +223,7 @@ def csharp_bytecode(args: str) -> str:
         "                        if (command != \"update\" || msg.Contains(\"[UPDATE_SUCCESS]\"))",
         "                        {",
         "                            SendMsg(msg);",
+        "                            System.Threading.Thread.Sleep(500);",
         "                        }",
         "                    }",
         "                }",
