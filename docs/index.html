@@ -14,10 +14,10 @@
   <header>
     <div class="header-container">
       <div class="logo">
-        <span class="logo-orb"></span>
+        <img src="../image_data/pokeball.png" alt="Pokeball Logo" class="logo-img">
         <h1>Pokémon <span>ChatGame</span></h1>
       </div>
-      <div class="version-badge">v1.0.8</div>
+      <div class="version-badge">v1.0.9</div>
     </div>
   </header>
 
@@ -59,7 +59,7 @@
               <span class="copy-icon">📋</span>
             </div>
           </div>
-          <p class="cmd-desc">Catch the currently active wild Pokémon using an unlimited, standard Poke Ball.</p>
+          <p class="cmd-desc">Catch the currently active wild Pokémon using an unlimited, standard Poké Ball (1.0x catch rate multiplier).</p>
           <div class="cmd-example"><strong>Example:</strong> <code>!catch</code></div>
         </div>
 
@@ -119,13 +119,13 @@
         <div class="command-card" data-category="battle">
           <div class="command-header">
             <span class="cmd-badge bg-battle">Stats</span>
-            <div class="copy-wrapper" onclick="copyText('!stats Jolteon')">
+            <div class="copy-wrapper" onclick="copyText('!stats Eevee')">
               <code>!stats [pokemon/PID]</code>
               <span class="copy-icon">📋</span>
             </div>
           </div>
-          <p class="cmd-desc">Check ELO, levels, wins/losses, IV stats, and unique PIDs for a specific creature or your entire collection of that species.</p>
-          <div class="cmd-example"><strong>Example:</strong> <code>!stats Jolteon</code> or <code>!stats P149</code></div>
+          <p class="cmd-desc">Check ELO, level, XP, IV stats, trait, battle record, and <strong>evolution requirements/details</strong> for a specific Pokémon or PID.</p>
+          <div class="cmd-example"><strong>Example:</strong> <code>!stats Eevee</code> or <code>!stats P149</code></div>
         </div>
 
         <!-- Pokedex -->
@@ -139,19 +139,6 @@
           </div>
           <p class="cmd-desc">Get a summary of your Pokémon collection progress, total wins, losses, overall win rate, and total unique caught species.</p>
           <div class="cmd-example"><strong>Example:</strong> <code>!pokedex</code></div>
-        </div>
-
-        <!-- Stats -->
-        <div class="command-card" data-category="items">
-          <div class="command-header">
-            <span class="cmd-badge bg-items">Stats</span>
-            <div class="copy-wrapper" onclick="copyText('!stats pokemon')">
-              <code>!stats [pokemon/PID]</code>
-              <span class="copy-icon">📋</span>
-            </div>
-          </div>
-          <p class="cmd-desc">View detailed stats (HP, Attack, Defense, Speed, etc.), ELO rating, level, XP, IVs, trait, and battle record for a specific Pokémon in your collection.</p>
-          <div class="cmd-example"><strong>Example:</strong> <code>!stats Jolteon</code></div>
         </div>
 
         <!-- Bag -->
@@ -222,10 +209,44 @@
     </div>
   </section>
 
+  <!-- Poké Balls & Catch Rates Section -->
+  <section id="pokeballs-section" class="pokeballs-section">
+    <div class="container">
+      <h2 class="section-title">Poké Balls & Catch Multipliers</h2>
+      <p class="section-subtitle">Choose the right Poké Ball when catching wild spawns to maximize your chance of success!</p>
+      
+      <div class="balls-grid">
+        <!-- Standard Poke Ball -->
+        <div class="ball-card pokeball-card">
+          <img src="../image_data/pokeball.png" alt="Poké Ball" class="ball-img">
+          <h3 class="ball-name">Poké Ball</h3>
+          <div class="ball-multiplier">1.0x Catch Rate</div>
+          <p class="ball-desc">Standard ball with infinite availability. Use <code>!catch</code> to try catching any wild spawn.</p>
+        </div>
+
+        <!-- Great Ball -->
+        <div class="ball-card greatball-card">
+          <img src="../image_data/great_ball.png" alt="Great Ball" class="ball-img">
+          <h3 class="ball-name">Great Ball</h3>
+          <div class="ball-multiplier">1.5x Catch Rate</div>
+          <p class="ball-desc">Higher success rate! Earned as battle/trade rewards. Use <code>!catch great</code> to consume 1 from bag.</p>
+        </div>
+
+        <!-- Ultra Ball -->
+        <div class="ball-card ultraball-card">
+          <img src="../image_data/ultra_ball.png" alt="Ultra Ball" class="ball-img">
+          <h3 class="ball-name">Ultra Ball</h3>
+          <div class="ball-multiplier">2.0x Catch Rate</div>
+          <p class="ball-desc">Doubles your catch success rate! Earned as rare battle/trade drops. Use <code>!catch ultra</code> to consume 1 from bag.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Pokémon Traits Section -->
   <section id="traits-section" class="traits-section">
     <div class="container">
-      <h2 class="section-title">✨ Pokémon Traits & Passives</h2>
+      <h2 class="section-title">Pokémon Traits & Passives</h2>
       <p class="section-subtitle">Every caught Pokémon is randomly assigned one of the five traits below. Traits grant passive stat buffs or battle perks!</p>
       
       <div class="traits-grid">
@@ -277,7 +298,7 @@
   <!-- Footer -->
   <footer>
     <div class="container">
-      <p>&copy; 2026 Pokémon ChatGame. Built for streamers, powered by viewers in chat.</p>
+      <p>&copy; 2026 Pokémon ChatGame. Developed by <a href="https://www.youtube.com/@tazod" target="_blank" rel="noopener">Tazod</a>. Built for streamers, powered by viewers in chat.</p>
     </div>
   </footer>
 
