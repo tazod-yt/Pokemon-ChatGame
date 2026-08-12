@@ -694,7 +694,7 @@ def test_expired_spawn_fled_and_appeared_seperate_lines():
         lines = res.splitlines()
         assert len(lines) == 2
         assert lines[0] == "Ekans fled"
-        assert lines[1].startswith("wild ") and lines[1].endswith("appeared")
+        assert lines[1].startswith("wild ") and lines[1].endswith("(type !catch to catch it)")
 
         # Now test manual spawn with another expired spawn
         spawn_payload_2 = {
@@ -712,7 +712,7 @@ def test_expired_spawn_fled_and_appeared_seperate_lines():
         lines2 = res2.splitlines()
         assert len(lines2) == 2
         assert lines2[0] == "Pikachu fled"
-        assert lines2[1].startswith("wild ") and lines2[1].endswith("appeared")
+        assert lines2[1].startswith("wild ") and lines2[1].endswith("(type !catch to catch it)")
 
 
 

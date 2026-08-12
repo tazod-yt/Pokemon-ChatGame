@@ -1915,8 +1915,8 @@ class GameEngine:
         )
         logging.info("Spawned creature: %s", creature["name"])
         if expired_name:
-            return self._respond(f"{expired_name} fled\nwild {creature['name']} appeared")
-        return self._respond(f"wild {creature['name']} appeared")
+            return self._respond(f"{expired_name} fled\nwild {creature['name']} appeared (type !catch to catch it)")
+        return self._respond(f"wild {creature['name']} appeared (type !catch to catch it)")
 
     def auto_spawn(self) -> str:
         """Auto spawn on interval."""
@@ -1988,8 +1988,8 @@ class GameEngine:
         )
         logging.info("Auto-spawned creature: %s", creature["name"])
         if expired_name:
-            return self._respond(f"{expired_name} fled\nwild {creature['name']} appeared")
-        return self._respond(f"wild {creature['name']} appeared")
+            return self._respond(f"{expired_name} fled\nwild {creature['name']} appeared (type !catch to catch it)")
+        return self._respond(f"wild {creature['name']} appeared (type !catch to catch it)")
 
     def catch(self, username: str, ball_type: str = "pokeball") -> str:
         """Catch."""
