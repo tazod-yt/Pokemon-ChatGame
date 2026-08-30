@@ -373,6 +373,7 @@ def test_items_trading_and_evolution():
             )
             
         # Offer trade: ankit offers Onix to tazod
+        engine.rng.seed(100)
         engine.trade("ankit", "tazod", str(onix_pid))
         
         # tazod accepts with their Flareon (eevee_pid)

@@ -12,7 +12,7 @@ import sqlite3
 import sys
 import time
 
-VERSION = "1.0.10"
+VERSION = "1.0.11"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -2145,10 +2145,17 @@ class GameEngine:
                     "spawn": spawn,
                     "timer": max(0, int(spawn.get("expires_at", now)) - now),
                     "result": None,
+                    "ball_type": ball_name,
                 }
             )
-            logging.info("Catch failed: %s vs %s", username, spawn.get("name"))
-            return self._respond(f"{self._mention(username)} failed to catch {spawn.get('name')}.")
+            logging.info("Catch failed: %s vs %s using %s", username, spawn.get("name"), ball_name)
+            ball_display = "Pokeball"
+            if ball_name == "great-ball":
+                ball_display = "Great Ball"
+            elif ball_name == "ultra-ball":
+                ball_display = "Ultra Ball"
+            article = "an" if ball_display[0].lower() in "aeiou" else "a"
+            return self._respond(f"{self._mention(username)} failed to catch {spawn.get('name')} using {article} {ball_display}.")
 
     def pokedex(self, username: str) -> str:
         """Pokedex."""
@@ -2690,7 +2697,7 @@ class GameEngine:
                         drop_msgs.append(f"🎉 @{player} found a {dropped_item}! {note}")
                     elif roll < 0.70:
                         dropped_item = "great-ball"
-                        qty = self.rng.randint(2, 5)
+                        qty = self.rng.randint(2, 8)
                         conn.execute(
                             """
                             INSERT INTO bag (user_id, item_name, quantity)
@@ -2703,7 +2710,7 @@ class GameEngine:
                         drop_msgs.append(f"🎉 @{player} found {qty} great-balls! These can be used to catch wild Pokémon via !catch great.")
                     else:
                         dropped_item = "ultra-ball"
-                        qty = self.rng.randint(2, 5)
+                        qty = self.rng.randint(2, 8)
                         conn.execute(
                             """
                             INSERT INTO bag (user_id, item_name, quantity)
@@ -3092,7 +3099,7 @@ class GameEngine:
                     drop_msgs.append(f"🎉 @{player} found a {dropped_item}! {note}")
                 elif roll < 0.70:
                     dropped_item = "great-ball"
-                    qty = self.rng.randint(2, 5)
+                    qty = self.rng.randint(2, 8)
                     conn.execute(
                         """
                         INSERT INTO bag (user_id, item_name, quantity)
@@ -3105,7 +3112,7 @@ class GameEngine:
                     drop_msgs.append(f"🎉 @{player} found {qty} great-balls! These can be used to catch wild Pokémon via !catch great.")
                 else:
                     dropped_item = "ultra-ball"
-                    qty = self.rng.randint(2, 5)
+                    qty = self.rng.randint(2, 8)
                     conn.execute(
                         """
                         INSERT INTO bag (user_id, item_name, quantity)
@@ -3538,8 +3545,11 @@ class GameEngine:
 
         winner_owner = p1.owner if hp_map["p1_hp"] > 0 else p2.owner
         winner_pokemon = p1 if winner_owner == p1.owner else p2
+        loser_pokemon = p2 if winner_owner == p1.owner else p1
         win_emoji = creature_emoji(winner_pokemon.name)
-        transcript.append(f"🏆 {winner_pokemon.name} ( {self._mention(winner_owner)} ) wins")
+        transcript.append(
+            f"🏆 {winner_pokemon.name} ({self._mention(winner_owner)}) wins against {loser_pokemon.name} ({self._mention(loser_pokemon.owner)})!"
+        )
         log.append({"result": "win", "winner": winner_owner})
 
         return transcript, log, winner_owner
