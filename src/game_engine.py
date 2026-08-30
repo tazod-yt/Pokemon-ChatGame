@@ -12,7 +12,7 @@ import sqlite3
 import sys
 import time
 
-VERSION = "1.0.9"
+VERSION = "1.0.10"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -2068,7 +2068,7 @@ class GameEngine:
             if not creature_row:
                 return self._respond("Spawn creature missing.")
 
-            catch_rate = (float(creature_row[3]) / 765) * ball_multiplier
+            catch_rate = (float(creature_row[3]) / 510) * ball_multiplier
             catch_rate = min(1.0, max(0.0, catch_rate))
             roll = self.rng.random()
             success = roll <= catch_rate
