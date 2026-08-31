@@ -674,6 +674,69 @@ def test_rewards_distribution():
         assert "found 3 great-balls" in res_battle
 
 
+def test_dynamic_xp_and_elo_scaling():
+    with tempfile.TemporaryDirectory() as tmp:
+        engine = make_engine(Path(tmp))
+        with db_session(engine.paths) as conn:
+            u1 = engine._ensure_user(conn, "hero")
+            u2 = engine._ensure_user(conn, "boss")
+            c_id = conn.execute("SELECT id FROM creatures WHERE name = 'Eevee'").fetchone()[0]
+
+            # u1 has Lv 100 Pokemon with 2000 ELO
+            conn.execute(
+                "INSERT INTO inventory (id, user_id, username, creature_id, level, xp, elo, obtained_at) VALUES ('P100', ?, 'hero', ?, 100, 0, 2000, ?)",
+                (u1, c_id, int(time.time()))
+            )
+            # u2 has Lv 10 Pokemon with 1000 ELO
+            conn.execute(
+                "INSERT INTO inventory (id, user_id, username, creature_id, level, xp, elo, obtained_at) VALUES ('P10', ?, 'boss', ?, 10, 0, 1000, ?)",
+                (u2, c_id, int(time.time()))
+            )
+
+        # High level/ELO beating low level/ELO -> minimal gains
+        with db_session(engine.paths) as conn:
+            p100_row = conn.execute("SELECT * FROM inventory WHERE id = 'P100'").fetchone()
+            p10_row = conn.execute("SELECT * FROM inventory WHERE id = 'P10'").fetchone()
+
+            full_p100_row = conn.execute(
+                "SELECT inventory.id, inventory.creature_id, creatures.name, creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed, creatures.base_sp_atk, creatures.base_sp_def, creatures.types, inventory.level, inventory.xp, inventory.wins, inventory.losses, inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv, inventory.trait, inventory.elo FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = 'P100'"
+            ).fetchone()
+            full_p10_row = conn.execute(
+                "SELECT inventory.id, inventory.creature_id, creatures.name, creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed, creatures.base_sp_atk, creatures.base_sp_def, creatures.types, inventory.level, inventory.xp, inventory.wins, inventory.losses, inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv, inventory.trait, inventory.elo FROM inventory JOIN creatures ON creatures.id = inventory.creature_id WHERE inventory.id = 'P10'"
+            ).fetchone()
+
+            p1 = engine._load_battle_pokemon(full_p100_row, "hero")
+            p2 = engine._load_battle_pokemon(full_p10_row, "boss")
+
+            # p1 (hero Lv 100, 2000 ELO) wins over p2 (boss Lv 10, 1000 ELO)
+            engine._apply_battle_rewards(conn, p1, p2)
+            engine._apply_elo_changes(conn, p1, p2)
+
+            res_p100 = conn.execute("SELECT xp, elo FROM inventory WHERE id = 'P100'").fetchone()
+            # Winner base XP = 50 + 10*5 = 100. Level ratio = 10/100 = 0.1 -> winner XP = 10.
+            assert res_p100[0] == 10
+            # ELO delta for 2000 vs 1000 expected ~0.9968 -> gain is clamped to minimum 1 ELO -> 2001
+            assert res_p100[1] == 2001
+
+        # Underdog victory: Low level/ELO beating High level/ELO -> high gains
+        with db_session(engine.paths) as conn:
+            p1 = engine._load_battle_pokemon(full_p10_row, "boss")  # Lv 10, 1000 ELO
+            p2 = engine._load_battle_pokemon(full_p100_row, "hero") # Lv 100, 2000 ELO
+
+            # Underdog (p1) wins over favorite (p2)
+            engine._apply_battle_rewards(conn, p1, p2)
+            engine._apply_elo_changes(conn, p1, p2)
+
+            res_underdog = conn.execute("SELECT level, xp, elo FROM inventory WHERE id = 'P10'").fetchone()
+            # P10 started with 215 XP (from loss). Gained 1100 XP from underdog win -> total 1315 XP.
+            # Level 10 requires 1000 XP to level up -> Levels up to 11 with 315 XP remaining.
+            assert res_underdog[0] == 11
+            assert res_underdog[1] == 315
+            # ELO delta for 1000 vs 2000 ELO winner expected ~0.00316 -> gain = round(32 * (1 - 0.00316)) = 32 ELO -> 1032 ELO
+            assert res_underdog[2] == 1032
+
+
+
 def test_expired_spawn_fled_and_appeared_seperate_lines():
     with tempfile.TemporaryDirectory() as tmp:
         engine = make_engine(Path(tmp))

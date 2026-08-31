@@ -3237,10 +3237,15 @@ class GameEngine:
         loser: BattlePokemon,
     ) -> None:
         """Internal helper to apply battle rewards."""
-        winner_xp = (
+        base_winner_xp = (
             int(self.settings["xp_winner_base"])
             + loser.level * int(self.settings["xp_winner_level_mult"])
         )
+        # Apply level scaling ratio (loser level / winner level) clamped between 0.1 and 2.0
+        level_ratio = float(loser.level) / float(max(1, winner.level))
+        level_mult = min(2.0, max(0.1, level_ratio))
+        winner_xp = max(1, int(round(base_winner_xp * level_mult)))
+
         loser_xp = (
             int(self.settings["xp_loser_base"])
             + winner.level * int(self.settings["xp_loser_level_mult"])
@@ -3286,21 +3291,30 @@ class GameEngine:
         winner: BattlePokemon,
         loser: BattlePokemon,
     ) -> None:
-        """Internal helper to apply elo changes."""
-        winner_elo = winner.elo + int(self.settings["elo_win"])
-        loser_elo = max(0, loser.elo - int(self.settings["elo_loss"]))
+        """Internal helper to apply elo changes using rating-difference ELO formula."""
+        k_factor = 32.0
+
+        # Calculate Pokemon ELO changes
+        expected_winner_pokemon = 1.0 / (1.0 + 10.0 ** ((float(loser.elo) - float(winner.elo)) / 400.0))
+        elo_delta_pokemon = max(1, int(round(k_factor * (1.0 - expected_winner_pokemon))))
+
+        winner_elo = winner.elo + elo_delta_pokemon
+        loser_elo = max(0, loser.elo - elo_delta_pokemon)
         conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (winner_elo, winner.inv_id))
         conn.execute("UPDATE inventory SET elo = ? WHERE id = ?", (loser_elo, loser.inv_id))
 
-        # Also apply ELO changes to players
+        # Apply ELO changes to user ratings
         winner_user_row = conn.execute("SELECT elo FROM users WHERE username = ?", (winner.owner,)).fetchone()
         loser_user_row = conn.execute("SELECT elo FROM users WHERE username = ?", (loser.owner,)).fetchone()
 
         winner_user_elo = int(winner_user_row[0]) if winner_user_row else 1000
         loser_user_elo = int(loser_user_row[0]) if loser_user_row else 1000
 
-        new_winner_user_elo = winner_user_elo + int(self.settings["elo_win"])
-        new_loser_user_elo = max(0, loser_user_elo - int(self.settings["elo_loss"]))
+        expected_winner_user = 1.0 / (1.0 + 10.0 ** ((float(loser_user_elo) - float(winner_user_elo)) / 400.0))
+        elo_delta_user = max(1, int(round(k_factor * (1.0 - expected_winner_user))))
+
+        new_winner_user_elo = winner_user_elo + elo_delta_user
+        new_loser_user_elo = max(0, loser_user_elo - elo_delta_user)
 
         conn.execute("UPDATE users SET elo = ? WHERE username = ?", (new_winner_user_elo, winner.owner))
         conn.execute("UPDATE users SET elo = ? WHERE username = ?", (new_loser_user_elo, loser.owner))
