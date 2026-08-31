@@ -12,7 +12,7 @@ import sqlite3
 import sys
 import time
 
-VERSION = "1.0.11"
+VERSION = "1.0.12"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -3210,6 +3210,19 @@ class GameEngine:
                 (limit,),
             ).fetchall()
 
+            pokedex_player_rows = conn.execute(
+                """
+                SELECT users.username, COUNT(DISTINCT pokedex.creature_id) AS total_caught
+                FROM pokedex
+                JOIN users ON users.id = pokedex.user_id
+                WHERE lower(users.username) != 'user'
+                GROUP BY pokedex.user_id
+                ORDER BY total_caught DESC, users.created_at ASC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+
         lines = ["🏆 **Top Pokémon by ELO:**"]
         if pokemon_rows:
             for idx, (name, owner, elo) in enumerate(pokemon_rows, start=1):
@@ -3223,6 +3236,13 @@ class GameEngine:
                 lines.append(f"{idx}. {self._mention(username)} {elo}")
         else:
             lines.append("No players on the leaderboard yet.")
+
+        lines.append("\n📖 **Top Pokédex Collectors:**")
+        if pokedex_player_rows:
+            for idx, (username, total_caught) in enumerate(pokedex_player_rows, start=1):
+                lines.append(f"{idx}. {self._mention(username)} {total_caught}/151")
+        else:
+            lines.append("No Pokédex records yet.")
 
         result = "\n".join(lines)
         webhook_link = self._send_discord_stats_webhook(result)
@@ -3241,9 +3261,9 @@ class GameEngine:
             int(self.settings["xp_winner_base"])
             + loser.level * int(self.settings["xp_winner_level_mult"])
         )
-        # Apply level scaling ratio (loser level / winner level) clamped between 0.1 and 2.0
+        # Apply level scaling ratio (loser level / winner level) clamped between 0.02 and 2.0
         level_ratio = float(loser.level) / float(max(1, winner.level))
-        level_mult = min(2.0, max(0.1, level_ratio))
+        level_mult = min(2.0, max(0.02, level_ratio))
         winner_xp = max(1, int(round(base_winner_xp * level_mult)))
 
         loser_xp = (

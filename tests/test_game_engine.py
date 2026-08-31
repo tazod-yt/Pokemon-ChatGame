@@ -130,6 +130,7 @@ def test_leaderboard():
         catch_for_user(engine, "ankit", 1)
         result = engine.leaderboard()
         assert "Top" in result and "ELO" in result
+        assert "Top Pokédex Collectors" in result
         assert "ankit" in result
 
 
@@ -718,6 +719,16 @@ def test_dynamic_xp_and_elo_scaling():
             # ELO delta for 2000 vs 1000 expected ~0.9968 -> gain is clamped to minimum 1 ELO -> 2001
             assert res_p100[1] == 2001
 
+            # Test Lv 100 vs Lv 1 (2% floor scaling)
+            p1_lv100 = engine._load_battle_pokemon(full_p100_row, "hero")
+            p2_lv1 = engine._load_battle_pokemon(full_p10_row, "boss")
+            p2_lv1.level = 1  # Lv 1
+            engine._apply_battle_rewards(conn, p1_lv100, p2_lv1)
+            res_floor = conn.execute("SELECT xp FROM inventory WHERE id = 'P100'").fetchone()
+            # Base XP = 50 + 1*5 = 55. Level ratio = 1/100 = 0.01 -> clamped to 2% (0.02) floor -> round(55 * 0.02) = 1.
+            # Total XP becomes 10 + 1 = 11.
+            assert res_floor[0] == 11
+
         # Underdog victory: Low level/ELO beating High level/ELO -> high gains
         with db_session(engine.paths) as conn:
             p1 = engine._load_battle_pokemon(full_p10_row, "boss")  # Lv 10, 1000 ELO
@@ -728,10 +739,10 @@ def test_dynamic_xp_and_elo_scaling():
             engine._apply_elo_changes(conn, p1, p2)
 
             res_underdog = conn.execute("SELECT level, xp, elo FROM inventory WHERE id = 'P10'").fetchone()
-            # P10 started with 215 XP (from loss). Gained 1100 XP from underdog win -> total 1315 XP.
-            # Level 10 requires 1000 XP to level up -> Levels up to 11 with 315 XP remaining.
+            # P10 gained 215 XP (1st loss) + 215 XP (2nd loss) + 1100 XP (underdog win) = 1530 XP.
+            # Level 10 requires 1000 XP to level up -> Levels up to 11 with 530 XP remaining.
             assert res_underdog[0] == 11
-            assert res_underdog[1] == 315
+            assert res_underdog[1] == 530
             # ELO delta for 1000 vs 2000 ELO winner expected ~0.00316 -> gain = round(32 * (1 - 0.00316)) = 32 ELO -> 1032 ELO
             assert res_underdog[2] == 1032
 
