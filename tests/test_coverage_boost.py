@@ -33,7 +33,7 @@ from game_engine import (
     _get_streamerbot_overrides,
     _get_discord_webhook_override,
 )
-from type_chart import get_type_multiplier
+from type_chart import format_type_weaknesses, get_type_multiplier, get_type_weaknesses
 
 
 def close_loggers():
@@ -62,6 +62,26 @@ def make_engine(tmp_path: Path) -> GameEngine:
 def test_type_chart_empty_attack():
     assert get_type_multiplier("", ["Water"]) == 1.0
     assert get_type_multiplier(None, ["Water"]) == 1.0
+    assert get_type_multiplier("water", ["fire"]) == 2.0
+    assert get_type_multiplier("  FIRE  ", ["grass"]) == 2.0
+
+    # Test get_type_weaknesses
+    assert get_type_weaknesses([]) == []
+    assert get_type_weaknesses(None) == []
+    pikachu_weak = get_type_weaknesses(["Electric"])
+    assert pikachu_weak == [("Ground", 2.0)]
+
+    charizard_weak = get_type_weaknesses(["Fire", "Flying"])
+    assert ("Rock", 4.0) in charizard_weak
+    assert ("Water", 2.0) in charizard_weak
+    assert ("Electric", 2.0) in charizard_weak
+    # Verify 4x comes first
+    assert charizard_weak[0] == ("Rock", 4.0)
+
+    # Test format_type_weaknesses
+    assert format_type_weaknesses([]) == "None"
+    assert format_type_weaknesses(["Electric"]) == "Ground (2x)"
+    assert format_type_weaknesses(["Fire", "Flying"]) == "Rock (4x), Electric (2x), Water (2x)"
 
 
 def test_creature_emojis_and_traits():
@@ -148,12 +168,49 @@ def test_pokedex_and_stats_commands():
 
         stats_by_pid = engine.stats("testuser", "P1")
         assert "Pikachu" in stats_by_pid
+        assert "Type:** Electric" in stats_by_pid
+        assert "Weakness:** Ground (2x)" in stats_by_pid
 
         stats_by_name = engine.stats("testuser", "Pikachu")
         assert "Pikachu" in stats_by_name
+        assert "Type:** Electric" in stats_by_name
+        assert "Weakness:** Ground (2x)" in stats_by_name
 
         stats_by_number = engine.stats("testuser", "25")
         assert "Pikachu" in stats_by_number
+        assert "Type:** Electric" in stats_by_number
+        assert "Weakness:** Ground (2x)" in stats_by_number
+
+        # Add dual-type Pokemon to verify dual typing and multiple weaknesses
+        with db_session(engine.paths) as conn:
+            bulba_id = conn.execute("SELECT id FROM creatures WHERE name = 'Bulbasaur'").fetchone()[0]
+            conn.execute(
+                """
+                INSERT INTO inventory (id, user_id, username, creature_id, level, xp, obtained_at, wins, losses, elo)
+                VALUES ('P2', ?, 'testuser', ?, 5, 0, ?, 0, 0, 1000)
+                """,
+                (u_id, bulba_id, int(time.time())),
+            )
+        stats_dual = engine.stats("testuser", "Bulbasaur")
+        assert "Type:** Grass / Poison" in stats_dual
+        assert "Weakness:** Fire (2x), Flying (2x), Ice (2x), Psychic (2x)" in stats_dual
+
+        # Test unowned Pokemon by name and number
+        stats_unowned_name = engine.stats("testuser", "Mewtwo")
+        assert "Type:** Psychic" in stats_unowned_name
+        assert "Weakness:** Bug (2x), Dark (2x), Ghost (2x)" in stats_unowned_name
+        assert "you don't have this Pokémon in your collection" in stats_unowned_name
+
+        stats_unowned_num = engine.stats("testuser", "#150")
+        assert "Type:** Psychic" in stats_unowned_num
+        assert "Weakness:** Bug (2x), Dark (2x), Ghost (2x)" in stats_unowned_num
+        assert "you don't have this Pokémon in your collection" in stats_unowned_num
+
+        # Test brand new user querying unowned Pokemon
+        stats_new_user = engine.stats("brand_new_user", "Charizard")
+        assert "Type:** Fire / Flying" in stats_new_user
+        assert "Rock (4x)" in stats_new_user
+        assert "you don't have this Pokémon in your collection" in stats_new_user
 
         stats_invalid = engine.stats("testuser", "NonexistentPokemon")
         assert "has no NonexistentPokemon in their inventory" in stats_invalid

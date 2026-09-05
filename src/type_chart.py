@@ -22,9 +22,36 @@ TYPE_CHART = {
 
 def get_type_multiplier(attack_type: str, defender_types: list) -> float:
     multiplier = 1.0
-    if not attack_type:
+    if not attack_type or not isinstance(attack_type, str):
         return 1.0
-    chart = TYPE_CHART.get(attack_type, {})
+    atk_clean = attack_type.strip().capitalize()
+    chart = TYPE_CHART.get(atk_clean, {})
     for d in defender_types or []:
-        multiplier *= chart.get(d, 1.0)
+        if isinstance(d, str):
+            d_clean = d.strip().capitalize()
+            multiplier *= chart.get(d_clean, 1.0)
+        else:
+            multiplier *= chart.get(d, 1.0)
     return multiplier
+
+
+def get_type_weaknesses(defender_types: list) -> list[tuple[str, float]]:
+    """Return a list of (attack_type, multiplier) where multiplier > 1.0 for the given defender types.
+    Sorted by multiplier descending, then attack type name ascending."""
+    if not defender_types:
+        return []
+    weaknesses: list[tuple[str, float]] = []
+    for atk_type in TYPE_CHART.keys():
+        mult = get_type_multiplier(atk_type, defender_types)
+        if mult > 1.0:
+            weaknesses.append((atk_type, mult))
+    weaknesses.sort(key=lambda item: (-item[1], item[0]))
+    return weaknesses
+
+
+def format_type_weaknesses(defender_types: list) -> str:
+    """Format weaknesses into a human-readable string, e.g. 'Rock (4x), Electric (2x), Water (2x)'."""
+    weaknesses = get_type_weaknesses(defender_types)
+    if not weaknesses:
+        return "None"
+    return ", ".join(f"{atk} ({int(mult) if mult.is_integer() else mult}x)" for atk, mult in weaknesses)

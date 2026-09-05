@@ -12,7 +12,7 @@ import sqlite3
 import sys
 import time
 
-VERSION = "1.0.12"
+VERSION = "1.0.13"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-from type_chart import get_type_multiplier
+from type_chart import format_type_weaknesses, get_type_multiplier, get_type_weaknesses
 
 DEFAULT_SETTINGS = {
     # How often a new wild spawn can appear, in seconds.
@@ -2263,45 +2263,42 @@ class GameEngine:
         if not selector:
             return self._respond("Specify a Pokémon name or number.")
 
-        logging.info("Command: stats %s %s", username, selector)
+        selector_clean = selector.strip()
+        selector_num = selector_clean.lstrip("#").strip()
+        is_pid_query = selector_clean.lower().startswith("p") and selector_clean[1:].isdigit()
+
+        logging.info("Command: stats %s %s", username, selector_clean)
+        user_id = None
+        rows = []
         with db_session(self.paths) as conn:
-            row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
-            if not row:
-                return self._respond(f"{self._mention(username)} has no creatures yet.")
-            user_id = int(row[0])
+            user_row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+            if user_row:
+                user_id = int(user_row[0])
+                rows = conn.execute(
+                    """
+                    SELECT inventory.username, creatures.species_id, creatures.name, inventory.level, inventory.xp, inventory.trait,
+                           inventory.elo, inventory.wins, inventory.losses,
+                           creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
+                           inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
+                           inventory.id, creatures.types
+                    FROM inventory
+                    JOIN creatures ON creatures.id = inventory.creature_id
+                    WHERE inventory.user_id = ?
+                    ORDER BY inventory.obtained_at DESC
+                    """,
+                    (user_id,),
+                ).fetchall()
 
-            # Fetch all creatures of the user first to do local filtering matching _resolve_inventory_pokemon style
-            rows = conn.execute(
-                """
-                SELECT inventory.username, creatures.species_id, creatures.name, inventory.level, inventory.xp, inventory.trait,
-                       inventory.elo, inventory.wins, inventory.losses,
-                       creatures.base_hp, creatures.base_attack, creatures.base_defense, creatures.base_speed,
-                       inventory.hp_iv, inventory.atk_iv, inventory.def_iv, inventory.spd_iv,
-                       inventory.id
-                FROM inventory
-                JOIN creatures ON creatures.id = inventory.creature_id
-                WHERE inventory.user_id = ?
-                ORDER BY inventory.obtained_at DESC
-                """,
-                (user_id,),
-            ).fetchall()
-
-        if not rows:
-            return self._respond(f"{self._mention(username)} has no creatures yet.")
-
-        # Filter the rows based on the selector
+        # Filter the rows based on the selector if user has creatures
         matched_rows = []
-        is_pid_query = False
-        if selector.lower().startswith("p") and selector[1:].isdigit():
-            is_pid_query = True
-            matched_rows = [r for r in rows if str(r[17]).lower() == selector.lower()]
-
-        if not matched_rows and not is_pid_query:
-            if selector.isdigit():
-                target_species_id = int(selector)
+        if rows:
+            if is_pid_query:
+                matched_rows = [r for r in rows if str(r[17]).lower() == selector_clean.lower()]
+            elif selector_num.isdigit():
+                target_species_id = int(selector_num)
                 matched_rows = [r for r in rows if r[1] == target_species_id]
             else:
-                selector_lower = selector.lower()
+                selector_lower = selector_clean.lower()
                 # Exact match first
                 matched_rows = [r for r in rows if r[2].lower() == selector_lower]
                 # Substring match next if no exact matches found
@@ -2309,12 +2306,130 @@ class GameEngine:
                     matched_rows = [r for r in rows if selector_lower in r[2].lower()]
 
         if not matched_rows:
+            # Resolve the pokemon globally (from DEFAULT_CREATURES, creatures table, or inventory PID)
+            target_name = None
+            target_types: List[str] = []
+
+            if is_pid_query:
+                with db_session(self.paths) as conn:
+                    pid_row = conn.execute(
+                        """
+                        SELECT creatures.name, creatures.types
+                        FROM inventory
+                        JOIN creatures ON creatures.id = inventory.creature_id
+                        WHERE LOWER(inventory.id) = ?
+                        """,
+                        (selector_clean.lower(),),
+                    ).fetchone()
+                    if pid_row:
+                        target_name = pid_row[0]
+                        if pid_row[1]:
+                            try:
+                                target_types = json.loads(pid_row[1])
+                            except (json.JSONDecodeError, TypeError):
+                                target_types = []
+            elif selector_num.isdigit():
+                target_species_id = int(selector_num)
+                for c in DEFAULT_CREATURES:
+                    if c.get("species_id") == target_species_id:
+                        target_name = c.get("name")
+                        target_types = c.get("types", [])
+                        break
+            else:
+                selector_lower = selector_clean.lower()
+                # Exact match first
+                for c in DEFAULT_CREATURES:
+                    if c.get("name", "").lower() == selector_lower:
+                        target_name = c.get("name")
+                        target_types = c.get("types", [])
+                        break
+                # Substring match next
+                if not target_name:
+                    for c in DEFAULT_CREATURES:
+                        if selector_lower in c.get("name", "").lower():
+                            target_name = c.get("name")
+                            target_types = c.get("types", [])
+                            break
+
+            # If not found in DEFAULT_CREATURES, check database creatures table
+            if not target_name and not is_pid_query:
+                with db_session(self.paths) as conn:
+                    if selector_num.isdigit():
+                        c_row = conn.execute("SELECT name, types FROM creatures WHERE species_id = ?", (int(selector_num),)).fetchone()
+                    else:
+                        c_row = conn.execute("SELECT name, types FROM creatures WHERE LOWER(name) = ?", (selector_clean.lower(),)).fetchone()
+                        if not c_row:
+                            c_row = conn.execute("SELECT name, types FROM creatures WHERE LOWER(name) LIKE ?", (f"%{selector_clean.lower()}%",)).fetchone()
+                    if c_row:
+                        target_name = c_row[0]
+                        if c_row[1]:
+                            try:
+                                target_types = json.loads(c_row[1])
+                            except (json.JSONDecodeError, TypeError):
+                                target_types = []
+
+            if target_name:
+                types_str = " / ".join(target_types) if target_types else "Unknown"
+                weakness_str = format_type_weaknesses(target_types)
+
+                lines = [
+                    f"📋 **{target_name} Info**",
+                    f"🏷️ **Type:** {types_str}  |  💥 **Weakness:** {weakness_str}",
+                    "",
+                    f"⚠️ {username} you don't have this Pokémon in your collection.",
+                ]
+                result = "\n".join(lines)
+                webhook_link = self._send_discord_stats_webhook(result)
+                if webhook_link:
+                    return self._respond(f"{self._mention(username)} you don't have {target_name} in your collection - {webhook_link}")
+                return self._respond(result)
+
+            if user_id is None:
+                return self._respond(f"{self._mention(username)} has no creatures yet.")
             return self._respond(f"{self._mention(username)} has no {selector} in their inventory.")
 
         # Format stats details
         pokemon_name = matched_rows[0][2]
-        lines = [f"📋 **{username}'s {pokemon_name} Collection**\n"]
-        for (_inventory_username, species_id, name, level, xp, trait, elo, wins, losses, base_hp, base_attack, base_defense, base_speed, hp_iv, atk_iv, def_iv, spd_iv, inv_id) in matched_rows:
+        raw_types = matched_rows[0][18] if len(matched_rows[0]) > 18 else None
+        types: List[str] = []
+        if raw_types:
+            try:
+                types = json.loads(raw_types)
+            except (json.JSONDecodeError, TypeError):
+                types = []
+        if not types:
+            for c in DEFAULT_CREATURES:
+                if c.get("name", "").lower() == pokemon_name.lower():
+                    types = c.get("types", [])
+                    break
+
+        types_str = " / ".join(types) if types else "Unknown"
+        weakness_str = format_type_weaknesses(types)
+
+        lines = [
+            f"📋 **{username}'s {pokemon_name} Collection**",
+            f"🏷️ **Type:** {types_str}  |  💥 **Weakness:** {weakness_str}",
+            "",
+        ]
+        for row in matched_rows:
+            species_id = row[1]
+            name = row[2]
+            level = row[3]
+            xp = row[4]
+            trait = row[5]
+            elo = row[6]
+            wins = row[7]
+            losses = row[8]
+            base_hp = row[9]
+            base_attack = row[10]
+            base_defense = row[11]
+            base_speed = row[12]
+            hp_iv = row[13]
+            atk_iv = row[14]
+            def_iv = row[15]
+            spd_iv = row[16]
+            inv_id = row[17]
+
             total_hp = int(base_hp) + int(hp_iv)
             total_atk = int(base_attack) + int(atk_iv)
             total_def = int(base_defense) + int(def_iv)
